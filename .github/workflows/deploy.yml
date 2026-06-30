@@ -1,0 +1,100 @@
+name: Full Deploy (Laravel + React)
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.composer-cache.outputs.dir }}
+            vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist --no-dev --optimize-autoloader
+
+      - name: Setup SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "ERROR: SSH_PRIVATE_KEY secret is not set!"
+            exit 1
+          fi
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo '[82.198.227.207]:65002 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIyse96dUeLo4oKa76H8AfK4q4/RHbHMcxt+1GZRGaI9' >> ~/.ssh/known_hosts
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Cache Vite build
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.vite
+            public/build/.vite
+          key: ${{ runner.os }}-vite-${{ hashFiles('package-lock.json', 'vite.config.ts', 'resources/js/**', 'resources/css/**') }}
+          restore-keys: |
+            ${{ runner.os }}-vite-
+
+      - name: Build Frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload build to server
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=yes" public/build/ \
+            u769441461@82.198.227.207:~/domains/overseas-ms.com/public_html/tms/public/build/
+
+      - name: Deploy Backend
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=yes u769441461@82.198.227.207 << 'EOF'
+            set -e
+            cd ~/domains/overseas-ms.com/public_html/tms || exit 1
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            composer install --no-dev --optimize-autoloader
+
+            php artisan migrate --force
+            php artisan db:seed --force
+
+            php artisan storage:link --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+          EOF
