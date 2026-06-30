@@ -37,6 +37,8 @@ jobs:
             ${{ runner.os }}-php-
 
       - name: Install Composer dependencies
+        env:
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
         run: composer install --no-interaction --no-progress --prefer-dist --no-dev --optimize-autoloader
 
       - name: Setup SSH
