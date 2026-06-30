@@ -28,7 +28,15 @@ export type ScheduleRow = {
 };
 
 export function formatScheduleDate(value: string): string {
-    const date = new Date(`${value}T00:00:00`);
+    if (!value) {
+        return '—';
+    }
+
+    const date = value.includes('T') ? new Date(value) : new Date(`${value}T00:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
 
     return date.toLocaleDateString(undefined, {
         year: 'numeric',
