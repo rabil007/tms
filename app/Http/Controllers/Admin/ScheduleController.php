@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateScheduleRequest;
 use App\Models\Country;
 use App\Models\Project;
 use App\Models\Schedule;
+use App\Services\ScheduleAdminNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -107,9 +108,11 @@ class ScheduleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreScheduleRequest $request): RedirectResponse
+    public function store(StoreScheduleRequest $request, ScheduleAdminNotifier $notifier): RedirectResponse
     {
-        Schedule::query()->create($request->validated());
+        $schedule = Schedule::query()->create($request->validated());
+
+        $notifier->notify($schedule, $request->user(), 'created');
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Schedule created.')]);
 
@@ -145,9 +148,11 @@ class ScheduleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateScheduleRequest $request, Schedule $schedule): RedirectResponse
+    public function update(UpdateScheduleRequest $request, Schedule $schedule, ScheduleAdminNotifier $notifier): RedirectResponse
     {
         $schedule->update($request->validated());
+
+        $notifier->notify($schedule, $request->user(), 'updated');
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Schedule updated.')]);
 

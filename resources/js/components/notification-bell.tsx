@@ -1,4 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
+import { useEchoNotification } from '@laravel/echo-react';
 import { Bell } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import type { AppNotification, SharedNotifications } from '@/types/notifications';
+import type { Auth } from '@/types/auth';
 
 const ROUTES = {
     read: (id: string) => `/notifications/${id}/read`,
@@ -19,13 +21,15 @@ const ROUTES = {
 } as const;
 
 type PageProps = {
+    auth: Auth;
     notifications: SharedNotifications | null;
 };
 
 export function NotificationBell() {
-    const { notifications } = usePage<PageProps>().props;
+    const { auth, notifications } = usePage<PageProps>().props;
     const unreadCount = notifications?.unread_count ?? 0;
     const items = notifications?.items ?? [];
+    const userId = auth.user?.id;
 
     const markAsRead = React.useCallback((notification: AppNotification) => {
         if (notification.read_at) {
@@ -59,7 +63,9 @@ export function NotificationBell() {
     }
 
     return (
-        <DropdownMenu>
+        <>
+            {userId ? <NotificationEchoListener userId={userId} /> : null}
+            <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
@@ -137,5 +143,19 @@ export function NotificationBell() {
                 {items.length > 0 && <DropdownMenuSeparator className="m-0" />}
             </DropdownMenuContent>
         </DropdownMenu>
+        </>
     );
+}
+
+function NotificationEchoListener({ userId }: { userId: number }) {
+    useEchoNotification(
+        `App.Models.User.${userId}`,
+        () => {
+            router.reload({ only: ['notifications'] });
+        },
+        undefined,
+        [userId],
+    );
+
+    return null;
 }

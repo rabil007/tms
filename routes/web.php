@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,6 +26,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('notifications.read-all');
     Route::post('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])
         ->name('notifications.read');
+
+    Route::post('push-subscriptions', [PushSubscriptionController::class, 'store'])
+        ->name('push-subscriptions.store');
+    Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy'])
+        ->name('push-subscriptions.destroy');
 });
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
