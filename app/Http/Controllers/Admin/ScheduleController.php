@@ -89,6 +89,7 @@ class ScheduleController extends Controller
             'schedules' => $schedules,
             'filters' => (object) $filters,
             'projects' => $this->projectOptions(),
+            'todayCount' => Schedule::query()->whereDate('scheduled_date', today())->count(),
         ]);
     }
 

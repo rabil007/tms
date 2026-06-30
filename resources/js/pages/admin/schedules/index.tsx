@@ -57,10 +57,12 @@ export default function SchedulesIndex({
     schedules,
     filters,
     projects,
+    todayCount,
 }: {
     schedules: Paged<ScheduleRow>;
     filters: ScheduleFilters;
     projects: ProjectFilterOption[];
+    todayCount: number;
 }) {
     const isMobile = useIsMobile();
     const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'schedules:index:view' });
@@ -245,10 +247,8 @@ export default function SchedulesIndex({
                     <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{total}</p>
                 </GlassCard>
                 <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Showing</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">
-                        {schedules.data.length}
-                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Today</p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{todayCount}</p>
                 </GlassCard>
             </div>
 

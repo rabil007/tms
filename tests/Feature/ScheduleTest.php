@@ -221,6 +221,20 @@ test('schedules index can filter by project', function () {
         ->where('schedules.data.0.id', $schedule->id));
 });
 
+test('schedules index includes today count', function () {
+    $user = User::factory()->create();
+    Schedule::factory()->create(['scheduled_date' => today()->toDateString()]);
+    Schedule::factory()->create(['scheduled_date' => today()->addDay()->toDateString()]);
+
+    $response = $this->actingAs($user)->get(route('schedules.index'));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->where('todayCount', 1));
+});
+
 test('schedules index can filter by date range', function () {
     $user = User::factory()->create();
     $inRange = Schedule::factory()->create(['scheduled_date' => '2026-07-10']);
