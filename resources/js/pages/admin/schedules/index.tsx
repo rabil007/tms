@@ -169,7 +169,7 @@ export default function SchedulesIndex({
                     <SortableHeader label="Time" column="pick_up_time" sort={sort} dir={dir} onSort={toggleSort} />
                 ),
                 cell: ({ row }) => (
-                    <span className="font-mono text-[13px] text-foreground">{formatPickUpTime(row.original.pick_up_time)}</span>
+                    <span className="text-[13px] text-foreground">{formatPickUpTime(row.original.pick_up_time)}</span>
                 ),
             },
             {

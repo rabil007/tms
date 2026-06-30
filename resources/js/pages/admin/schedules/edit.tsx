@@ -3,7 +3,7 @@ import React from 'react';
 import { parsePhoneNumber, type CountryPhoneOption } from '@/components/forms/phone-input';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { ProjectOption, ScheduleForm } from '@/pages/admin/schedules/schedule-form';
-import { formatPickUpTime } from '@/pages/admin/schedules/schedule-views';
+import { toTimeInputValue } from '@/pages/admin/schedules/schedule-views';
 
 const ROUTES = {
     index: '/schedules',
@@ -45,7 +45,7 @@ export default function SchedulesEdit({
         project_id: String(schedule.project_id),
         pick_up_location: schedule.pick_up_location,
         drop_off_location: schedule.drop_off_location,
-        pick_up_time: formatPickUpTime(schedule.pick_up_time),
+        pick_up_time: toTimeInputValue(schedule.pick_up_time),
         remarks: schedule.remarks ?? '',
     });
 

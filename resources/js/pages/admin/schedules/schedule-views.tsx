@@ -45,8 +45,51 @@ export function formatScheduleDate(value: string): string {
     });
 }
 
+function parsePickUpTime(value: string): Date | null {
+    if (!value) {
+        return null;
+    }
+
+    const timeMatch = value.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+
+    if (timeMatch) {
+        const date = new Date();
+        date.setHours(Number(timeMatch[1]), Number(timeMatch[2]), Number(timeMatch[3] ?? 0), 0);
+
+        return date;
+    }
+
+    if (value.includes('T')) {
+        const date = new Date(value);
+
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    return null;
+}
+
 export function formatPickUpTime(value: string): string {
-    return value.slice(0, 5);
+    const date = parsePickUpTime(value);
+
+    if (!date) {
+        return value;
+    }
+
+    return date.toLocaleTimeString(undefined, {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+    });
+}
+
+export function toTimeInputValue(value: string): string {
+    const date = parsePickUpTime(value);
+
+    if (!date) {
+        return value.slice(0, 5);
+    }
+
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
 type ScheduleTableProps = {
