@@ -13,7 +13,7 @@ class NotificationSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::query()->where('email', 'test@example.com')->first();
+        $user = User::query()->where('email', config('seed.admin.email'))->first();
 
         if ($user === null) {
             return;
