@@ -1,5 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
-import { CalendarClock, FolderKanban, Globe, LayoutDashboard, Settings } from 'lucide-react';
+import { CalendarClock, FolderKanban, Globe, LayoutDashboard, Settings, Shield, Users } from 'lucide-react';
 import { DashboardGrid, type DashboardModule } from '@/components/dashboard-grid';
 import type { Auth } from '@/types';
 
@@ -7,7 +7,7 @@ type PageProps = {
     auth: Auth;
 };
 
-const modules: DashboardModule[] = [
+const allModules: (DashboardModule & { adminOnly?: boolean })[] = [
     {
         id: 'home',
         name: 'Overview',
@@ -23,11 +23,28 @@ const modules: DashboardModule[] = [
         href: '/schedules',
     },
     {
+        id: 'users',
+        name: 'Users',
+        icon: Users,
+        color: 'from-cyan-500 to-blue-600',
+        href: '/users',
+        adminOnly: true,
+    },
+    {
+        id: 'roles',
+        name: 'Roles',
+        icon: Shield,
+        color: 'from-rose-500 to-pink-600',
+        href: '/roles',
+        adminOnly: true,
+    },
+    {
         id: 'projects',
         name: 'Projects',
         icon: FolderKanban,
         color: 'from-violet-500 to-purple-600',
         href: '/projects',
+        adminOnly: true,
     },
     {
         id: 'countries',
@@ -35,6 +52,7 @@ const modules: DashboardModule[] = [
         icon: Globe,
         color: 'from-blue-500 to-indigo-600',
         href: '/countries',
+        adminOnly: true,
     },
     {
         id: 'settings',
@@ -48,6 +66,8 @@ const modules: DashboardModule[] = [
 export default function Dashboard() {
     const { auth } = usePage<PageProps>().props;
     const storageKey = `dashboard:order:${auth.user?.id ?? 'guest'}`;
+    const isAdmin = auth.user?.role?.slug === 'admin';
+    const modules = allModules.filter((module) => !module.adminOnly || isAdmin);
 
     return (
         <>

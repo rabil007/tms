@@ -44,7 +44,24 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+use App\Models\User;
+use Database\Seeders\RoleSeeder;
+
+function seedRoles(): void
 {
-    // ..
+    (new RoleSeeder)->run();
+}
+
+function adminUser(): User
+{
+    seedRoles();
+
+    return User::factory()->admin()->create();
+}
+
+function regularUser(): User
+{
+    seedRoles();
+
+    return User::factory()->user()->create();
 }

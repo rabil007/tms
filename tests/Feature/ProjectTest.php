@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Project;
-use App\Models\User;
 
 test('guests are redirected from projects index', function () {
     $response = $this->get(route('projects.index'));
@@ -10,7 +9,7 @@ test('guests are redirected from projects index', function () {
 });
 
 test('authenticated users can visit projects index', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
 
     $response = $this->actingAs($user)->get(route('projects.index'));
 
@@ -18,7 +17,7 @@ test('authenticated users can visit projects index', function () {
 });
 
 test('authenticated users can visit projects create page', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
 
     $response = $this->actingAs($user)->get(route('projects.create'));
 
@@ -26,7 +25,7 @@ test('authenticated users can visit projects create page', function () {
 });
 
 test('authenticated users can visit project show page', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $project = Project::factory()->create();
 
     $response = $this->actingAs($user)->get(route('projects.show', $project));
@@ -35,7 +34,7 @@ test('authenticated users can visit project show page', function () {
 });
 
 test('authenticated users can visit project edit page', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $project = Project::factory()->create();
 
     $response = $this->actingAs($user)->get(route('projects.edit', $project));
@@ -44,7 +43,7 @@ test('authenticated users can visit project edit page', function () {
 });
 
 test('authenticated users can store a valid project', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
 
     $response = $this->actingAs($user)->post(route('projects.store'), [
         'title' => 'NMDC',
@@ -60,7 +59,7 @@ test('authenticated users can store a valid project', function () {
 });
 
 test('store validation fails for missing title', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
 
     $response = $this->actingAs($user)->from(route('projects.create'))->post(route('projects.store'), []);
 
@@ -70,7 +69,7 @@ test('store validation fails for missing title', function () {
 });
 
 test('store validation fails for duplicate title', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     Project::factory()->create(['title' => 'NMDC']);
 
     $response = $this->actingAs($user)->from(route('projects.create'))->post(route('projects.store'), [
@@ -83,7 +82,7 @@ test('store validation fails for duplicate title', function () {
 });
 
 test('authenticated users can update a project', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $project = Project::factory()->create(['title' => 'CREWING']);
 
     $response = $this->actingAs($user)->put(route('projects.update', $project), [
@@ -99,7 +98,7 @@ test('authenticated users can update a project', function () {
 });
 
 test('authenticated users can delete a project', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $project = Project::factory()->create();
 
     $response = $this->actingAs($user)->delete(route('projects.destroy', $project));
@@ -112,7 +111,7 @@ test('authenticated users can delete a project', function () {
 });
 
 test('projects index loads without sort query param', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     Project::factory()->create(['title' => 'NMDC']);
 
     $response = $this->actingAs($user)->get(route('projects.index'));
@@ -126,7 +125,7 @@ test('projects index loads without sort query param', function () {
 });
 
 test('projects index search returns matching project', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $project = Project::factory()->create(['title' => 'NMDC']);
     Project::factory()->create(['title' => 'AMC']);
 

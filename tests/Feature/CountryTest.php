@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Country;
-use App\Models\User;
 
 test('guests are redirected from countries index', function () {
     $response = $this->get(route('countries.index'));
@@ -10,7 +9,7 @@ test('guests are redirected from countries index', function () {
 });
 
 test('authenticated users can visit countries index', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
 
     $response = $this->actingAs($user)->get(route('countries.index'));
 
@@ -18,7 +17,7 @@ test('authenticated users can visit countries index', function () {
 });
 
 test('authenticated users can visit countries create page', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
 
     $response = $this->actingAs($user)->get(route('countries.create'));
 
@@ -26,7 +25,7 @@ test('authenticated users can visit countries create page', function () {
 });
 
 test('authenticated users can visit country show page', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $country = Country::factory()->create();
 
     $response = $this->actingAs($user)->get(route('countries.show', $country));
@@ -35,7 +34,7 @@ test('authenticated users can visit country show page', function () {
 });
 
 test('authenticated users can visit country edit page', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $country = Country::factory()->create();
 
     $response = $this->actingAs($user)->get(route('countries.edit', $country));
@@ -44,7 +43,7 @@ test('authenticated users can visit country edit page', function () {
 });
 
 test('authenticated users can store a valid country', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
 
     $response = $this->actingAs($user)->post(route('countries.store'), [
         'name' => 'United States',
@@ -64,7 +63,7 @@ test('authenticated users can store a valid country', function () {
 });
 
 test('store validation fails for missing fields', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
 
     $response = $this->actingAs($user)->from(route('countries.create'))->post(route('countries.store'), []);
 
@@ -74,7 +73,7 @@ test('store validation fails for missing fields', function () {
 });
 
 test('store validation fails for invalid iso2', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
 
     $response = $this->actingAs($user)->from(route('countries.create'))->post(route('countries.store'), [
         'name' => 'Invalid',
@@ -88,7 +87,7 @@ test('store validation fails for invalid iso2', function () {
 });
 
 test('store validation fails for duplicate iso2', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     Country::factory()->create(['iso2' => 'US']);
 
     $response = $this->actingAs($user)->from(route('countries.create'))->post(route('countries.store'), [
@@ -103,7 +102,7 @@ test('store validation fails for duplicate iso2', function () {
 });
 
 test('authenticated users can update a country', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $country = Country::factory()->create([
         'name' => 'United Kingdom',
         'iso2' => 'GB',
@@ -127,7 +126,7 @@ test('authenticated users can update a country', function () {
 });
 
 test('update validation fails for invalid dial code', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $country = Country::factory()->create();
 
     $response = $this->actingAs($user)->from(route('countries.edit', $country))->put(route('countries.update', $country), [
@@ -142,7 +141,7 @@ test('update validation fails for invalid dial code', function () {
 });
 
 test('authenticated users can delete a country', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $country = Country::factory()->create();
 
     $response = $this->actingAs($user)->delete(route('countries.destroy', $country));
@@ -155,7 +154,7 @@ test('authenticated users can delete a country', function () {
 });
 
 test('countries index search returns matching country', function () {
-    $user = User::factory()->create();
+    $user = adminUser();
     $country = Country::factory()->create(['name' => 'Canada', 'iso2' => 'CA', 'dial_code' => '+1']);
     Country::factory()->create(['name' => 'Mexico', 'iso2' => 'MX', 'dial_code' => '+52']);
 

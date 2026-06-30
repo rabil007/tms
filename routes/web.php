@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ScheduleController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,9 +18,14 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
+    Route::resource('schedules', ScheduleController::class);
+});
+
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::resource('countries', CountryController::class);
     Route::resource('projects', ProjectController::class);
-    Route::resource('schedules', ScheduleController::class);
+    Route::resource('roles', RoleController::class);
+    Route::resource('users', UserController::class);
 });
 
 require __DIR__.'/settings.php';
