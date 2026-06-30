@@ -1,6 +1,8 @@
 <?php
 
 use App\Notifications\SystemNotification;
+use App\Notifications\TestNotification;
+use NotificationChannels\WebPush\WebPushChannel;
 
 test('guests do not receive shared notifications', function () {
     $response = $this->get(route('login'));
@@ -70,4 +72,33 @@ test('users cannot mark another users notification as read', function () {
     $response = $this->actingAs($other)->post(route('notifications.read', $notificationId));
 
     $response->assertNotFound();
+});
+
+test('authenticated users can send a test notification', function () {
+    $user = adminUser();
+
+    $response = $this->actingAs($user)->post(route('notifications.test'));
+
+    $response->assertRedirect();
+
+    expect($user->fresh()->unreadNotifications)->toHaveCount(1);
+
+    $notification = $user->fresh()->notifications->first();
+
+    expect($notification->data['title'])->toBe('Test notification');
+});
+
+test('test notification uses web push channel when user has a subscription', function () {
+    $user = adminUser();
+
+    $user->updatePushSubscription(
+        'https://example.com/push/test-endpoint',
+        'test-public-key',
+        'test-auth-token',
+        'aesgcm',
+    );
+
+    $notification = new TestNotification;
+
+    expect($notification->via($user->fresh()))->toContain(WebPushChannel::class);
 });

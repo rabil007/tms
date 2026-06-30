@@ -37,7 +37,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
 
                     <div className="ml-auto flex items-center gap-1 sm:gap-2">
                         <NotificationBell />
-                        <DropdownMenu>
+                        <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
@@ -54,7 +54,11 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="end">
+                            <DropdownMenuContent
+                                className="w-56"
+                                align="end"
+                                onCloseAutoFocus={(event) => event.preventDefault()}
+                            >
                                 {auth.user && (
                                     <UserMenuContent user={auth.user} />
                                 )}

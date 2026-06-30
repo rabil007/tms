@@ -7,9 +7,44 @@ import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { configureEcho } from '@laravel/echo-react';
 
-configureEcho({
-    broadcaster: 'reverb',
-});
+function redirectToHttpsIfNeeded(): void {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    if (window.location.protocol !== 'http:') {
+        return;
+    }
+
+    window.location.replace(window.location.href.replace(/^http:/, 'https:'));
+}
+
+function shouldEnableEcho(): boolean {
+    if (!import.meta.env.VITE_REVERB_APP_KEY) {
+        return false;
+    }
+
+    if (typeof window === 'undefined') {
+        return true;
+    }
+
+    const reverbScheme = import.meta.env.VITE_REVERB_SCHEME ?? 'http';
+
+    // Browsers block ws:// Reverb connections from https:// pages (mixed content).
+    if (window.location.protocol === 'https:' && reverbScheme === 'http') {
+        return false;
+    }
+
+    return true;
+}
+
+redirectToHttpsIfNeeded();
+
+if (shouldEnableEcho()) {
+    configureEcho({
+        broadcaster: 'reverb',
+    });
+}
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { useEchoNotification } from '@laravel/echo-react';
+import { echoIsConfigured, useEchoNotification } from '@laravel/echo-react';
 import { Bell } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,7 @@ export function NotificationBell() {
     const unreadCount = notifications?.unread_count ?? 0;
     const items = notifications?.items ?? [];
     const userId = auth.user?.id;
+    const [open, setOpen] = React.useState(false);
 
     const markAsRead = React.useCallback((notification: AppNotification) => {
         if (notification.read_at) {
@@ -41,6 +42,7 @@ export function NotificationBell() {
 
     const handleNotificationClick = React.useCallback(
         (notification: AppNotification) => {
+            setOpen(false);
             markAsRead(notification);
 
             if (notification.action_url) {
@@ -55,6 +57,7 @@ export function NotificationBell() {
             return;
         }
 
+        setOpen(false);
         router.post(ROUTES.readAll, {}, { preserveScroll: true });
     }, [unreadCount]);
 
@@ -64,8 +67,8 @@ export function NotificationBell() {
 
     return (
         <>
-            {userId ? <NotificationEchoListener userId={userId} /> : null}
-            <DropdownMenu>
+            {userId && echoIsConfigured() ? <NotificationEchoListener userId={userId} /> : null}
+            <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
@@ -81,7 +84,11 @@ export function NotificationBell() {
                     )}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[min(100vw-2rem,24rem)] p-0">
+            <DropdownMenuContent
+                align="end"
+                className="w-[min(100vw-2rem,24rem)] p-0"
+                onCloseAutoFocus={(event) => event.preventDefault()}
+            >
                 <div className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-3">
                     <DropdownMenuLabel className="p-0 text-sm font-semibold text-foreground">
                         Notifications

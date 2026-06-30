@@ -1,8 +1,11 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
+import { BellRing } from 'lucide-react';
 import React from 'react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
+
+const TEST_NOTIFICATION_ROUTE = '/notifications/test';
 
 export default function NotificationsSettings({
     vapidPublicKey,
@@ -23,6 +26,7 @@ export default function NotificationsSettings({
     }, []);
 
     const isEnabled = enabled || pushEnabled;
+    const [sendingTest, setSendingTest] = React.useState(false);
 
     const handleToggle = async () => {
         if (isEnabled) {
@@ -30,6 +34,19 @@ export default function NotificationsSettings({
         } else {
             await enable();
         }
+    };
+
+    const sendTestNotification = () => {
+        setSendingTest(true);
+
+        router.post(
+            TEST_NOTIFICATION_ROUTE,
+            {},
+            {
+                preserveScroll: true,
+                onFinish: () => setSendingTest(false),
+            },
+        );
     };
 
     return (
@@ -101,6 +118,28 @@ export default function NotificationsSettings({
                             </Button>
                         </div>
                     )}
+                </div>
+
+                <div className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-foreground">Send test notification</p>
+                            <p className="mt-1 text-[13px] text-muted-foreground">
+                                Sends a test alert to your bell{isEnabled ? ' and browser push' : ''} so you can
+                                confirm delivery.
+                            </p>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="h-11 rounded-xl px-6"
+                            disabled={sendingTest}
+                            onClick={sendTestNotification}
+                        >
+                            <BellRing className="size-4" />
+                            {sendingTest ? 'Sending…' : 'Send test'}
+                        </Button>
+                    </div>
                 </div>
             </div>
         </>
