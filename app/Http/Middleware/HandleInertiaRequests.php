@@ -41,6 +41,39 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => fn () => $request->user()?->load('role'),
             ],
+            'notifications' => fn () => $this->sharedNotifications($request),
+        ];
+    }
+
+    /**
+     * @return array{unread_count: int, items: list<array<string, mixed>>}|null
+     */
+    private function sharedNotifications(Request $request): ?array
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return null;
+        }
+
+        $items = $user->notifications()
+            ->latest()
+            ->limit(15)
+            ->get()
+            ->map(fn ($notification) => [
+                'id' => $notification->id,
+                'title' => $notification->data['title'] ?? '',
+                'message' => $notification->data['message'] ?? '',
+                'action_url' => $notification->data['action_url'] ?? null,
+                'read_at' => $notification->read_at?->toIso8601String(),
+                'created_at_diff' => $notification->created_at?->diffForHumans(),
+            ])
+            ->values()
+            ->all();
+
+        return [
+            'unread_count' => $user->unreadNotifications()->count(),
+            'items' => $items,
         ];
     }
 }
