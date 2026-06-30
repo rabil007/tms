@@ -12,6 +12,8 @@ trait ScheduleValidationRules
         return [
             'crew_name' => ['required', 'string', 'max:255'],
             'scheduled_date' => ['required', 'date'],
+            'country_id' => ['required', 'integer', 'exists:countries,id'],
+            'crew_phone' => ['required', 'string', 'regex:/^\d{6,12}$/'],
             'crew_contact' => ['required', 'string', 'max:20', 'regex:/^\+?\d{7,15}$/'],
             'project_id' => ['required', 'integer', 'exists:projects,id'],
             'pick_up_location' => ['required', 'string', 'max:255'],

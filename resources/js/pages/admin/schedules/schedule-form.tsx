@@ -6,6 +6,10 @@ import {
     FormSubmitButton,
     formInputClassName,
 } from '@/components/forms/form-page';
+import {
+    CountryPhoneOption,
+    PhoneInput,
+} from '@/components/forms/phone-input';
 import { Input } from '@/components/ui/input';
 import { SearchSelect } from '@/components/ui/search-select';
 import { cn } from '@/lib/utils';
@@ -15,7 +19,8 @@ export type ProjectOption = { id: number; title: string };
 export type ScheduleFormData = {
     crew_name: string;
     scheduled_date: string;
-    crew_contact: string;
+    country_id: string;
+    crew_phone: string;
     project_id: string;
     pick_up_location: string;
     drop_off_location: string;
@@ -23,7 +28,7 @@ export type ScheduleFormData = {
     remarks: string;
 };
 
-type ScheduleFormErrors = Partial<Record<keyof ScheduleFormData, string>>;
+type ScheduleFormErrors = Partial<Record<keyof ScheduleFormData | 'crew_contact', string>>;
 
 type ScheduleFormProps = {
     data: ScheduleFormData;
@@ -34,6 +39,7 @@ type ScheduleFormProps = {
     description?: string;
     cancelHref: string;
     projects: ProjectOption[];
+    countries: CountryPhoneOption[];
     onChange: <K extends keyof ScheduleFormData>(key: K, value: ScheduleFormData[K]) => void;
     onSubmit: (e: React.FormEvent) => void;
 };
@@ -47,6 +53,7 @@ export function ScheduleForm({
     description,
     cancelHref,
     projects,
+    countries,
     onChange,
     onSubmit,
 }: ScheduleFormProps) {
@@ -86,21 +93,19 @@ export function ScheduleForm({
                         </FormField>
 
                         <FormField
-                            id="crew_contact"
+                            id="crew_phone"
                             label="Crew contact"
-                            hint="Phone number with country code"
-                            error={errors.crew_contact}
+                            hint="Choose country code and enter the number"
+                            error={errors.crew_phone ?? errors.crew_contact ?? errors.country_id}
                         >
-                            <Input
-                                id="crew_contact"
-                                type="tel"
-                                inputMode="tel"
-                                value={data.crew_contact}
-                                onChange={(e) => onChange('crew_contact', e.target.value)}
-                                className={cn(formInputClassName(!!errors.crew_contact), 'font-mono tracking-wide')}
-                                placeholder="+971501234567"
-                                autoComplete="tel"
-                                aria-invalid={!!errors.crew_contact}
+                            <PhoneInput
+                                countries={countries}
+                                countryId={data.country_id}
+                                phone={data.crew_phone}
+                                onCountryChange={(val) => onChange('country_id', val)}
+                                onPhoneChange={(val) => onChange('crew_phone', val)}
+                                countryError={errors.country_id}
+                                phoneError={errors.crew_phone ?? errors.crew_contact}
                             />
                         </FormField>
                     </div>

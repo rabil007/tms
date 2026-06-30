@@ -1,5 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import React from 'react';
+import { defaultCountryId, type CountryPhoneOption } from '@/components/forms/phone-input';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { ProjectOption, ScheduleForm } from '@/pages/admin/schedules/schedule-form';
 
@@ -8,23 +9,29 @@ const ROUTES = {
     store: '/schedules',
 } as const;
 
-const emptyForm = {
-    crew_name: '',
-    scheduled_date: '',
-    crew_contact: '',
-    project_id: '',
-    pick_up_location: '',
-    drop_off_location: '',
-    pick_up_time: '',
-    remarks: '',
-};
-
-export default function SchedulesCreate({ projects }: { projects: ProjectOption[] }) {
-    const { data, setData, post, processing, errors, transform } = useForm(emptyForm);
+export default function SchedulesCreate({
+    projects,
+    countries,
+}: {
+    projects: ProjectOption[];
+    countries: CountryPhoneOption[];
+}) {
+    const { data, setData, post, processing, errors, transform } = useForm({
+        crew_name: '',
+        scheduled_date: '',
+        country_id: defaultCountryId(countries),
+        crew_phone: '',
+        project_id: '',
+        pick_up_location: '',
+        drop_off_location: '',
+        pick_up_time: '',
+        remarks: '',
+    });
 
     transform((formData) => ({
         ...formData,
         project_id: formData.project_id ? Number(formData.project_id) : '',
+        country_id: formData.country_id ? Number(formData.country_id) : '',
     }));
 
     const submit = (e: React.FormEvent) => {
@@ -45,6 +52,7 @@ export default function SchedulesCreate({ projects }: { projects: ProjectOption[
                 description="Schedule crew transport with pick-up and drop-off details."
                 cancelHref={ROUTES.index}
                 projects={projects}
+                countries={countries}
                 onChange={setData}
                 onSubmit={submit}
             />

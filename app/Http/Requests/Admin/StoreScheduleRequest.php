@@ -2,12 +2,14 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Concerns\MergesScheduleContact;
 use App\Concerns\ScheduleValidationRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreScheduleRequest extends FormRequest
 {
+    use MergesScheduleContact;
     use ScheduleValidationRules;
 
     /**

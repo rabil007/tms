@@ -1,5 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import React from 'react';
+import { parsePhoneNumber, type CountryPhoneOption } from '@/components/forms/phone-input';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { ProjectOption, ScheduleForm } from '@/pages/admin/schedules/schedule-form';
 import { formatPickUpTime } from '@/pages/admin/schedules/schedule-views';
@@ -28,14 +29,19 @@ function toFormDate(value: string): string {
 export default function SchedulesEdit({
     schedule,
     projects,
+    countries,
 }: {
     schedule: Schedule;
     projects: ProjectOption[];
+    countries: CountryPhoneOption[];
 }) {
+    const parsedContact = parsePhoneNumber(schedule.crew_contact, countries);
+
     const { data, setData, put, processing, errors, transform } = useForm({
         crew_name: schedule.crew_name,
         scheduled_date: toFormDate(schedule.scheduled_date),
-        crew_contact: schedule.crew_contact,
+        country_id: parsedContact.countryId,
+        crew_phone: parsedContact.phone,
         project_id: String(schedule.project_id),
         pick_up_location: schedule.pick_up_location,
         drop_off_location: schedule.drop_off_location,
@@ -46,6 +52,7 @@ export default function SchedulesEdit({
     transform((formData) => ({
         ...formData,
         project_id: Number(formData.project_id),
+        country_id: Number(formData.country_id),
     }));
 
     const submit = (e: React.FormEvent) => {
@@ -66,6 +73,7 @@ export default function SchedulesEdit({
                 description={`Update transport details for ${schedule.crew_name}.`}
                 cancelHref={ROUTES.index}
                 projects={projects}
+                countries={countries}
                 onChange={setData}
                 onSubmit={submit}
             />

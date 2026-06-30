@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreScheduleRequest;
 use App\Http\Requests\Admin\UpdateScheduleRequest;
+use App\Models\Country;
 use App\Models\Project;
 use App\Models\Schedule;
 use Illuminate\Http\RedirectResponse;
@@ -88,6 +89,7 @@ class ScheduleController extends Controller
     {
         return Inertia::render('admin/schedules/create', [
             'projects' => $this->projectOptions(),
+            'countries' => $this->countryOptions(),
         ]);
     }
 
@@ -125,6 +127,7 @@ class ScheduleController extends Controller
         return Inertia::render('admin/schedules/edit', [
             'schedule' => $schedule,
             'projects' => $this->projectOptions(),
+            'countries' => $this->countryOptions(),
         ]);
     }
 
@@ -163,6 +166,23 @@ class ScheduleController extends Controller
             ->map(fn (Project $project): array => [
                 'id' => $project->id,
                 'title' => $project->title,
+            ])
+            ->all();
+    }
+
+    /**
+     * @return list<array{id: int, name: string, iso2: string, dial_code: string}>
+     */
+    private function countryOptions(): array
+    {
+        return Country::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'iso2', 'dial_code'])
+            ->map(fn (Country $country): array => [
+                'id' => $country->id,
+                'name' => $country->name,
+                'iso2' => $country->iso2,
+                'dial_code' => $country->dial_code,
             ])
             ->all();
     }

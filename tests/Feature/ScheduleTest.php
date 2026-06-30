@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Country;
 use App\Models\Project;
 use App\Models\Schedule;
 use App\Models\User;
@@ -7,14 +8,16 @@ use App\Models\User;
 /**
  * @return array<string, mixed>
  */
-function validSchedulePayload(?Project $project = null): array
+function validSchedulePayload(?Project $project = null, ?Country $country = null): array
 {
     $project ??= Project::factory()->create();
+    $country ??= Country::factory()->create(['iso2' => 'AE', 'dial_code' => '+971']);
 
     return [
         'crew_name' => 'John Smith',
         'scheduled_date' => '2026-07-15',
-        'crew_contact' => '+971501234567',
+        'country_id' => $country->id,
+        'crew_phone' => '501234567',
         'project_id' => $project->id,
         'pick_up_location' => 'Dubai Airport Terminal 1',
         'drop_off_location' => 'Marina Hotel',
@@ -75,6 +78,7 @@ test('authenticated users can store a valid schedule', function () {
 
     $this->assertDatabaseHas('schedules', [
         'crew_name' => 'John Smith',
+        'crew_contact' => '+971501234567',
         'project_id' => $project->id,
         'pick_up_location' => 'Dubai Airport Terminal 1',
     ]);
@@ -89,7 +93,8 @@ test('store validation fails for missing fields', function () {
         ->assertSessionHasErrors([
             'crew_name',
             'scheduled_date',
-            'crew_contact',
+            'country_id',
+            'crew_phone',
             'project_id',
             'pick_up_location',
             'drop_off_location',
@@ -103,11 +108,11 @@ test('store validation fails for invalid phone', function () {
 
     $response = $this->actingAs($user)->from(route('schedules.create'))->post(route('schedules.store'), [
         ...validSchedulePayload(),
-        'crew_contact' => 'not-a-phone',
+        'crew_phone' => '12',
     ]);
 
     $response
-        ->assertSessionHasErrors('crew_contact')
+        ->assertSessionHasErrors('crew_phone')
         ->assertRedirect(route('schedules.create'));
 });
 
