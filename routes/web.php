@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\ScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('countries', CountryController::class);
     Route::resource('projects', ProjectController::class);
+    Route::resource('schedules', ScheduleController::class);
 });
 
 require __DIR__.'/settings.php';

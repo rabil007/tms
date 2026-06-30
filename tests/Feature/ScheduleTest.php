@@ -1,0 +1,200 @@
+<?php
+
+use App\Models\Project;
+use App\Models\Schedule;
+use App\Models\User;
+
+/**
+ * @return array<string, mixed>
+ */
+function validSchedulePayload(?Project $project = null): array
+{
+    $project ??= Project::factory()->create();
+
+    return [
+        'crew_name' => 'John Smith',
+        'scheduled_date' => '2026-07-15',
+        'crew_contact' => '+971501234567',
+        'project_id' => $project->id,
+        'pick_up_location' => 'Dubai Airport Terminal 1',
+        'drop_off_location' => 'Marina Hotel',
+        'pick_up_time' => '08:30',
+        'remarks' => 'VIP pickup',
+    ];
+}
+
+test('guests are redirected from schedules index', function () {
+    $response = $this->get(route('schedules.index'));
+
+    $response->assertRedirect(route('login'));
+});
+
+test('authenticated users can visit schedules index', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('schedules.index'));
+
+    $response->assertOk();
+});
+
+test('authenticated users can visit schedules create page', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('schedules.create'));
+
+    $response->assertOk();
+});
+
+test('authenticated users can visit schedule show page', function () {
+    $user = User::factory()->create();
+    $schedule = Schedule::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('schedules.show', $schedule));
+
+    $response->assertOk();
+});
+
+test('authenticated users can visit schedule edit page', function () {
+    $user = User::factory()->create();
+    $schedule = Schedule::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('schedules.edit', $schedule));
+
+    $response->assertOk();
+});
+
+test('authenticated users can store a valid schedule', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->create(['title' => 'NMDC']);
+
+    $response = $this->actingAs($user)->post(route('schedules.store'), validSchedulePayload($project));
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('schedules.index'));
+
+    $this->assertDatabaseHas('schedules', [
+        'crew_name' => 'John Smith',
+        'project_id' => $project->id,
+        'pick_up_location' => 'Dubai Airport Terminal 1',
+    ]);
+});
+
+test('store validation fails for missing fields', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->from(route('schedules.create'))->post(route('schedules.store'), []);
+
+    $response
+        ->assertSessionHasErrors([
+            'crew_name',
+            'scheduled_date',
+            'crew_contact',
+            'project_id',
+            'pick_up_location',
+            'drop_off_location',
+            'pick_up_time',
+        ])
+        ->assertRedirect(route('schedules.create'));
+});
+
+test('store validation fails for invalid phone', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->from(route('schedules.create'))->post(route('schedules.store'), [
+        ...validSchedulePayload(),
+        'crew_contact' => 'not-a-phone',
+    ]);
+
+    $response
+        ->assertSessionHasErrors('crew_contact')
+        ->assertRedirect(route('schedules.create'));
+});
+
+test('store validation fails for invalid project', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->from(route('schedules.create'))->post(route('schedules.store'), [
+        ...validSchedulePayload(),
+        'project_id' => 99999,
+    ]);
+
+    $response
+        ->assertSessionHasErrors('project_id')
+        ->assertRedirect(route('schedules.create'));
+});
+
+test('authenticated users can update a schedule', function () {
+    $user = User::factory()->create();
+    $schedule = Schedule::factory()->create(['crew_name' => 'Jane Doe']);
+
+    $response = $this->actingAs($user)->put(route('schedules.update', $schedule), [
+        ...validSchedulePayload($schedule->project),
+        'crew_name' => 'Jane Smith',
+    ]);
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('schedules.index'));
+
+    expect($schedule->fresh())
+        ->crew_name->toBe('Jane Smith');
+});
+
+test('authenticated users can delete a schedule', function () {
+    $user = User::factory()->create();
+    $schedule = Schedule::factory()->create();
+
+    $response = $this->actingAs($user)->delete(route('schedules.destroy', $schedule));
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('schedules.index'));
+
+    $this->assertDatabaseMissing('schedules', ['id' => $schedule->id]);
+});
+
+test('schedules index loads without sort query param', function () {
+    $user = User::factory()->create();
+    Schedule::factory()->create(['crew_name' => 'Alpha Crew']);
+
+    $response = $this->actingAs($user)->get(route('schedules.index'));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->has('schedules.data', 1)
+        ->where('schedules.data.0.crew_name', 'Alpha Crew'));
+});
+
+test('schedules index search returns matching crew name', function () {
+    $user = User::factory()->create();
+    $schedule = Schedule::factory()->create(['crew_name' => 'Alpha Crew']);
+    Schedule::factory()->create(['crew_name' => 'Beta Crew']);
+
+    $response = $this->actingAs($user)->get(route('schedules.index', ['q' => 'Alpha']));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->has('schedules.data', 1)
+        ->where('schedules.data.0.id', $schedule->id));
+});
+
+test('schedules index search returns matching project title', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->create(['title' => 'CREWING']);
+    $schedule = Schedule::factory()->create(['project_id' => $project->id]);
+    Schedule::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('schedules.index', ['q' => 'CREWING']));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->has('schedules.data', 1)
+        ->where('schedules.data.0.id', $schedule->id));
+});

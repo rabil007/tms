@@ -1,5 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
-import { FolderKanban, Globe, LayoutDashboard, Settings } from 'lucide-react';
+import { CalendarClock, FolderKanban, Globe, LayoutDashboard, Settings } from 'lucide-react';
 import { DashboardGrid, type DashboardModule } from '@/components/dashboard-grid';
 import type { Auth } from '@/types';
 
@@ -35,6 +35,13 @@ const modules: DashboardModule[] = [
         icon: FolderKanban,
         color: 'from-violet-500 to-purple-600',
         href: '/projects',
+    },
+    {
+        id: 'schedules',
+        name: 'Schedules',
+        icon: CalendarClock,
+        color: 'from-emerald-500 to-teal-600',
+        href: '/schedules',
     },
 ];
 
