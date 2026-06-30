@@ -150,13 +150,16 @@ export function usePushNotifications(
 
             const json = subscription.toJSON();
 
+            const contentEncoding =
+                PushManager.supportedContentEncodings?.[0] ?? 'aes128gcm';
+
             await new Promise<void>((resolve, reject) => {
                 router.post(
                     PUSH_ROUTES.store,
                     {
                         endpoint: json.endpoint,
                         keys: json.keys,
-                        contentEncoding: 'aesgcm',
+                        contentEncoding,
                     },
                     {
                         preserveScroll: true,

@@ -13,7 +13,7 @@ class PushSubscriptionController extends Controller
             'endpoint' => ['required', 'url', 'max:500'],
             'keys.auth' => ['required', 'string'],
             'keys.p256dh' => ['required', 'string'],
-            'contentEncoding' => ['nullable', 'string'],
+            'contentEncoding' => ['nullable', 'string', 'in:aesgcm,aes128gcm'],
         ]);
 
         $request->user()->updatePushSubscription(
