@@ -78,16 +78,23 @@ export function glassColor(gradientClass: string): { bg: string; icon: string } 
     );
 }
 
-function orderModules(base: DashboardModule[], order: string[] | null): DashboardModule[] {
+const PINNED_TAIL_ORDER = ['projects', 'countries', 'settings'] as const;
+
+function enforceModuleOrder(base: DashboardModule[], order: string[] | null): DashboardModule[] {
+    const map = new Map(base.map((m) => [m.id, m] as const));
+    const pinnedSet = new Set<string>(PINNED_TAIL_ORDER);
+    const pinned = PINNED_TAIL_ORDER.filter((id) => map.has(id)).map((id) => map.get(id)!);
+    const unpinnedBase = base.filter((m) => !pinnedSet.has(m.id));
+
     if (!order || !Array.isArray(order) || order.length === 0) {
-        return base;
+        return [...unpinnedBase, ...pinned];
     }
 
-    const map = new Map(base.map((m) => [m.id, m] as const));
-    const ordered = order.map((id) => map.get(id)).filter(Boolean) as DashboardModule[];
-    const leftovers = base.filter((m) => !order.includes(m.id));
+    const unpinnedIds = order.filter((id) => !pinnedSet.has(id) && map.has(id));
+    const orderedUnpinned = unpinnedIds.map((id) => map.get(id)!);
+    const leftoverUnpinned = unpinnedBase.filter((m) => !unpinnedIds.includes(m.id));
 
-    return [...ordered, ...leftovers];
+    return [...orderedUnpinned, ...leftoverUnpinned, ...pinned];
 }
 
 export function DashboardGrid({
@@ -114,7 +121,7 @@ export function DashboardGrid({
         try {
             const raw = window.localStorage.getItem(storageKey);
             const order = raw ? (JSON.parse(raw) as string[]) : null;
-            queueMicrotask(() => setModules(orderModules(baseModules, order)));
+            queueMicrotask(() => setModules(enforceModuleOrder(baseModules, order)));
         } catch {
             queueMicrotask(() => setModules(baseModules));
         }
@@ -151,9 +158,10 @@ export function DashboardGrid({
             const next = current.slice();
             const [item] = next.splice(from, 1);
             next.splice(to, 0, item);
-            persistOrder(next);
+            const enforced = enforceModuleOrder(baseModules, next.map((m) => m.id));
+            persistOrder(enforced);
 
-            return next;
+            return enforced;
         });
     };
 
@@ -191,7 +199,7 @@ export function DashboardGrid({
                     key={module.id}
                     href={module.href}
                     prefetch
-                    draggable={canReorder}
+                    draggable={canReorder && !PINNED_TAIL_ORDER.includes(module.id as (typeof PINNED_TAIL_ORDER)[number])}
                     onDragStart={(e) => {
                         e.dataTransfer.setData('text/plain', module.id);
                         e.dataTransfer.effectAllowed = 'move';
