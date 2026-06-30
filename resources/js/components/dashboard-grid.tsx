@@ -79,10 +79,11 @@ export function glassColor(gradientClass: string): { bg: string; icon: string } 
 }
 
 const PINNED_TAIL_ORDER = ['projects', 'countries', 'settings'] as const;
+const PINNED_TAIL_SET = new Set<string>(PINNED_TAIL_ORDER);
 
 function enforceModuleOrder(base: DashboardModule[], order: string[] | null): DashboardModule[] {
     const map = new Map(base.map((m) => [m.id, m] as const));
-    const pinnedSet = new Set<string>(PINNED_TAIL_ORDER);
+    const pinnedSet = PINNED_TAIL_SET;
     const pinned = PINNED_TAIL_ORDER.filter((id) => map.has(id)).map((id) => map.get(id)!);
     const unpinnedBase = base.filter((m) => !pinnedSet.has(m.id));
 
@@ -199,7 +200,7 @@ export function DashboardGrid({
                     key={module.id}
                     href={module.href}
                     prefetch
-                    draggable={canReorder && !PINNED_TAIL_ORDER.includes(module.id as (typeof PINNED_TAIL_ORDER)[number])}
+                    draggable={canReorder && !PINNED_TAIL_SET.has(module.id)}
                     onDragStart={(e) => {
                         e.dataTransfer.setData('text/plain', module.id);
                         e.dataTransfer.effectAllowed = 'move';
