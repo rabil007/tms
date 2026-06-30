@@ -70,18 +70,30 @@ export function useIndexQueryParams({
     const prevQRef = React.useRef(q);
     const didInitRef = React.useRef(false);
 
-    const url = React.useMemo(() => toUrl(href), [href]);
+    const filtersKey = React.useMemo(
+        () =>
+            JSON.stringify({
+                q: filters?.q,
+                sort: filters?.sort,
+                dir: filters?.dir,
+                per_page: filters?.per_page,
+                defaultPerPage,
+                defaultSort,
+                allowedSorts,
+            }),
+        [filters, defaultPerPage, defaultSort, allowedSorts],
+    );
+    const [prevFiltersKey, setPrevFiltersKey] = React.useState(filtersKey);
 
-    React.useEffect(() => {
-        if (!isIndexFilters(rawFilters)) {
-            return;
-        }
-
+    if (filtersKey !== prevFiltersKey && isIndexFilters(rawFilters)) {
+        setPrevFiltersKey(filtersKey);
         setQ(readString(rawFilters.q) ?? '');
         setPerPage(readPerPage(rawFilters, defaultPerPage));
         setSort(readSort(rawFilters, defaultSort, allowedSorts));
         setDir(readDir(rawFilters));
-    }, [rawFilters, defaultPerPage, defaultSort, allowedSorts]);
+    }
+
+    const url = React.useMemo(() => toUrl(href), [href]);
 
     const extrasKey = React.useMemo(() => JSON.stringify(extras ?? {}), [extras]);
     const normalizedExtras = React.useMemo(() => {

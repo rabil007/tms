@@ -4,7 +4,8 @@ import React from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { Button } from '@/components/ui/button';
-import { USER_ROUTES, UserRoleBadge, type UserRole } from '@/pages/admin/users/user-views';
+import { USER_ROUTES, UserRoleBadge  } from '@/pages/admin/users/user-views';
+import type {UserRole} from '@/pages/admin/users/user-views';
 
 type User = {
     id: number;

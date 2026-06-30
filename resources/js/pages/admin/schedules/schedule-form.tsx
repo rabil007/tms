@@ -6,8 +6,9 @@ import {
     FormSubmitButton,
     formInputClassName,
 } from '@/components/forms/form-page';
+import type {
+    CountryPhoneOption} from '@/components/forms/phone-input';
 import {
-    CountryPhoneOption,
     PhoneInput,
 } from '@/components/forms/phone-input';
 import { Input } from '@/components/ui/input';

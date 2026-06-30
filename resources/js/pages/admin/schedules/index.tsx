@@ -4,6 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { CalendarClock, Plus } from 'lucide-react';
 import React from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
+import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { SectionHeader } from '@/components/layout/section-header';
 import { EmptyState } from '@/components/list/empty-state';
 import { IndexToolbar } from '@/components/list/index-toolbar';
@@ -11,7 +12,6 @@ import { PaginationBar } from '@/components/list/pagination-bar';
 import { RowActions } from '@/components/list/row-actions';
 import { RowsPerPageSelect } from '@/components/list/rows-per-page-select';
 import { SortableHeader } from '@/components/list/sortable-header';
-import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
@@ -19,18 +19,20 @@ import { useIndexQueryParams } from '@/hooks/use-index-query-params';
 import { useIndexViewMode } from '@/hooks/use-index-view-mode';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
-    ScheduleIndexFilters,
-    type ProjectFilterOption,
+    ScheduleIndexFilters
+    
 } from '@/pages/admin/schedules/schedule-index-filters';
+import type {ProjectFilterOption} from '@/pages/admin/schedules/schedule-index-filters';
 import {
     formatPickUpTime,
     formatScheduleDate,
     SCHEDULE_ROUTES,
     ScheduleGridCards,
     ScheduleListCards,
-    ScheduleTable,
-    type ScheduleRow,
+    ScheduleTable
+    
 } from '@/pages/admin/schedules/schedule-views';
+import type {ScheduleRow} from '@/pages/admin/schedules/schedule-views';
 
 type Paged<T> = {
     data: T[];

@@ -1,7 +1,7 @@
-import MailSettingsController from '@/actions/App/Http/Controllers/Settings/MailSettingsController';
 import { Form, Head, router, usePage } from '@inertiajs/react';
 import { Mail } from 'lucide-react';
 import React from 'react';
+import MailSettingsController from '@/actions/App/Http/Controllers/Settings/MailSettingsController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -50,12 +50,16 @@ export default function SmtpSettings({
         mailSettings?.encryption ?? 'tls',
     );
     const [emailEnabled, setEmailEnabled] = React.useState(emailNotificationsEnabled);
+    const [prevEmailNotificationsEnabled, setPrevEmailNotificationsEnabled] =
+        React.useState(emailNotificationsEnabled);
+
+    if (emailNotificationsEnabled !== prevEmailNotificationsEnabled) {
+        setPrevEmailNotificationsEnabled(emailNotificationsEnabled);
+        setEmailEnabled(emailNotificationsEnabled);
+    }
+
     const [emailProcessing, setEmailProcessing] = React.useState(false);
     const [sendingTest, setSendingTest] = React.useState(false);
-
-    React.useEffect(() => {
-        setEmailEnabled(emailNotificationsEnabled);
-    }, [emailNotificationsEnabled]);
 
     const handleEmailToggle = () => {
         const nextValue = !emailEnabled;

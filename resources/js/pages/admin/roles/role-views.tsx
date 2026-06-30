@@ -1,10 +1,10 @@
 import { router } from '@inertiajs/react';
+import type { Table } from '@tanstack/react-table';
 import { ChevronRight, Shield } from 'lucide-react';
 import { GlassCard } from '@/components/layout/glass-card';
-import { RowActions } from '@/components/list/row-actions';
 import { ResourceTable } from '@/components/list/resource-table';
+import { RowActions } from '@/components/list/row-actions';
 import { Badge } from '@/components/ui/badge';
-import type { Table } from '@tanstack/react-table';
 
 export const ROLE_ROUTES = {
     index: '/roles',

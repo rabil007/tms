@@ -1,4 +1,5 @@
-import { flexRender, type Table } from '@tanstack/react-table';
+import { flexRender  } from '@tanstack/react-table';
+import type {Table} from '@tanstack/react-table';
 import { GlassCard } from '@/components/layout/glass-card';
 
 export type ResourceTableProps<T> = {

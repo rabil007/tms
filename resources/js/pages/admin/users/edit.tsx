@@ -1,8 +1,10 @@
 import { Head, useForm } from '@inertiajs/react';
 import React from 'react';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
-import { UserForm, type RoleOption } from '@/pages/admin/users/user-form';
-import { USER_ROUTES, type UserRole } from '@/pages/admin/users/user-views';
+import { UserForm  } from '@/pages/admin/users/user-form';
+import type {RoleOption} from '@/pages/admin/users/user-form';
+import { USER_ROUTES  } from '@/pages/admin/users/user-views';
+import type {UserRole} from '@/pages/admin/users/user-views';
 
 type User = {
     id: number;

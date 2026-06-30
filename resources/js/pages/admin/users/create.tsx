@@ -1,7 +1,8 @@
 import { Head, useForm } from '@inertiajs/react';
 import React from 'react';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
-import { UserForm, type RoleOption } from '@/pages/admin/users/user-form';
+import { UserForm  } from '@/pages/admin/users/user-form';
+import type {RoleOption} from '@/pages/admin/users/user-form';
 import { USER_ROUTES } from '@/pages/admin/users/user-views';
 
 export default function UsersCreate({ roleOptions }: { roleOptions: RoleOption[] }) {

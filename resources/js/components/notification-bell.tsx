@@ -12,8 +12,8 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import type { AppNotification, SharedNotifications } from '@/types/notifications';
 import type { Auth } from '@/types/auth';
+import type { AppNotification, SharedNotifications } from '@/types/notifications';
 
 const ROUTES = {
     read: (id: string) => `/notifications/${id}/read`,

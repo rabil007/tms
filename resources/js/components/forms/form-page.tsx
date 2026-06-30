@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import React from 'react';
-import { GlassCard } from '@/components/layout/glass-card';
 import InputError from '@/components/input-error';
+import { GlassCard } from '@/components/layout/glass-card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';

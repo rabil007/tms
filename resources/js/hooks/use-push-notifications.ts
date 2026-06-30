@@ -70,11 +70,9 @@ export function usePushNotifications(
     const [processing, setProcessing] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
     const [setupError, setSetupError] = React.useState<string | null>(null);
-    const [status, setStatus] = React.useState<PushSupportStatus | null>(null);
-
-    React.useEffect(() => {
-        setStatus(getPushSupportStatus());
-    }, []);
+    const [status] = React.useState<PushSupportStatus | null>(() =>
+        typeof window === 'undefined' ? null : getPushSupportStatus(),
+    );
 
     React.useEffect(() => {
         if (status !== 'supported') {
@@ -109,11 +107,13 @@ export function usePushNotifications(
     const enable = React.useCallback(async () => {
         if (!vapidPublicKey) {
             setError('Push notifications are not configured on the server.');
+
             return false;
         }
 
         if (setupError) {
             setError(setupError);
+
             return false;
         }
 
@@ -121,11 +121,13 @@ export function usePushNotifications(
 
         if (resolvedStatus === 'requires_https') {
             setError('Open this site over HTTPS to enable browser notifications.');
+
             return false;
         }
 
         if (resolvedStatus === 'unsupported') {
             setError('Push notifications are not supported in this browser.');
+
             return false;
         }
 
@@ -137,6 +139,7 @@ export function usePushNotifications(
 
             if (permission !== 'granted') {
                 setError('Notification permission was denied.');
+
                 return false;
             }
 

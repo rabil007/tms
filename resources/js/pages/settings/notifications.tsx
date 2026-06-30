@@ -17,13 +17,10 @@ export default function NotificationsSettings({
     const { status, supported, ready, enabled, processing, error, setupError, enable, disable } =
         usePushNotifications(vapidPublicKey, pushEnabled);
 
-    const [httpsUrl, setHttpsUrl] = React.useState<string | null>(null);
-
-    React.useEffect(() => {
-        setHttpsUrl(
-            `${window.location.protocol === 'https:' ? window.location.origin : window.location.origin.replace('http:', 'https:')}/settings/notifications`,
-        );
-    }, []);
+    const httpsUrl =
+        typeof window !== 'undefined'
+            ? `${window.location.protocol === 'https:' ? window.location.origin : window.location.origin.replace('http:', 'https:')}/settings/notifications`
+            : null;
 
     const isPushEnabled = enabled || pushEnabled;
     const [sendingTest, setSendingTest] = React.useState(false);

@@ -1,6 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import { CalendarClock, FolderKanban, Globe, LayoutDashboard, Settings, Shield, Users } from 'lucide-react';
-import { DashboardGrid, type DashboardModule } from '@/components/dashboard-grid';
+import { DashboardGrid  } from '@/components/dashboard-grid';
+import type {DashboardModule} from '@/components/dashboard-grid';
 import type { Auth } from '@/types';
 
 type PageProps = {
