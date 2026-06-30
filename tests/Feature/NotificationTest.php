@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\MailSetting;
 use App\Notifications\SystemNotification;
 use App\Notifications\TestNotification;
 use NotificationChannels\WebPush\WebPushChannel;
@@ -97,6 +98,12 @@ test('test notification uses web push channel when user has a subscription', fun
         'test-auth-token',
         'aesgcm',
     );
+
+    MailSetting::current()->update([
+        'mailer' => 'log',
+        'from_address' => 'alerts@example.com',
+        'from_name' => 'Overseas',
+    ]);
 
     $notification = new TestNotification;
 

@@ -11,11 +11,11 @@ class NotificationController extends Controller
 {
     public function sendTest(Request $request): RedirectResponse
     {
-        $request->user()->notify(new TestNotification);
+        $request->user()->notify(new TestNotification(withEmail: false));
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => __('Test notification sent. Check the bell icon and your browser alerts.'),
+            'message' => __('Test notification sent. Check the bell icon and browser alerts.'),
         ]);
 
         return back();

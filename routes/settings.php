@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\MailSettingsController;
 use App\Http\Controllers\Settings\NotificationSettingsController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
@@ -28,6 +29,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('settings/notifications', [NotificationSettingsController::class, 'edit'])
         ->name('notifications.edit');
+
+    Route::get('settings/smtp', [MailSettingsController::class, 'edit'])
+        ->name('smtp.edit');
+
+    Route::patch('settings/smtp/preferences', [MailSettingsController::class, 'updatePreferences'])
+        ->name('smtp.preferences.update');
+
+    Route::post('settings/smtp/test', [MailSettingsController::class, 'sendTest'])
+        ->middleware('throttle:6,1')
+        ->name('smtp.test');
+
+    Route::middleware('admin')->group(function () {
+        Route::patch('settings/smtp', [MailSettingsController::class, 'update'])
+            ->name('smtp.update');
+    });
 });
 
 Route::get('.well-known/passkey-endpoints', function () {

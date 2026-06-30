@@ -20,7 +20,7 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
  * @property int $id
  * @property int $role_id
  * @property string $name
- * @property string $email
+ * @property bool $email_notifications_enabled
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -31,7 +31,7 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
  * @property Carbon|null $updated_at
  * @property-read Role|null $role
  */
-#[Fillable(['role_id', 'name', 'email', 'password'])]
+#[Fillable(['role_id', 'name', 'email', 'email_notifications_enabled', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
@@ -59,6 +59,7 @@ class User extends Authenticatable implements PasskeyUser
     protected function casts(): array
     {
         return [
+            'email_notifications_enabled' => 'boolean',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',

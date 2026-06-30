@@ -25,11 +25,11 @@ export default function NotificationsSettings({
         );
     }, []);
 
-    const isEnabled = enabled || pushEnabled;
+    const isPushEnabled = enabled || pushEnabled;
     const [sendingTest, setSendingTest] = React.useState(false);
 
-    const handleToggle = async () => {
-        if (isEnabled) {
+    const handlePushToggle = async () => {
+        if (isPushEnabled) {
             await disable();
         } else {
             await enable();
@@ -92,10 +92,10 @@ export default function NotificationsSettings({
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p className="text-sm font-medium text-foreground">
-                                    {isEnabled ? 'Browser notifications enabled' : 'Browser notifications disabled'}
+                                    {isPushEnabled ? 'Browser notifications enabled' : 'Browser notifications disabled'}
                                 </p>
                                 <p className="mt-1 text-[13px] text-muted-foreground">
-                                    {isEnabled
+                                    {isPushEnabled
                                         ? 'You will receive push alerts for in-app notifications.'
                                         : 'Enable to get instant alerts outside the app.'}
                                 </p>
@@ -105,14 +105,14 @@ export default function NotificationsSettings({
                             </div>
                             <Button
                                 type="button"
-                                variant={isEnabled ? 'outline' : 'default'}
+                                variant={isPushEnabled ? 'outline' : 'default'}
                                 className="h-11 rounded-xl px-6"
                                 disabled={processing || !!setupError}
-                                onClick={handleToggle}
+                                onClick={handlePushToggle}
                             >
                                 {processing
                                     ? 'Saving…'
-                                    : isEnabled
+                                    : isPushEnabled
                                       ? 'Disable notifications'
                                       : 'Enable notifications'}
                             </Button>
@@ -125,8 +125,8 @@ export default function NotificationsSettings({
                         <div>
                             <p className="text-sm font-medium text-foreground">Send test notification</p>
                             <p className="mt-1 text-[13px] text-muted-foreground">
-                                Sends a test alert to your bell{isEnabled ? ' and browser push' : ''} so you can
-                                confirm delivery.
+                                Sends a test alert to your bell
+                                {isPushEnabled ? ' and browser push' : ''} so you can confirm delivery.
                             </p>
                         </div>
                         <Button

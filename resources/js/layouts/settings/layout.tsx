@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import Heading from '@/components/heading';
@@ -10,6 +10,8 @@ import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editNotifications } from '@/routes/notifications';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
+import { edit as editSmtp } from '@/routes/smtp';
+import type { Auth } from '@/types/auth';
 import type { NavItem } from '@/types';
 
 const settingsNavItems: NavItem[] = [
@@ -31,6 +33,11 @@ const settingsNavItems: NavItem[] = [
     {
         title: 'Notifications',
         href: editNotifications(),
+        icon: null,
+    },
+    {
+        title: 'Email',
+        href: editSmtp(),
         icon: null,
     },
 ];

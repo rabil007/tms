@@ -11,9 +11,11 @@ class NotificationSettingsController extends Controller
 {
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+
         return Inertia::render('settings/notifications', [
             'vapidPublicKey' => config('webpush.vapid.public_key'),
-            'pushEnabled' => $request->user()->pushSubscriptions()->exists(),
+            'pushEnabled' => $user->pushSubscriptions()->exists(),
         ]);
     }
 }

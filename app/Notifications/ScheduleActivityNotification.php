@@ -2,17 +2,18 @@
 
 namespace App\Notifications;
 
+use App\Concerns\ResolvesNotificationChannels;
 use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
 
 class ScheduleActivityNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesNotificationChannels;
 
     public function __construct(
         public Schedule $schedule,
@@ -21,17 +22,11 @@ class ScheduleActivityNotification extends Notification
     ) {}
 
     /**
-     * @return array<int, string>
+     * @return array<int, string|class-string>
      */
     public function via(object $notifiable): array
     {
-        $channels = ['database', 'broadcast'];
-
-        if ($notifiable instanceof User && $notifiable->pushSubscriptions()->exists()) {
-            $channels[] = WebPushChannel::class;
-        }
-
-        return $channels;
+        return $this->resolveNotificationChannels($notifiable);
     }
 
     /**
@@ -45,6 +40,16 @@ class ScheduleActivityNotification extends Notification
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
         return new BroadcastMessage($this->payload());
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        $payload = $this->payload();
+
+        return (new MailMessage)
+            ->subject($payload['title'])
+            ->line($payload['message'])
+            ->action(__('View schedule'), $payload['action_url']);
     }
 
     public function toWebPush(object $notifiable, mixed $notification): WebPushMessage

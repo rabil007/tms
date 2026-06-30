@@ -2,26 +2,28 @@
 
 namespace App\Notifications;
 
-use App\Models\User;
+use App\Concerns\ResolvesNotificationChannels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
 
 class TestNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesNotificationChannels;
+
+    public function __construct(public bool $withEmail = true) {}
 
     /**
-     * @return array<int, string>
+     * @return array<int, string|class-string>
      */
     public function via(object $notifiable): array
     {
-        $channels = ['database', 'broadcast'];
+        $channels = $this->resolveNotificationChannels($notifiable);
 
-        if ($notifiable instanceof User && $notifiable->pushSubscriptions()->exists()) {
-            $channels[] = WebPushChannel::class;
+        if (! $this->withEmail) {
+            $channels = array_values(array_filter($channels, fn (string $channel): bool => $channel !== 'mail'));
         }
 
         return $channels;
@@ -38,6 +40,16 @@ class TestNotification extends Notification
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
         return new BroadcastMessage($this->payload());
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        $payload = $this->payload();
+
+        return (new MailMessage)
+            ->subject($payload['title'])
+            ->line($payload['message'])
+            ->action(__('Open notifications'), $payload['action_url']);
     }
 
     public function toWebPush(object $notifiable, mixed $notification): WebPushMessage
