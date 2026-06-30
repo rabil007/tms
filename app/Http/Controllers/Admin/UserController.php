@@ -28,6 +28,7 @@ class UserController extends Controller
 
         $users = User::query()
             ->with('role')
+            ->whereKeyNot($request->user()->id)
             ->when($request->q, function (Builder $query) use ($request): void {
                 $search = '%'.$request->q.'%';
 
@@ -79,6 +80,8 @@ class UserController extends Controller
      */
     public function show(User $user): Response
     {
+        $this->ensureNotCurrentUser($user);
+
         $user->load('role');
 
         return Inertia::render('admin/users/show', [
@@ -91,6 +94,8 @@ class UserController extends Controller
      */
     public function edit(User $user): Response
     {
+        $this->ensureNotCurrentUser($user);
+
         $user->load('role');
 
         return Inertia::render('admin/users/edit', [
@@ -104,6 +109,8 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
+        $this->ensureNotCurrentUser($user);
+
         $validated = $request->validated();
 
         if (blank($validated['password'] ?? null)) {
@@ -122,9 +129,7 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
-        if ($user->id === auth()->id()) {
-            abort(403);
-        }
+        $this->ensureNotCurrentUser($user);
 
         if ($user->isAdmin() && User::query()->where('role_id', $user->role_id)->count() <= 1) {
             return back()->withErrors(['user' => __('Cannot delete the last admin user.')]);
@@ -146,5 +151,12 @@ class UserController extends Controller
             ->orderBy('name')
             ->get(['id', 'name'])
             ->all();
+    }
+
+    private function ensureNotCurrentUser(User $user): void
+    {
+        if ($user->id === auth()->id()) {
+            abort(403);
+        }
     }
 }

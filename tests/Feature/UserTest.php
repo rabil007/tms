@@ -135,6 +135,31 @@ test('admin users cannot delete themselves', function () {
     $this->assertDatabaseHas('users', ['id' => $admin->id]);
 });
 
+test('users index excludes the authenticated user', function () {
+    $admin = adminUser();
+    $role = Role::query()->where('slug', 'user')->firstOrFail();
+    $otherUser = User::factory()->create([
+        'name' => 'Jane Doe',
+        'role_id' => $role->id,
+    ]);
+
+    $response = $this->actingAs($admin)->get(route('users.index'));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/users/index')
+        ->has('users.data', 1)
+        ->where('users.data.0.id', $otherUser->id));
+});
+
+test('admin users cannot view or edit their own account in users module', function () {
+    $admin = adminUser();
+
+    $this->actingAs($admin)->get(route('users.show', $admin))->assertForbidden();
+    $this->actingAs($admin)->get(route('users.edit', $admin))->assertForbidden();
+});
+
 test('admin users can delete other users', function () {
     $admin = adminUser();
     $user = regularUser();
