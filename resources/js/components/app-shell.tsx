@@ -1,21 +1,17 @@
-import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import type { AppVariant } from '@/types';
+import AppWallpaper from '@/components/app-wallpaper';
 
 type Props = {
     children: ReactNode;
-    variant?: AppVariant;
 };
 
-export function AppShell({ children, variant = 'sidebar' }: Props) {
-    const isOpen = usePage().props.sidebarOpen;
-
-    if (variant === 'header') {
-        return (
-            <div className="flex min-h-screen w-full flex-col">{children}</div>
-        );
-    }
-
-    return <SidebarProvider defaultOpen={isOpen}>{children}</SidebarProvider>;
+export function AppShell({ children }: Props) {
+    return (
+        <div className="relative flex min-h-dvh w-full flex-col overflow-hidden">
+            <div className="pointer-events-none fixed inset-0 z-0">
+                <AppWallpaper />
+            </div>
+            <div className="relative z-10 flex min-h-dvh w-full flex-col">{children}</div>
+        </div>
+    );
 }

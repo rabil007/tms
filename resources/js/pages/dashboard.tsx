@@ -1,36 +1,50 @@
-import { Head } from '@inertiajs/react';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import { dashboard } from '@/routes';
+import { Head, usePage } from '@inertiajs/react';
+import { Globe, LayoutDashboard, Settings } from 'lucide-react';
+import { DashboardGrid, type DashboardModule } from '@/components/dashboard-grid';
+import type { Auth } from '@/types';
+
+type PageProps = {
+    auth: Auth;
+};
+
+const modules: DashboardModule[] = [
+    {
+        id: 'home',
+        name: 'Overview',
+        icon: LayoutDashboard,
+        color: 'from-slate-600 to-slate-700',
+        href: '/dashboard',
+    },
+    {
+        id: 'settings',
+        name: 'Settings',
+        icon: Settings,
+        color: 'from-zinc-600 to-neutral-800',
+        href: '/settings/profile',
+    },
+    {
+        id: 'countries',
+        name: 'Countries',
+        icon: Globe,
+        color: 'from-blue-500 to-indigo-600',
+        href: '/countries',
+    },
+];
 
 export default function Dashboard() {
+    const { auth } = usePage<PageProps>().props;
+    const storageKey = `dashboard:order:${auth.user?.id ?? 'guest'}`;
+
     return (
         <>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+            <div className="relative z-10 flex flex-1 items-center justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-10">
+                <DashboardGrid
+                    modules={modules}
+                    iconSize="lg"
+                    storageKey={storageKey}
+                />
             </div>
         </>
     );
 }
-
-Dashboard.layout = {
-    breadcrumbs: [
-        {
-            title: 'Dashboard',
-            href: dashboard(),
-        },
-    ],
-};
