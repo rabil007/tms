@@ -22,12 +22,14 @@ trait HandlesIndexListing
         string $modelClass,
         array $sortableColumns,
         array $searchableColumns,
-        string $defaultSort = 'name',
+        ?string $defaultSort = null,
         int $defaultPerPage = 15,
     ): array {
+        $resolvedDefaultSort = $defaultSort ?? $sortableColumns[0] ?? 'id';
+
         $sort = in_array($request->input('sort'), $sortableColumns, true)
             ? $request->input('sort')
-            : $defaultSort;
+            : $resolvedDefaultSort;
 
         $dir = $request->input('dir', 'asc') === 'desc' ? 'desc' : 'asc';
 

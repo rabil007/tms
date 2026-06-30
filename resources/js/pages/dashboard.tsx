@@ -1,5 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
-import { Globe, LayoutDashboard, Settings } from 'lucide-react';
+import { FolderKanban, Globe, LayoutDashboard, Settings } from 'lucide-react';
 import { DashboardGrid, type DashboardModule } from '@/components/dashboard-grid';
 import type { Auth } from '@/types';
 
@@ -28,6 +28,13 @@ const modules: DashboardModule[] = [
         icon: Globe,
         color: 'from-blue-500 to-indigo-600',
         href: '/countries',
+    },
+    {
+        id: 'projects',
+        name: 'Projects',
+        icon: FolderKanban,
+        color: 'from-violet-500 to-purple-600',
+        href: '/projects',
     },
 ];
 
