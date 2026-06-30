@@ -67,18 +67,28 @@ class ScheduleController extends Controller
                     });
                 });
             })
+            ->when($request->filled('project_id'), function ($query) use ($request): void {
+                $query->where('project_id', $request->integer('project_id'));
+            })
+            ->when($request->filled('date_from'), function ($query) use ($request): void {
+                $query->whereDate('scheduled_date', '>=', $request->date('date_from'));
+            })
+            ->when($request->filled('date_to'), function ($query) use ($request): void {
+                $query->whereDate('scheduled_date', '<=', $request->date('date_to'));
+            })
             ->orderBy($sort, $dir)
             ->paginate($request->integer('per_page', 15))
             ->withQueryString();
 
         $filters = array_filter(
-            $request->only(['q', 'sort', 'dir', 'per_page']),
+            $request->only(['q', 'sort', 'dir', 'per_page', 'project_id', 'date_from', 'date_to']),
             fn (mixed $value): bool => $value !== null && $value !== '',
         );
 
         return Inertia::render('admin/schedules/index', [
             'schedules' => $schedules,
             'filters' => (object) $filters,
+            'projects' => $this->projectOptions(),
         ]);
     }
 

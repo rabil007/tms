@@ -19,6 +19,10 @@ import { useIndexQueryParams } from '@/hooks/use-index-query-params';
 import { useIndexViewMode } from '@/hooks/use-index-view-mode';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
+    ScheduleIndexFilters,
+    type ProjectFilterOption,
+} from '@/pages/admin/schedules/schedule-index-filters';
+import {
     formatPickUpTime,
     formatScheduleDate,
     SCHEDULE_ROUTES,
@@ -31,20 +35,49 @@ import {
 type Paged<T> = {
     data: T[];
     links: { url: string | null; label: string; active: boolean }[];
-    meta: { current_page: number; last_page: number; per_page: number; total: number };
+    meta?: { current_page: number; last_page: number; per_page: number; total: number };
+    total?: number;
+    current_page?: number;
+    per_page?: number;
 };
 
 const ALLOWED_SORTS = ['crew_name', 'scheduled_date', 'pick_up_time', 'pick_up_location', 'drop_off_location'];
 
+type ScheduleFilters = {
+    q?: string;
+    sort?: string;
+    dir?: 'asc' | 'desc';
+    per_page?: number;
+    project_id?: number | string;
+    date_from?: string;
+    date_to?: string;
+};
+
 export default function SchedulesIndex({
     schedules,
     filters,
+    projects,
 }: {
     schedules: Paged<ScheduleRow>;
-    filters: { q?: string; sort?: string; dir?: 'asc' | 'desc'; per_page?: number };
+    filters: ScheduleFilters;
+    projects: ProjectFilterOption[];
 }) {
     const isMobile = useIsMobile();
     const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'schedules:index:view' });
+
+    const [indexFilters, setIndexFilters] = React.useState({
+        projectId: filters.project_id ? String(filters.project_id) : '',
+        dateFrom: filters.date_from ?? '',
+        dateTo: filters.date_to ?? '',
+    });
+
+    React.useEffect(() => {
+        setIndexFilters({
+            projectId: filters.project_id ? String(filters.project_id) : '',
+            dateFrom: filters.date_from ?? '',
+            dateTo: filters.date_to ?? '',
+        });
+    }, [filters.project_id, filters.date_from, filters.date_to]);
 
     const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } = useIndexQueryParams({
         href: SCHEDULE_ROUTES.index,
@@ -52,11 +85,17 @@ export default function SchedulesIndex({
         defaultPerPage: 15,
         defaultSort: 'scheduled_date',
         allowedSorts: ALLOWED_SORTS,
+        extras: {
+            project_id: indexFilters.projectId ? Number(indexFilters.projectId) : undefined,
+            date_from: indexFilters.dateFrom || undefined,
+            date_to: indexFilters.dateTo || undefined,
+        },
     });
 
-    const slOffset = ((schedules?.meta?.current_page ?? 1) - 1) * (schedules?.meta?.per_page ?? 15);
-    const total = schedules?.meta?.total ?? 0;
+    const slOffset = ((schedules?.meta?.current_page ?? schedules?.current_page ?? 1) - 1) * (schedules?.meta?.per_page ?? schedules?.per_page ?? 15);
+    const total = schedules?.meta?.total ?? schedules?.total ?? 0;
     const hasSearch = q.length > 0;
+    const hasActiveFilters = hasSearch || !!indexFilters.projectId || !!indexFilters.dateFrom || !!indexFilters.dateTo;
     const isEmpty = schedules.data.length === 0;
 
     const { requestConfirm, ConfirmDialog } = useConfirmDialog();
@@ -217,22 +256,29 @@ export default function SchedulesIndex({
                 search={q}
                 onSearchChange={setQ}
                 searchPlaceholder="Search crew, project, location…"
-                hasSearch={hasSearch}
+                hasSearch={hasActiveFilters}
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
+            />
+
+            <ScheduleIndexFilters
+                projects={projects}
+                value={indexFilters}
+                onChange={setIndexFilters}
+                onClear={() => setIndexFilters({ projectId: '', dateFrom: '', dateTo: '' })}
             />
 
             {isEmpty ? (
                 <EmptyState
                     icon={CalendarClock}
-                    title={hasSearch ? 'No matches found' : 'No schedules yet'}
+                    title={hasActiveFilters ? 'No matches found' : 'No schedules yet'}
                     description={
-                        hasSearch
-                            ? 'Try adjusting your search or clear the filter to see all schedules.'
+                        hasActiveFilters
+                            ? 'Try adjusting your search or filters to see more schedules.'
                             : 'Create your first schedule to start managing crew transport.'
                     }
                     action={
-                        !hasSearch ? (
+                        !hasActiveFilters ? (
                             <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
                                 <Link href={SCHEDULE_ROUTES.create}>
                                     <Plus className="size-4" />

@@ -203,3 +203,38 @@ test('schedules index search returns matching project title', function () {
         ->has('schedules.data', 1)
         ->where('schedules.data.0.id', $schedule->id));
 });
+
+test('schedules index can filter by project', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->create(['title' => 'AMC']);
+    $otherProject = Project::factory()->create(['title' => 'NMDC']);
+    $schedule = Schedule::factory()->create(['project_id' => $project->id]);
+    Schedule::factory()->create(['project_id' => $otherProject->id]);
+
+    $response = $this->actingAs($user)->get(route('schedules.index', ['project_id' => $project->id]));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->has('schedules.data', 1)
+        ->where('schedules.data.0.id', $schedule->id));
+});
+
+test('schedules index can filter by date range', function () {
+    $user = User::factory()->create();
+    $inRange = Schedule::factory()->create(['scheduled_date' => '2026-07-10']);
+    Schedule::factory()->create(['scheduled_date' => '2026-06-01']);
+
+    $response = $this->actingAs($user)->get(route('schedules.index', [
+        'date_from' => '2026-07-01',
+        'date_to' => '2026-07-31',
+    ]));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->has('schedules.data', 1)
+        ->where('schedules.data.0.id', $inRange->id));
+});
