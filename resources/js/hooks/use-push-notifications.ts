@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import React from 'react';
+import { pushDebugLog } from '@/lib/push-debug-log';
 
 const PUSH_ROUTES = {
     store: '/push-subscriptions',
@@ -88,6 +89,19 @@ export function usePushNotifications(
                 const subscription = await registration.pushManager.getSubscription();
 
                 if (!cancelled) {
+                    // #region agent log
+                    pushDebugLog({
+                        hypothesisId: 'A',
+                        location: 'use-push-notifications.ts:subscription-check',
+                        message: 'Checked existing browser push subscription',
+                        data: {
+                            has_subscription: subscription !== null,
+                            permission: Notification.permission,
+                            endpoint_prefix: subscription?.endpoint?.slice(0, 80) ?? null,
+                        },
+                    });
+                    // #endregion
+
                     setEnabled(subscription !== null);
                     setSetupError(null);
                 }
@@ -156,6 +170,20 @@ export function usePushNotifications(
             const contentEncoding =
                 PushManager.supportedContentEncodings?.[0] ?? 'aes128gcm';
 
+            // #region agent log
+            pushDebugLog({
+                hypothesisId: 'A',
+                location: 'use-push-notifications.ts:enable',
+                message: 'Browser subscribed to push manager',
+                data: {
+                    permission,
+                    content_encoding: contentEncoding,
+                    supported_encodings: PushManager.supportedContentEncodings ?? [],
+                    endpoint_prefix: json.endpoint?.slice(0, 80) ?? null,
+                },
+            });
+            // #endregion
+
             await new Promise<void>((resolve, reject) => {
                 router.post(
                     PUSH_ROUTES.store,
@@ -166,7 +194,18 @@ export function usePushNotifications(
                     },
                     {
                         preserveScroll: true,
-                        onSuccess: () => resolve(),
+                        onSuccess: () => {
+                            // #region agent log
+                            pushDebugLog({
+                                hypothesisId: 'A',
+                                location: 'use-push-notifications.ts:store-success',
+                                message: 'Push subscription saved on server',
+                                data: { content_encoding: contentEncoding },
+                            });
+                            // #endregion
+
+                            resolve();
+                        },
                         onError: () => reject(new Error('Failed to save push subscription.')),
                     },
                 );
@@ -178,6 +217,16 @@ export function usePushNotifications(
             return true;
         } catch (caught) {
             const message = resolvePushError(caught);
+
+            // #region agent log
+            pushDebugLog({
+                hypothesisId: 'E',
+                location: 'use-push-notifications.ts:enable-error',
+                message: 'Failed to enable push notifications',
+                data: { error: message },
+            });
+            // #endregion
+
             setError(message);
             setSetupError(message);
 

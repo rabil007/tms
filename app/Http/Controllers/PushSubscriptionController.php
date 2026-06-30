@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\PushDebugLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -16,12 +17,28 @@ class PushSubscriptionController extends Controller
             'contentEncoding' => ['nullable', 'string', 'in:aesgcm,aes128gcm'],
         ]);
 
+        $encoding = $validated['contentEncoding'] ?? 'aesgcm';
+
         $request->user()->updatePushSubscription(
             $validated['endpoint'],
             $validated['keys']['p256dh'],
             $validated['keys']['auth'],
-            $validated['contentEncoding'] ?? 'aesgcm',
+            $encoding,
         );
+
+        // #region agent log
+        PushDebugLog::write(
+            'A',
+            'PushSubscriptionController:store',
+            'Push subscription saved',
+            [
+                'user_id' => $request->user()->id,
+                'content_encoding' => $encoding,
+                'endpoint_prefix' => substr($validated['endpoint'], 0, 80),
+                'subscription_count' => $request->user()->pushSubscriptions()->count(),
+            ],
+        );
+        // #endregion
 
         return back();
     }

@@ -1,9 +1,53 @@
+function agentPushDebugLog(hypothesisId, location, message, data = {}) {
+    const payload = {
+        sessionId: '55a27f',
+        runId: 'pre-fix',
+        hypothesisId,
+        location,
+        message,
+        data,
+        timestamp: Date.now(),
+    };
+
+    fetch('http://127.0.0.1:7922/ingest/b4e2405a-b303-40c5-8d94-3b564608dd1b', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Debug-Session-Id': '55a27f',
+        },
+        body: JSON.stringify(payload),
+    }).catch(() => {});
+
+    fetch('/internal/push-debug', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+    }).catch(() => {});
+}
+
 self.addEventListener('push', (event) => {
-    if (!event.data) {
+    const rawPayload = event.data ? event.data.text() : null;
+
+    // #region agent log
+    agentPushDebugLog('D', 'sw.js:push', 'Service worker received push event', {
+        has_data: Boolean(rawPayload),
+        data_text: rawPayload ? rawPayload.slice(0, 200) : null,
+    });
+    // #endregion
+
+    if (!rawPayload) {
+        // #region agent log
+        agentPushDebugLog('D', 'sw.js:push-empty', 'Push event had no payload data', {});
+        // #endregion
+
         return;
     }
 
-    const payload = event.data.json();
+    const payload = JSON.parse(rawPayload);
     const title = payload.title ?? 'Overseas';
     const options = {
         body: payload.body ?? '',
@@ -14,7 +58,22 @@ self.addEventListener('push', (event) => {
         },
     };
 
-    event.waitUntil(self.registration.showNotification(title, options));
+    event.waitUntil(
+        self.registration.showNotification(title, options).then(() => {
+            // #region agent log
+            agentPushDebugLog('D', 'sw.js:showNotification', 'OS notification displayed', {
+                title,
+                body: options.body,
+            });
+            // #endregion
+        }).catch((error) => {
+            // #region agent log
+            agentPushDebugLog('D', 'sw.js:showNotification-error', 'Failed to display OS notification', {
+                error: String(error),
+            });
+            // #endregion
+        }),
+    );
 });
 
 self.addEventListener('notificationclick', (event) => {
