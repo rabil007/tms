@@ -30,15 +30,18 @@ import {
 type Paged<T> = {
     data: T[];
     links: { url: string | null; label: string; active: boolean }[];
-    meta: { current_page: number; last_page: number; per_page: number; total: number };
+    meta?: { current_page: number; last_page: number; per_page: number; total: number };
+    total?: number;
 };
 
 export default function UsersIndex({
     users,
     filters,
+    counts,
 }: {
     users: Paged<UserRow>;
     filters: { q?: string; sort?: string; dir?: 'asc' | 'desc'; per_page?: number };
+    counts: { total: number; admins: number; users: number };
 }) {
     const isMobile = useIsMobile();
     const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'users:index:view' });
@@ -52,7 +55,6 @@ export default function UsersIndex({
     });
 
     const slOffset = ((users?.meta?.current_page ?? 1) - 1) * (users?.meta?.per_page ?? 15);
-    const total = users?.meta?.total ?? 0;
     const hasSearch = q.length > 0;
     const isEmpty = users.data.length === 0;
 
@@ -173,16 +175,18 @@ export default function UsersIndex({
                 className="mb-6 sm:mb-8"
             />
 
-            <div className="mb-6 grid grid-cols-2 gap-3">
+            <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <GlassCard level="inner" className="px-4 py-3.5">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{total}</p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.total}</p>
                 </GlassCard>
                 <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Showing</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">
-                        {users.data.length}
-                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Admins</p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.admins}</p>
+                </GlassCard>
+                <GlassCard level="inner" className="px-4 py-3.5">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Users</p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.users}</p>
                 </GlassCard>
             </div>
 

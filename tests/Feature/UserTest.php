@@ -26,6 +26,24 @@ test('admin users can visit users index', function () {
     $response->assertOk();
 });
 
+test('users index exposes role counts excluding the logged in admin', function () {
+    $admin = adminUser();
+    $userRole = Role::query()->where('slug', 'user')->firstOrFail();
+    $adminRole = Role::query()->where('slug', 'admin')->firstOrFail();
+
+    User::factory()->create(['role_id' => $userRole->id]);
+    User::factory()->create(['role_id' => $userRole->id]);
+    User::factory()->create(['role_id' => $adminRole->id]);
+
+    $response = $this->actingAs($admin)->get(route('users.index'));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->where('counts.total', 3)
+        ->where('counts.admins', 1)
+        ->where('counts.users', 2));
+});
+
 test('admin users can visit users create page', function () {
     $user = adminUser();
 

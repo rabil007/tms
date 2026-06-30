@@ -47,9 +47,16 @@ class UserController extends Controller
             fn (mixed $value): bool => $value !== null && $value !== '',
         );
 
+        $manageableUsers = User::query()->whereKeyNot($request->user()->id);
+
         return Inertia::render('admin/users/index', [
             'users' => $users,
             'filters' => (object) $filters,
+            'counts' => [
+                'total' => (clone $manageableUsers)->count(),
+                'admins' => (clone $manageableUsers)->whereHas('role', fn (Builder $query) => $query->where('slug', 'admin'))->count(),
+                'users' => (clone $manageableUsers)->whereHas('role', fn (Builder $query) => $query->where('slug', 'user'))->count(),
+            ],
         ]);
     }
 
