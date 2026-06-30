@@ -16,18 +16,11 @@ const modules: DashboardModule[] = [
         href: '/dashboard',
     },
     {
-        id: 'settings',
-        name: 'Settings',
-        icon: Settings,
-        color: 'from-zinc-600 to-neutral-800',
-        href: '/settings/profile',
-    },
-    {
-        id: 'countries',
-        name: 'Countries',
-        icon: Globe,
-        color: 'from-blue-500 to-indigo-600',
-        href: '/countries',
+        id: 'schedules',
+        name: 'Schedules',
+        icon: CalendarClock,
+        color: 'from-emerald-500 to-teal-600',
+        href: '/schedules',
     },
     {
         id: 'projects',
@@ -37,11 +30,18 @@ const modules: DashboardModule[] = [
         href: '/projects',
     },
     {
-        id: 'schedules',
-        name: 'Schedules',
-        icon: CalendarClock,
-        color: 'from-emerald-500 to-teal-600',
-        href: '/schedules',
+        id: 'countries',
+        name: 'Countries',
+        icon: Globe,
+        color: 'from-blue-500 to-indigo-600',
+        href: '/countries',
+    },
+    {
+        id: 'settings',
+        name: 'Settings',
+        icon: Settings,
+        color: 'from-zinc-600 to-neutral-800',
+        href: '/settings/profile',
     },
 ];
 
