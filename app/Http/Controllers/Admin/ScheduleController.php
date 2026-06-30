@@ -176,14 +176,16 @@ class ScheduleController extends Controller
      */
     private function projectOptions(): array
     {
-        return Project::query()
-            ->orderBy('title')
-            ->get(['id', 'title'])
-            ->map(fn (Project $project): array => [
-                'id' => $project->id,
-                'title' => $project->title,
-            ])
-            ->all();
+        return array_values(
+            Project::query()
+                ->orderBy('title')
+                ->get(['id', 'title'])
+                ->map(fn (Project $project): array => [
+                    'id' => $project->id,
+                    'title' => $project->title,
+                ])
+                ->all(),
+        );
     }
 
     /**
@@ -191,15 +193,17 @@ class ScheduleController extends Controller
      */
     private function countryOptions(): array
     {
-        return Country::query()
-            ->orderBy('name')
-            ->get(['id', 'name', 'iso2', 'dial_code'])
-            ->map(fn (Country $country): array => [
-                'id' => $country->id,
-                'name' => $country->name,
-                'iso2' => $country->iso2,
-                'dial_code' => $country->dial_code,
-            ])
-            ->all();
+        return array_values(
+            Country::query()
+                ->orderBy('name')
+                ->get(['id', 'name', 'iso2', 'dial_code'])
+                ->map(fn (Country $country): array => [
+                    'id' => $country->id,
+                    'name' => $country->name,
+                    'iso2' => $country->iso2,
+                    'dial_code' => $country->dial_code,
+                ])
+                ->all(),
+        );
     }
 }

@@ -10,12 +10,10 @@ use Illuminate\Pagination\LengthAwarePaginator;
 trait HandlesIndexListing
 {
     /**
-     * @template TModel of Model
-     *
-     * @param  class-string<TModel>  $modelClass
+     * @param  class-string<Model>  $modelClass
      * @param  list<string>  $sortableColumns
      * @param  list<string>  $searchableColumns
-     * @return array{paginator: LengthAwarePaginator, filters: object}
+     * @return array{paginator: LengthAwarePaginator<int, Model>, filters: \stdClass}
      */
     protected function paginateIndexListing(
         Request $request,
@@ -33,7 +31,7 @@ trait HandlesIndexListing
 
         $dir = $request->input('dir', 'asc') === 'desc' ? 'desc' : 'asc';
 
-        /** @var Builder<TModel> $query */
+        /** @var Builder<Model> $query */
         $query = $modelClass::query();
 
         $paginator = $query

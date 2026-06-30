@@ -154,10 +154,16 @@ class UserController extends Controller
      */
     private function roleOptions(): array
     {
-        return Role::query()
-            ->orderBy('name')
-            ->get(['id', 'name'])
-            ->all();
+        return array_values(
+            Role::query()
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn (Role $role): array => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ])
+                ->all(),
+        );
     }
 
     private function ensureNotCurrentUser(User $user): void

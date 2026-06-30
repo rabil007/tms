@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Concerns\UserValidationRules;
+use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,6 +26,9 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->userRules($this->route('user')?->id, requirePassword: false);
+        /** @var User $user */
+        $user = $this->route('user');
+
+        return $this->userRules($user->id, requirePassword: false);
     }
 }

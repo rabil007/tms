@@ -59,8 +59,8 @@ class ScheduleActivityNotification extends Notification
         return (new WebPushMessage)
             ->title($payload['title'])
             ->body($payload['message'])
-            ->action('View', $payload['action_url'] ?? route('dashboard'))
-            ->data(['url' => $payload['action_url'] ?? route('dashboard')]);
+            ->action('View', $payload['action_url'])
+            ->data(['url' => $payload['action_url']]);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Concerns\ProjectValidationRules;
+use App\Models\Project;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,6 +26,9 @@ class UpdateProjectRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->projectRules($this->route('project')?->id);
+        /** @var Project $project */
+        $project = $this->route('project');
+
+        return $this->projectRules($project->id);
     }
 }

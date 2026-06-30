@@ -46,7 +46,7 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * @return array{unread_count: int, items: list<array<string, mixed>>}|null
+     * @return array{unread_count: int, items: array<int, array<string, mixed>>}|null
      */
     private function sharedNotifications(Request $request): ?array
     {
@@ -56,11 +56,11 @@ class HandleInertiaRequests extends Middleware
             return null;
         }
 
-        $items = $user->notifications()
+        $items = array_values($user->notifications()
             ->latest()
             ->limit(15)
             ->get()
-            ->map(fn ($notification) => [
+            ->map(fn ($notification): array => [
                 'id' => $notification->id,
                 'title' => $notification->data['title'] ?? '',
                 'message' => $notification->data['message'] ?? '',
@@ -68,8 +68,7 @@ class HandleInertiaRequests extends Middleware
                 'read_at' => $notification->read_at?->toIso8601String(),
                 'created_at_diff' => $notification->created_at?->diffForHumans(),
             ])
-            ->values()
-            ->all();
+            ->all());
 
         return [
             'unread_count' => $user->unreadNotifications()->count(),
