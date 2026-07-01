@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
-import { edit as editApplication } from '@/routes/application';
 import { edit as editAppearance } from '@/routes/appearance';
+import { edit as editApplication } from '@/routes/application';
 import { edit as editNotifications } from '@/routes/notifications';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import { edit as editSmtp } from '@/routes/smtp';
-import type { Auth } from '@/types/auth';
 import type { NavItem } from '@/types';
+import type { Auth } from '@/types/auth';
 
 const baseSettingsNavItems: NavItem[] = [
     {

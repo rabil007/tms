@@ -1,6 +1,6 @@
+import React from 'react';
 import { useAppearance } from '@/hooks/use-appearance';
 import { PWA_THEME_COLORS, setThemeColorMeta } from '@/lib/pwa';
-import React from 'react';
 
 export function PwaThemeMeta() {
     const { resolvedAppearance } = useAppearance();

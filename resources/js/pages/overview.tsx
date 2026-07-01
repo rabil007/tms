@@ -4,16 +4,17 @@ import type { ElementType } from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { SectionHeader } from '@/components/layout/section-header';
+import { AnalyticsPanelsSkeleton } from '@/components/loading/analytics-panel-skeleton';
+import { FeedListSkeleton } from '@/components/loading/feed-list-skeleton';
+import { StatCardsSkeleton } from '@/components/loading/stat-cards-skeleton';
 import {
     MonthlyTrendPanel,
     ScheduleForecastPanel,
     TopPickUpLocationsPanel,
-    TopProjectsPanel,
-    type OverviewAnalytics,
+    TopProjectsPanel
+    
 } from '@/components/overview/analytics-panels';
-import { AnalyticsPanelsSkeleton } from '@/components/loading/analytics-panel-skeleton';
-import { FeedListSkeleton } from '@/components/loading/feed-list-skeleton';
-import { StatCardsSkeleton } from '@/components/loading/stat-cards-skeleton';
+import type {OverviewAnalytics} from '@/components/overview/analytics-panels';
 import { cn } from '@/lib/utils';
 import {
     formatPickUpTime,

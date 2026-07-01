@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import React from 'react';
-import { prefersReducedMotion } from '@/lib/pwa';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { prefersReducedMotion } from '@/lib/pwa';
 
 const PULL_THRESHOLD = 80;
 

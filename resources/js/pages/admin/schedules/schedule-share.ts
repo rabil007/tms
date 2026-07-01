@@ -1,8 +1,9 @@
 import {
     formatPickUpTime,
-    formatScheduleDate,
-    type ScheduleRow,
+    formatScheduleDate
+    
 } from '@/pages/admin/schedules/schedule-format';
+import type {ScheduleRow} from '@/pages/admin/schedules/schedule-format';
 
 export type ScheduleShareData = Pick<
     ScheduleRow,

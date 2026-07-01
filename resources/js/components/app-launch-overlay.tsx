@@ -1,3 +1,4 @@
+import React from 'react';
 import AppLogoImage from '@/components/app-logo-icon';
 import {
     dispatchAppLaunchComplete,
@@ -6,7 +7,6 @@ import {
     prefersReducedMotion,
 } from '@/lib/pwa';
 import { cn } from '@/lib/utils';
-import React from 'react';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -18,21 +18,19 @@ export function AppLaunchOverlay() {
             return false;
         }
 
-        return !hasAppLaunchedThisSession();
+        return !hasAppLaunchedThisSession() && !prefersReducedMotion();
     });
     const [phase, setPhase] = React.useState<LaunchPhase>('enter');
 
     React.useEffect(() => {
-        if (!visible) {
-            return;
-        }
-
-        if (prefersReducedMotion()) {
+        if (!hasAppLaunchedThisSession() && prefersReducedMotion()) {
             markAppLaunchedThisSession();
             dispatchAppLaunchComplete();
-            setVisible(false);
-            setPhase('done');
+        }
+    }, []);
 
+    React.useEffect(() => {
+        if (!visible) {
             return;
         }
 

@@ -1,9 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
 import { Pencil, Share2 } from 'lucide-react';
 import React from 'react';
-import { ScheduleShareModal } from '@/components/schedules/schedule-share-modal';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
+import { ScheduleShareModal } from '@/components/schedules/schedule-share-modal';
 import { Button } from '@/components/ui/button';
 import { formatPickUpTime, formatScheduleDate } from '@/pages/admin/schedules/schedule-views';
 

@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $remarks
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Project $project
+ * @property-read Project|null $project
  */
 #[Fillable([
     'crew_name',

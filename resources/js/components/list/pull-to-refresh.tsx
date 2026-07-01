@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
+import { cn } from '@/lib/utils';
 
 type PullToRefreshProps = {
     children: ReactNode;

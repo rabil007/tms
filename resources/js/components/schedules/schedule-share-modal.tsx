@@ -16,9 +16,10 @@ import {
     copySchedulesShareMessage,
     formatSchedulesShareMessage,
     openSchedulesEmailShare,
-    openSchedulesWhatsAppShare,
-    type ScheduleShareData,
+    openSchedulesWhatsAppShare
+    
 } from '@/pages/admin/schedules/schedule-share';
+import type {ScheduleShareData} from '@/pages/admin/schedules/schedule-share';
 
 type ScheduleShareModalProps = {
     schedules: ScheduleShareData[];
@@ -53,12 +54,14 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
     const preview = schedules.length > 0 ? formatSchedulesShareMessage(schedules) : '';
     const isMultiple = schedules.length > 1;
 
-    React.useEffect(() => {
-        if (!open) {
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) {
             setEmailStep(false);
             setRecipient('');
         }
-    }, [open]);
+
+        onOpenChange(nextOpen);
+    };
 
     const handleCopy = async () => {
         if (schedules.length === 0) {
@@ -86,7 +89,7 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
             return;
         }
 
-        onOpenChange(false);
+        handleOpenChange(false);
     };
 
     const handleSendEmail = () => {
@@ -109,11 +112,11 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
         }
 
         openSchedulesEmailShare(schedules, trimmed);
-        onOpenChange(false);
+        handleOpenChange(false);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-lg">
                 <DialogHeader className="border-b border-border/40 px-5 py-4 text-left">
                     <DialogTitle>

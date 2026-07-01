@@ -138,12 +138,6 @@ export function DashboardGrid({
             return;
         }
 
-        if (hasAppLaunchedThisSession()) {
-            setAnimateTiles(true);
-
-            return;
-        }
-
         const handleLaunchComplete = () => {
             setAnimateTiles(true);
         };

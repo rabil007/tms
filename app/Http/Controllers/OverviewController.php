@@ -7,7 +7,9 @@ use App\Models\Schedule;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -130,6 +132,7 @@ class OverviewController extends Controller
             return [];
         }
 
+        /** @var list<array{id: int, title: string, count: int, percentage: int}> */
         return Project::query()
             ->withCount('schedules')
             ->whereHas('schedules')
@@ -139,8 +142,8 @@ class OverviewController extends Controller
             ->map(fn (Project $project): array => [
                 'id' => $project->id,
                 'title' => $project->title,
-                'count' => $project->schedules_count,
-                'percentage' => (int) round(($project->schedules_count / $total) * 100),
+                'count' => (int) $project->schedules_count,
+                'percentage' => (int) round(((int) $project->schedules_count / $total) * 100),
             ])
             ->values()
             ->all();
@@ -151,15 +154,16 @@ class OverviewController extends Controller
      */
     private function topPickUpLocations(): array
     {
-        return Schedule::query()
-            ->selectRaw('pick_up_location, COUNT(*) as count')
+        /** @var list<array{location: string, count: int}> */
+        return DB::table('schedules')
+            ->selectRaw('pick_up_location as location, COUNT(*) as aggregate_count')
             ->groupBy('pick_up_location')
-            ->orderByDesc('count')
+            ->orderByDesc('aggregate_count')
             ->limit(5)
             ->get()
-            ->map(fn ($row): array => [
-                'location' => $row->pick_up_location,
-                'count' => (int) $row->count,
+            ->map(fn (object $row): array => [
+                'location' => (string) $row->location,
+                'count' => (int) $row->aggregate_count,
             ])
             ->values()
             ->all();
@@ -170,6 +174,7 @@ class OverviewController extends Controller
      */
     private function recentSchedules(): array
     {
+        /** @var list<array{id: int, crew_name: string, scheduled_date: string, pick_up_time: string, project: array{title: string}|null}> */
         return Schedule::query()
             ->with('project:id,title')
             ->orderByDesc('scheduled_date')
@@ -181,7 +186,9 @@ class OverviewController extends Controller
                 'crew_name' => $schedule->crew_name,
                 'scheduled_date' => $schedule->scheduled_date->toDateString(),
                 'pick_up_time' => $schedule->pick_up_time,
-                'project' => $schedule->project ? ['title' => $schedule->project->title] : null,
+                'project' => $schedule->project !== null
+                    ? ['title' => $schedule->project->title]
+                    : null,
             ])
             ->values()
             ->all();
@@ -192,18 +199,24 @@ class OverviewController extends Controller
      */
     private function recentActivity(User $user): array
     {
+        /** @var list<array{id: string, title: string, message: string, action_url: string|null, read_at: string|null, created_at_diff: string|null}> */
         return $user->notifications()
             ->latest()
             ->limit(10)
             ->get()
-            ->map(fn ($notification): array => [
-                'id' => $notification->id,
-                'title' => $notification->data['title'] ?? '',
-                'message' => $notification->data['message'] ?? '',
-                'action_url' => $notification->data['action_url'] ?? null,
-                'read_at' => $notification->read_at?->toIso8601String(),
-                'created_at_diff' => $notification->created_at?->diffForHumans(),
-            ])
+            ->map(function (DatabaseNotification $notification): array {
+                /** @var array{title?: string, message?: string, action_url?: string|null} $data */
+                $data = $notification->data;
+
+                return [
+                    'id' => (string) $notification->id,
+                    'title' => $data['title'] ?? '',
+                    'message' => $data['message'] ?? '',
+                    'action_url' => $data['action_url'] ?? null,
+                    'read_at' => $notification->read_at?->toIso8601String(),
+                    'created_at_diff' => $notification->created_at?->diffForHumans(),
+                ];
+            })
             ->values()
             ->all();
     }

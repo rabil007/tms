@@ -9,9 +9,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
     formatPickUpTime,
     formatScheduleDate,
-    SCHEDULE_ROUTES,
-    type ScheduleRow,
+    SCHEDULE_ROUTES
+    
 } from '@/pages/admin/schedules/schedule-format';
+import type {ScheduleRow} from '@/pages/admin/schedules/schedule-format';
 
 export {
     formatPickUpTime,

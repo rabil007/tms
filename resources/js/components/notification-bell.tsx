@@ -40,12 +40,12 @@ export function NotificationBell() {
 
     React.useEffect(() => {
         if (notifications?.items) {
-            setItems(notifications.items);
+            queueMicrotask(() => setItems(notifications.items));
         }
     }, [notifications?.items]);
 
     React.useEffect(() => {
-        setUnreadCount(notificationsUnreadCount);
+        queueMicrotask(() => setUnreadCount(notificationsUnreadCount));
     }, [notificationsUnreadCount]);
 
     const markAsRead = React.useCallback((notification: AppNotification) => {

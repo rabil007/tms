@@ -16,21 +16,20 @@ function readDismissed(key: string): boolean {
     return localStorage.getItem(key) === '1';
 }
 
+function readInitialDismissed(): Record<keyof typeof TIP_KEYS, boolean> {
+    return {
+        install:
+            readDismissed(TIP_KEYS.install) ||
+            isStandalonePwa() ||
+            readDismissed(PWA_INSTALL_DISMISSED_KEY),
+        push: readDismissed(TIP_KEYS.push),
+        layout: readDismissed(TIP_KEYS.layout),
+    };
+}
+
 export function AppOnboardingTips() {
     const isMobile = useIsMobile();
-    const [dismissed, setDismissed] = React.useState({
-        install: true,
-        push: true,
-        layout: true,
-    });
-
-    React.useEffect(() => {
-        setDismissed({
-            install: readDismissed(TIP_KEYS.install) || isStandalonePwa() || readDismissed(PWA_INSTALL_DISMISSED_KEY),
-            push: readDismissed(TIP_KEYS.push),
-            layout: readDismissed(TIP_KEYS.layout),
-        });
-    }, []);
+    const [dismissed, setDismissed] = React.useState(readInitialDismissed);
 
     const dismiss = (key: keyof typeof TIP_KEYS) => {
         localStorage.setItem(TIP_KEYS[key], '1');
