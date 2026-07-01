@@ -1,10 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import { MessageCircle, Pencil } from 'lucide-react';
+import { Pencil, Share2 } from 'lucide-react';
 import React from 'react';
+import { ScheduleShareModal } from '@/components/schedules/schedule-share-modal';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { Button } from '@/components/ui/button';
-import { shareScheduleOnWhatsApp } from '@/pages/admin/schedules/schedule-whatsapp';
 import { formatPickUpTime, formatScheduleDate } from '@/pages/admin/schedules/schedule-views';
 
 const ROUTES = {
@@ -38,9 +38,13 @@ function DetailRow({ label, value, mono = false }: DetailRowProps) {
 }
 
 export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
+    const [shareOpen, setShareOpen] = React.useState(false);
+
     return (
         <ModulePageLayout backHref={ROUTES.index} backLabel="Schedules">
             <Head title={schedule.crew_name} />
+
+            <ScheduleShareModal schedule={schedule} open={shareOpen} onOpenChange={setShareOpen} />
 
             <div className="mx-auto w-full max-w-3xl">
                 <div className="mb-6">
@@ -90,11 +94,11 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={() => shareScheduleOnWhatsApp(schedule)}
-                        className="h-12 w-full rounded-xl border-emerald-500/30 bg-emerald-500/5 text-[14px] font-semibold text-emerald-700 hover:bg-emerald-500/10 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 sm:w-auto"
+                        onClick={() => setShareOpen(true)}
+                        className="h-12 w-full rounded-xl border-border/60 bg-background/50 text-[14px] font-semibold sm:w-auto"
                     >
-                        <MessageCircle className="size-4" />
-                        Share on WhatsApp
+                        <Share2 className="size-4" />
+                        Share
                     </Button>
                     <Button asChild className="h-12 w-full rounded-xl px-8 text-[14px] font-semibold shadow-lg shadow-primary/20 sm:w-auto">
                         <Link href={ROUTES.edit(schedule.id)}>

@@ -1,41 +1,37 @@
 import { Link } from '@inertiajs/react';
-import { Eye, MessageCircle, Pencil, Trash2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Eye, Pencil, Share2, Trash2 } from 'lucide-react';
 
 export type RowActionsProps = {
     showUrl: string;
     editUrl: string;
     onDelete: () => Promise<void>;
-    onShareWhatsApp?: () => void;
+    onShare?: () => void;
     showLabel?: string;
     editLabel?: string;
     deleteLabel?: string;
-    shareWhatsAppLabel?: string;
+    shareLabel?: string;
 };
 
 export function RowActions({
     showUrl,
     editUrl,
     onDelete,
-    onShareWhatsApp,
+    onShare,
     showLabel = 'View',
     editLabel = 'Edit',
     deleteLabel = 'Delete',
-    shareWhatsAppLabel = 'Share on WhatsApp',
+    shareLabel = 'Share schedule',
 }: RowActionsProps) {
     return (
         <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-            {onShareWhatsApp && (
+            {onShare && (
                 <button
                     type="button"
-                    title={shareWhatsAppLabel}
-                    onClick={onShareWhatsApp}
-                    className={cn(
-                        'flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors',
-                        'hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400',
-                    )}
+                    title={shareLabel}
+                    onClick={onShare}
+                    className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
                 >
-                    <MessageCircle className="size-4" />
+                    <Share2 className="size-4" />
                 </button>
             )}
             <Link

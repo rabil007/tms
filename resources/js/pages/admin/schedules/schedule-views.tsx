@@ -11,7 +11,6 @@ import {
     SCHEDULE_ROUTES,
     type ScheduleRow,
 } from '@/pages/admin/schedules/schedule-format';
-import { shareScheduleOnWhatsApp } from '@/pages/admin/schedules/schedule-whatsapp';
 
 export {
     formatPickUpTime,
@@ -37,18 +36,23 @@ export function ScheduleTable({ table }: ScheduleTableProps) {
 type ScheduleCardsProps = {
     schedules: ScheduleRow[];
     onDelete: (schedule: ScheduleRow) => () => Promise<void>;
+    onShare: (schedule: ScheduleRow) => void;
 };
 
-function scheduleRowActionsProps(schedule: ScheduleRow, onDelete: () => Promise<void>) {
+function scheduleRowActionsProps(
+    schedule: ScheduleRow,
+    onDelete: () => Promise<void>,
+    onShare: (schedule: ScheduleRow) => void,
+) {
     return {
         showUrl: SCHEDULE_ROUTES.show(schedule.id),
         editUrl: SCHEDULE_ROUTES.edit(schedule.id),
         onDelete,
-        onShareWhatsApp: () => shareScheduleOnWhatsApp(schedule),
+        onShare: () => onShare(schedule),
         showLabel: 'View schedule',
         editLabel: 'Edit schedule',
         deleteLabel: 'Delete schedule',
-        shareWhatsAppLabel: 'Share schedule on WhatsApp',
+        shareLabel: 'Share schedule',
     };
 }
 
@@ -60,7 +64,7 @@ function ScheduleIcon() {
     );
 }
 
-export function ScheduleListCards({ schedules, onDelete }: ScheduleCardsProps) {
+export function ScheduleListCards({ schedules, onDelete, onShare }: ScheduleCardsProps) {
     return (
         <div className="space-y-3">
             {schedules.map((schedule) => (
@@ -97,7 +101,7 @@ export function ScheduleListCards({ schedules, onDelete }: ScheduleCardsProps) {
                         <ChevronRight className="size-5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-muted-foreground" />
                     </div>
                     <div className="mt-4 flex justify-end border-t border-border/30 pt-3">
-                        <RowActions {...scheduleRowActionsProps(schedule, onDelete(schedule))} />
+                        <RowActions {...scheduleRowActionsProps(schedule, onDelete(schedule), onShare)} />
                     </div>
                 </GlassCard>
             ))}
@@ -105,7 +109,7 @@ export function ScheduleListCards({ schedules, onDelete }: ScheduleCardsProps) {
     );
 }
 
-export function ScheduleGridCards({ schedules, onDelete }: ScheduleCardsProps) {
+export function ScheduleGridCards({ schedules, onDelete, onShare }: ScheduleCardsProps) {
     return (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {schedules.map((schedule) => (
@@ -135,7 +139,7 @@ export function ScheduleGridCards({ schedules, onDelete }: ScheduleCardsProps) {
                         {schedule.pick_up_location} → {schedule.drop_off_location}
                     </p>
                     <div className="mt-auto flex justify-end border-t border-border/30 pt-3">
-                        <RowActions {...scheduleRowActionsProps(schedule, onDelete(schedule))} />
+                        <RowActions {...scheduleRowActionsProps(schedule, onDelete(schedule), onShare)} />
                     </div>
                 </GlassCard>
             ))}

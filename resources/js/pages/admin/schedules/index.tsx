@@ -14,6 +14,7 @@ import { RowsPerPageSelect } from '@/components/list/rows-per-page-select';
 import { SortableHeader } from '@/components/list/sortable-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ScheduleShareModal } from '@/components/schedules/schedule-share-modal';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import { useIndexQueryParams } from '@/hooks/use-index-query-params';
 import { useIndexViewMode } from '@/hooks/use-index-view-mode';
@@ -34,7 +35,6 @@ import {
     
 } from '@/pages/admin/schedules/schedule-views';
 import type {ScheduleRow} from '@/pages/admin/schedules/schedule-views';
-import { shareScheduleOnWhatsApp } from '@/pages/admin/schedules/schedule-whatsapp';
 
 type Paged<T> = {
     data: T[];
@@ -74,6 +74,7 @@ export default function SchedulesIndex({
 }) {
     const isMobile = useIsMobile();
     const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'schedules:index:view' });
+    const [shareSchedule, setShareSchedule] = React.useState<ScheduleRow | null>(null);
 
     const [indexFilters, setIndexFilters] = React.useState({
         projectId: filters.project_id ? String(filters.project_id) : '',
@@ -209,16 +210,12 @@ export default function SchedulesIndex({
                         showUrl={SCHEDULE_ROUTES.show(row.original.id)}
                         editUrl={SCHEDULE_ROUTES.edit(row.original.id)}
                         onDelete={confirmDelete(row.original)}
-                        onShareWhatsApp={() => shareScheduleOnWhatsApp(row.original)}
-                        showLabel="View schedule"
-                        editLabel="Edit schedule"
-                        deleteLabel="Delete schedule"
-                        shareWhatsAppLabel="Share schedule on WhatsApp"
+                        onShare={() => setShareSchedule(row.original)}
                     />
                 ),
             },
         ],
-        [slOffset, sort, dir, toggleSort, confirmDelete],
+        [slOffset, sort, dir, toggleSort, confirmDelete, setShareSchedule],
     );
 
     const table = useReactTable({
@@ -233,6 +230,15 @@ export default function SchedulesIndex({
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
             <ConfirmDialog />
+            <ScheduleShareModal
+                schedule={shareSchedule}
+                open={shareSchedule !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setShareSchedule(null);
+                    }
+                }}
+            />
             <Head title="Schedules" />
 
             <SectionHeader
@@ -325,12 +331,12 @@ export default function SchedulesIndex({
                 />
             ) : viewMode === 'list' ? (
                 isMobile ? (
-                    <ScheduleListCards schedules={schedules.data} onDelete={confirmDelete} />
+                    <ScheduleListCards schedules={schedules.data} onDelete={confirmDelete} onShare={setShareSchedule} />
                 ) : (
                     <ScheduleTable table={table} />
                 )
             ) : (
-                <ScheduleGridCards schedules={schedules.data} onDelete={confirmDelete} />
+                <ScheduleGridCards schedules={schedules.data} onDelete={confirmDelete} onShare={setShareSchedule} />
             )}
 
             {!isEmpty && schedules.links?.length > 0 && (
