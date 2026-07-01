@@ -7,7 +7,21 @@ const PUSH_ROUTES = {
     destroy: '/push-subscriptions',
 } as const;
 
-export type PushSupportStatus = 'supported' | 'requires_https' | 'unsupported';
+export type PushSupportStatus = 'supported' | 'requires_https' | 'requires_pwa' | 'unsupported';
+
+function isIosDevice(): boolean {
+    return (
+        /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    );
+}
+
+function isStandalonePwa(): boolean {
+    return (
+        window.matchMedia('(display-mode: standalone)').matches
+        || (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+    );
+}
 
 export function getPushSupportStatus(): PushSupportStatus {
     if (typeof window === 'undefined') {
@@ -16,6 +30,10 @@ export function getPushSupportStatus(): PushSupportStatus {
 
     if (!window.isSecureContext) {
         return 'requires_https';
+    }
+
+    if (isIosDevice() && !isStandalonePwa()) {
+        return 'requires_pwa';
     }
 
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
@@ -98,6 +116,9 @@ export function usePushNotifications(
                             has_subscription: subscription !== null,
                             permission: Notification.permission,
                             endpoint_prefix: subscription?.endpoint?.slice(0, 80) ?? null,
+                            is_ios: isIosDevice(),
+                            is_standalone_pwa: isStandalonePwa(),
+                            user_agent: navigator.userAgent.slice(0, 120),
                         },
                     });
                     // #endregion

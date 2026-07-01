@@ -77,6 +77,14 @@ export default function NotificationsSettings({
                                 </a>
                             )}
                         </div>
+                    ) : status === 'requires_pwa' ? (
+                        <div className="space-y-2">
+                            <p className="text-sm font-medium text-foreground">Add to Home Screen (iPhone/iPad)</p>
+                            <p className="text-sm text-muted-foreground">
+                                iOS only shows web push alerts for installed apps. In Safari, tap Share → Add to Home
+                                Screen, open the app from your home screen, then enable notifications here.
+                            </p>
+                        </div>
                     ) : !supported ? (
                         <p className="text-sm text-muted-foreground">
                             Push notifications are not supported in this browser.
@@ -123,7 +131,8 @@ export default function NotificationsSettings({
                             <p className="text-sm font-medium text-foreground">Send test notification</p>
                             <p className="mt-1 text-[13px] text-muted-foreground">
                                 Sends a test alert to your bell
-                                {isPushEnabled ? ' and browser push' : ''} so you can confirm delivery.
+                                {isPushEnabled ? ' and browser push on this device' : ''}. Use the same phone or
+                                computer where you enabled notifications.
                             </p>
                         </div>
                         <Button
