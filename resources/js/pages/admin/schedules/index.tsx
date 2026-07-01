@@ -141,6 +141,7 @@ export default function SchedulesIndex({
                 date_to: indexFilters.dateTo || undefined,
                 status: statusFilter || undefined,
             },
+            reloadOnly: ['schedules', 'filters'],
         });
 
     const currentPage =
@@ -491,10 +492,18 @@ export default function SchedulesIndex({
         data: schedules.data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        getRowId: (row) => String(row.id),
         manualPagination: true,
         manualSorting: true,
         manualFiltering: true,
     });
+
+    const listResultsKey = React.useMemo(
+        () =>
+            schedules.data.map((schedule) => schedule.id).join('-') ||
+            'empty',
+        [schedules.data],
+    );
 
     const cardSelectionProps = {
         rowSelection,
@@ -636,6 +645,7 @@ export default function SchedulesIndex({
                         />
                     ) : (
                         <ScheduleSelectionProvider
+                            key={listResultsKey}
                             rowSelection={rowSelection}
                             setRowSelected={setRowSelected}
                             setAllOnPageSelected={setAllOnPageSelected}
@@ -661,7 +671,10 @@ export default function SchedulesIndex({
                             router.get(
                                 url,
                                 {},
-                                { preserveScroll: true, preserveState: true },
+                                {
+                                    preserveScroll: true,
+                                    only: ['schedules', 'filters'],
+                                },
                             )
                         }
                         left={

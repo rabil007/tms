@@ -18,6 +18,7 @@ export type UseIndexQueryParamsOptions = {
     defaultSort?: string;
     allowedSorts?: string[];
     debounceMs?: number;
+    reloadOnly?: string[];
 };
 
 function isIndexFilters(value: unknown): value is IndexFilters {
@@ -65,6 +66,7 @@ export function useIndexQueryParams({
     defaultSort = 'name',
     allowedSorts,
     debounceMs = 250,
+    reloadOnly,
 }: UseIndexQueryParamsOptions) {
     const filters = isIndexFilters(rawFilters) ? rawFilters : undefined;
 
@@ -132,6 +134,15 @@ export function useIndexQueryParams({
 
     const paramsKey = React.useMemo(() => JSON.stringify(params), [params]);
 
+    const visitOptions = React.useMemo(
+        () => ({
+            preserveScroll: true,
+            replace: true as const,
+            ...(reloadOnly ? { only: reloadOnly } : {}),
+        }),
+        [reloadOnly],
+    );
+
     React.useEffect(() => {
         if (!didInitRef.current) {
             didInitRef.current = true;
@@ -144,25 +155,17 @@ export function useIndexQueryParams({
         prevQRef.current = q;
 
         if (!shouldDebounce || debounceMs <= 0) {
-            router.get(url, params, {
-                preserveScroll: true,
-                preserveState: true,
-                replace: true,
-            });
+            router.get(url, params, visitOptions);
 
             return;
         }
 
         const t = setTimeout(() => {
-            router.get(url, params, {
-                preserveScroll: true,
-                preserveState: true,
-                replace: true,
-            });
+            router.get(url, params, visitOptions);
         }, debounceMs);
 
         return () => clearTimeout(t);
-    }, [q, perPage, url, debounceMs, paramsKey, params]);
+    }, [q, perPage, url, debounceMs, paramsKey, params, visitOptions]);
 
     const toggleSort = React.useCallback(
         (nextSort: string) => {
@@ -179,10 +182,10 @@ export function useIndexQueryParams({
             router.get(
                 url,
                 { ...params, sort: nextSort, dir: nextDir },
-                { preserveScroll: true, preserveState: true, replace: true },
+                visitOptions,
             );
         },
-        [url, params, sort, dir, allowedSorts],
+        [url, params, sort, dir, allowedSorts, visitOptions],
     );
 
     return {
