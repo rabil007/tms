@@ -70,8 +70,8 @@ export function AppOnboardingTips() {
             icon: LayoutGrid,
             title: 'Customize your dashboard',
             description: isMobile
-                ? 'Tap Edit layout to reorder modules on your phone.'
-                : 'Drag modules on the dashboard to reorder them.',
+                ? 'Press and hold an app, then drag it to a new spot.'
+                : 'Press and drag apps to reorder them.',
         });
     }
 
