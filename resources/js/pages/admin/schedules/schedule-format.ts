@@ -29,6 +29,13 @@ export function scheduleStatusLabel(status: ScheduleStatus): string {
     return status === 'pending' ? 'Pending' : 'Completed';
 }
 
+export function canUserModifySchedule(
+    isAdmin: boolean,
+    status: ScheduleStatus,
+): boolean {
+    return isAdmin || status !== 'completed';
+}
+
 export function formatScheduleDate(value: string): string {
     if (!value) {
         return '—';

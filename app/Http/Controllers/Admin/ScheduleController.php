@@ -151,10 +151,26 @@ class ScheduleController extends Controller
     }
 
     /**
+     * Ensure non-admin users cannot modify completed schedules.
+     */
+    private function ensureUserCanModifySchedule(Request $request, Schedule $schedule): void
+    {
+        if ($request->user()->isAdmin()) {
+            return;
+        }
+
+        if ($schedule->status === ScheduleStatus::Completed) {
+            abort(403);
+        }
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Schedule $schedule): Response
+    public function edit(Request $request, Schedule $schedule): Response
     {
+        $this->ensureUserCanModifySchedule($request, $schedule);
+
         $schedule->load(['project', 'createdBy:id,name']);
 
         return Inertia::render('admin/schedules/edit', [
@@ -169,6 +185,8 @@ class ScheduleController extends Controller
      */
     public function update(UpdateScheduleRequest $request, Schedule $schedule, ScheduleAdminNotifier $notifier): RedirectResponse
     {
+        $this->ensureUserCanModifySchedule($request, $schedule);
+
         $schedule->update($request->validated());
 
         if (! $request->user()->isAdmin()) {
@@ -208,8 +226,10 @@ class ScheduleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Schedule $schedule): RedirectResponse
+    public function destroy(Request $request, Schedule $schedule): RedirectResponse
     {
+        $this->ensureUserCanModifySchedule($request, $schedule);
+
         $schedule->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Schedule deleted.')]);

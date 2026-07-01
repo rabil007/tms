@@ -11,6 +11,7 @@ import {
     formatScheduleDate,
     SCHEDULE_ROUTES,
     ScheduleStatusBadge,
+    canUserModifySchedule,
 } from '@/pages/admin/schedules/schedule-views';
 import type { ScheduleStatus } from '@/pages/admin/schedules/schedule-views';
 import type { Auth } from '@/types';
@@ -57,6 +58,7 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const isAdmin = auth.user?.role?.slug === 'admin';
     const canApprove = isAdmin && schedule.status === 'pending';
+    const canModify = canUserModifySchedule(isAdmin, schedule.status);
 
     const handleApprove = () => {
         router.post(
@@ -183,15 +185,17 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
                             Approve
                         </Button>
                     )}
-                    <Button
-                        asChild
-                        className="h-12 w-full rounded-xl px-8 text-[14px] font-semibold shadow-lg shadow-primary/20 sm:w-auto"
-                    >
-                        <Link href={ROUTES.edit(schedule.id)}>
-                            <Pencil className="size-4" />
-                            Edit Schedule
-                        </Link>
-                    </Button>
+                    {canModify && (
+                        <Button
+                            asChild
+                            className="h-12 w-full rounded-xl px-8 text-[14px] font-semibold shadow-lg shadow-primary/20 sm:w-auto"
+                        >
+                            <Link href={ROUTES.edit(schedule.id)}>
+                                <Pencil className="size-4" />
+                                Edit Schedule
+                            </Link>
+                        </Button>
+                    )}
                 </div>
             </div>
         </ModulePageLayout>

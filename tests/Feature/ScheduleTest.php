@@ -65,7 +65,7 @@ test('authenticated users can visit schedule show page', function () {
 
 test('authenticated users can visit schedule edit page', function () {
     $user = User::factory()->create();
-    $schedule = Schedule::factory()->create();
+    $schedule = Schedule::factory()->pending()->create();
 
     $response = $this->actingAs($user)->get(route('schedules.edit', $schedule));
 
@@ -111,9 +111,28 @@ test('admin users store schedules as completed', function () {
     ]);
 });
 
-test('regular user updating a completed schedule resets status to pending', function () {
+test('regular user updating a completed schedule is forbidden', function () {
     $user = regularUser();
     $schedule = Schedule::factory()->completed()->create([
+        'user_id' => $user->id,
+        'crew_name' => 'Jane Doe',
+    ]);
+
+    $response = $this->actingAs($user)->put(route('schedules.update', $schedule), [
+        ...validSchedulePayload($schedule->project),
+        'crew_name' => 'Jane Smith',
+    ]);
+
+    $response->assertForbidden();
+
+    expect($schedule->fresh())
+        ->crew_name->toBe('Jane Doe')
+        ->status->toBe(ScheduleStatus::Completed);
+});
+
+test('regular user updating a pending schedule keeps status pending', function () {
+    $user = regularUser();
+    $schedule = Schedule::factory()->pending()->create([
         'user_id' => $user->id,
         'crew_name' => 'Jane Doe',
     ]);
@@ -254,7 +273,7 @@ test('store validation fails for invalid project', function () {
 
 test('authenticated users can update a schedule', function () {
     $user = User::factory()->create();
-    $schedule = Schedule::factory()->create(['crew_name' => 'Jane Doe']);
+    $schedule = Schedule::factory()->pending()->create(['crew_name' => 'Jane Doe']);
 
     $response = $this->actingAs($user)->put(route('schedules.update', $schedule), [
         ...validSchedulePayload($schedule->project),
@@ -269,9 +288,61 @@ test('authenticated users can update a schedule', function () {
         ->crew_name->toBe('Jane Smith');
 });
 
+test('regular users cannot edit completed schedules', function () {
+    $user = regularUser();
+    $schedule = Schedule::factory()->completed()->create();
+
+    $response = $this->actingAs($user)->get(route('schedules.edit', $schedule));
+
+    $response->assertForbidden();
+});
+
+test('regular users cannot update completed schedules', function () {
+    $user = regularUser();
+    $schedule = Schedule::factory()->completed()->create(['crew_name' => 'Jane Doe']);
+
+    $response = $this->actingAs($user)->put(route('schedules.update', $schedule), [
+        ...validSchedulePayload($schedule->project),
+        'crew_name' => 'Jane Smith',
+    ]);
+
+    $response->assertForbidden();
+
+    expect($schedule->fresh()->crew_name)->toBe('Jane Doe');
+});
+
+test('regular users cannot delete completed schedules', function () {
+    $user = regularUser();
+    $schedule = Schedule::factory()->completed()->create();
+
+    $response = $this->actingAs($user)->delete(route('schedules.destroy', $schedule));
+
+    $response->assertForbidden();
+
+    $this->assertDatabaseHas('schedules', ['id' => $schedule->id]);
+});
+
+test('regular users can still edit pending schedules', function () {
+    $user = regularUser();
+    $schedule = Schedule::factory()->pending()->create();
+
+    $response = $this->actingAs($user)->get(route('schedules.edit', $schedule));
+
+    $response->assertOk();
+});
+
+test('admins can edit completed schedules', function () {
+    $admin = adminUser();
+    $schedule = Schedule::factory()->completed()->create();
+
+    $response = $this->actingAs($admin)->get(route('schedules.edit', $schedule));
+
+    $response->assertOk();
+});
+
 test('authenticated users can delete a schedule', function () {
     $user = User::factory()->create();
-    $schedule = Schedule::factory()->create();
+    $schedule = Schedule::factory()->pending()->create();
 
     $response = $this->actingAs($user)->delete(route('schedules.destroy', $schedule));
 

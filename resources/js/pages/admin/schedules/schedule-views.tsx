@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import {
+    canUserModifySchedule,
     formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
@@ -17,6 +18,7 @@ import {
 import type { ScheduleRow, ScheduleStatus } from '@/pages/admin/schedules/schedule-format';
 
 export {
+    canUserModifySchedule,
     formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
@@ -69,6 +71,7 @@ type ScheduleCardsProps = {
     onDelete: (schedule: ScheduleRow) => () => Promise<void>;
     onShare: (schedule: ScheduleRow) => void;
     onApprove?: (schedule: ScheduleRow) => () => void;
+    isAdmin?: boolean;
     rowSelection: RowSelectionState;
     onToggleSelect: (id: number) => void;
 };
@@ -78,11 +81,14 @@ function scheduleRowActionsProps(
     onDelete: () => Promise<void>,
     onShare: (schedule: ScheduleRow) => void,
     onApprove?: (schedule: ScheduleRow) => () => void,
+    isAdmin = false,
 ) {
+    const canModify = canUserModifySchedule(isAdmin, schedule.status);
+
     return {
         showUrl: SCHEDULE_ROUTES.show(schedule.id),
-        editUrl: SCHEDULE_ROUTES.edit(schedule.id),
-        onDelete,
+        editUrl: canModify ? SCHEDULE_ROUTES.edit(schedule.id) : undefined,
+        onDelete: canModify ? onDelete : undefined,
         onShare: () => onShare(schedule),
         onApprove:
             onApprove && schedule.status === 'pending'
@@ -134,6 +140,7 @@ export function ScheduleListCards({
     onDelete,
     onShare,
     onApprove,
+    isAdmin = false,
     rowSelection,
     onToggleSelect,
 }: ScheduleCardsProps) {
@@ -208,6 +215,7 @@ export function ScheduleListCards({
                                 onDelete(schedule),
                                 onShare,
                                 onApprove,
+                                isAdmin,
                             )}
                         />
                     </div>
@@ -222,6 +230,7 @@ export function ScheduleGridCards({
     onDelete,
     onShare,
     onApprove,
+    isAdmin = false,
     rowSelection,
     onToggleSelect,
 }: ScheduleCardsProps) {
@@ -290,6 +299,7 @@ export function ScheduleGridCards({
                                 onDelete(schedule),
                                 onShare,
                                 onApprove,
+                                isAdmin,
                             )}
                         />
                     </div>

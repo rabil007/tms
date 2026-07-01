@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils';
 import { ScheduleIndexFilters } from '@/pages/admin/schedules/schedule-index-filters';
 import type { ProjectFilterOption } from '@/pages/admin/schedules/schedule-index-filters';
 import {
+    canUserModifySchedule,
     formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
@@ -513,19 +514,34 @@ export default function SchedulesIndex({
                         Actions
                     </span>
                 ),
-                cell: ({ row }) => (
-                    <RowActions
-                        showUrl={SCHEDULE_ROUTES.show(row.original.id)}
-                        editUrl={SCHEDULE_ROUTES.edit(row.original.id)}
-                        onDelete={confirmDelete(row.original)}
-                        onShare={() => openShare([row.original])}
-                        onApprove={
-                            isAdmin && row.original.status === 'pending'
-                                ? confirmApprove(row.original)
-                                : undefined
-                        }
-                    />
-                ),
+                cell: ({ row }) => {
+                    const canModify = canUserModifySchedule(
+                        isAdmin,
+                        row.original.status,
+                    );
+
+                    return (
+                        <RowActions
+                            showUrl={SCHEDULE_ROUTES.show(row.original.id)}
+                            editUrl={
+                                canModify
+                                    ? SCHEDULE_ROUTES.edit(row.original.id)
+                                    : undefined
+                            }
+                            onDelete={
+                                canModify
+                                    ? confirmDelete(row.original)
+                                    : undefined
+                            }
+                            onShare={() => openShare([row.original])}
+                            onApprove={
+                                isAdmin && row.original.status === 'pending'
+                                    ? confirmApprove(row.original)
+                                    : undefined
+                            }
+                        />
+                    );
+                },
             },
         ],
         [
@@ -692,6 +708,7 @@ export default function SchedulesIndex({
                             onApprove={
                                 isAdmin ? confirmApprove : undefined
                             }
+                            isAdmin={isAdmin}
                             {...cardSelectionProps}
                         />
                     ) : (
@@ -711,6 +728,7 @@ export default function SchedulesIndex({
                         onDelete={confirmDelete}
                         onShare={(schedule) => openShare([schedule])}
                         onApprove={isAdmin ? confirmApprove : undefined}
+                        isAdmin={isAdmin}
                         {...cardSelectionProps}
                     />
                 )}

@@ -3,8 +3,8 @@ import { Eye, Check, Pencil, Share2, Trash2 } from 'lucide-react';
 
 export type RowActionsProps = {
     showUrl: string;
-    editUrl: string;
-    onDelete: () => Promise<void>;
+    editUrl?: string;
+    onDelete?: () => Promise<void>;
     onShare?: () => void;
     onApprove?: () => void;
     showLabel?: string;
@@ -59,22 +59,26 @@ export function RowActions({
             >
                 <Eye className="size-4" />
             </Link>
-            <Link
-                href={editUrl}
-                prefetch
-                className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
-                title={editLabel}
-            >
-                <Pencil className="size-4" />
-            </Link>
-            <button
-                type="button"
-                title={deleteLabel}
-                onClick={onDelete}
-                className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-            >
-                <Trash2 className="size-4" />
-            </button>
+            {editUrl && (
+                <Link
+                    href={editUrl}
+                    prefetch
+                    className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+                    title={editLabel}
+                >
+                    <Pencil className="size-4" />
+                </Link>
+            )}
+            {onDelete && (
+                <button
+                    type="button"
+                    title={deleteLabel}
+                    onClick={onDelete}
+                    className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                >
+                    <Trash2 className="size-4" />
+                </button>
+            )}
         </div>
     );
 }
