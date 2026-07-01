@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PushSubscription;
 use App\Notifications\DeviceTestPushNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use NotificationChannels\WebPush\PushSubscription;
 
 class PushSubscriptionController extends Controller
 {

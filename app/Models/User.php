@@ -7,8 +7,10 @@ use App\Notifications\DeviceTestPushNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -32,6 +34,7 @@ use NotificationChannels\WebPush\WebPushChannel;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Role|null $role
+ * @property-read Collection<int, PushSubscription> $pushSubscriptions
  */
 #[Fillable(['role_id', 'name', 'email', 'email_notifications_enabled', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
@@ -53,6 +56,14 @@ class User extends Authenticatable implements PasskeyUser
     public function isAdmin(): bool
     {
         return $this->role?->slug === 'admin';
+    }
+
+    /**
+     * @return MorphMany<PushSubscription, $this>
+     */
+    public function pushSubscriptions(): MorphMany
+    {
+        return $this->morphMany(PushSubscription::class, 'subscribable');
     }
 
     /**

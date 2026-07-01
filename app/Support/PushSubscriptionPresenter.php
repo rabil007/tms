@@ -2,7 +2,7 @@
 
 namespace App\Support;
 
-use NotificationChannels\WebPush\PushSubscription;
+use App\Models\PushSubscription;
 
 class PushSubscriptionPresenter
 {
@@ -17,7 +17,7 @@ class PushSubscriptionPresenter
 
     public static function provider(string $endpoint): string
     {
-        $host = parse_url($endpoint, PHP_URL_HOST) ?? '';
+        $host = (string) (parse_url($endpoint, PHP_URL_HOST) ?? '');
 
         return match (true) {
             str_contains($host, 'fcm.googleapis.com') => 'Chrome',
@@ -39,8 +39,8 @@ class PushSubscriptionPresenter
             'label' => self::label($subscription),
             'provider' => self::provider($subscription->endpoint),
             'content_encoding' => $subscription->content_encoding,
-            'created_at_diff' => $subscription->created_at->diffForHumans(),
-            'updated_at_diff' => $subscription->updated_at->diffForHumans(),
+            'created_at_diff' => $subscription->created_at?->diffForHumans() ?? '',
+            'updated_at_diff' => $subscription->updated_at?->diffForHumans() ?? '',
         ];
     }
 
@@ -66,14 +66,27 @@ class PushSubscriptionPresenter
 
     private static function browserFromUserAgent(string $userAgent): ?string
     {
-        return match (true) {
-            str_contains($userAgent, 'Edg/') => 'Edge',
-            str_contains($userAgent, 'OPR/') || str_contains($userAgent, 'Opera') => 'Opera',
-            str_contains($userAgent, 'Chrome/') && ! str_contains($userAgent, 'Edg/') => 'Chrome',
-            str_contains($userAgent, 'Firefox/') => 'Firefox',
-            str_contains($userAgent, 'Safari/') && ! str_contains($userAgent, 'Chrome/') => 'Safari',
-            default => null,
-        };
+        if (str_contains($userAgent, 'Edg/')) {
+            return 'Edge';
+        }
+
+        if (str_contains($userAgent, 'OPR/') || str_contains($userAgent, 'Opera')) {
+            return 'Opera';
+        }
+
+        if (str_contains($userAgent, 'Chrome/')) {
+            return 'Chrome';
+        }
+
+        if (str_contains($userAgent, 'Firefox/')) {
+            return 'Firefox';
+        }
+
+        if (str_contains($userAgent, 'Safari/')) {
+            return 'Safari';
+        }
+
+        return null;
     }
 
     private static function osFromUserAgent(string $userAgent): ?string
