@@ -1,20 +1,35 @@
 import { router } from '@inertiajs/react';
-import { BellRing } from 'lucide-react';
+import { BellRing, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { sendTest } from '@/actions/App/Http/Controllers/PushSubscriptionController';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import type { PushSubscriptionItem } from '@/types/notifications';
 
 type Props = {
     subscription: PushSubscriptionItem;
     isCurrentDevice: boolean;
+    onRemove: (endpoint: string) => Promise<boolean>;
+    disabled?: boolean;
 };
 
 export default function PushSubscriptionItem({
     subscription,
     isCurrentDevice,
+    onRemove,
+    disabled = false,
 }: Props) {
     const [sendingTest, setSendingTest] = useState(false);
+    const [removing, setRemoving] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const handleTestPush = () => {
         setSendingTest(true);
@@ -27,6 +42,18 @@ export default function PushSubscriptionItem({
                 onFinish: () => setSendingTest(false),
             },
         );
+    };
+
+    const handleRemove = async () => {
+        setRemoving(true);
+
+        const removed = await onRemove(subscription.endpoint);
+
+        setRemoving(false);
+
+        if (removed) {
+            setDialogOpen(false);
+        }
     };
 
     return (
@@ -67,17 +94,55 @@ export default function PushSubscriptionItem({
                 </div>
             </div>
 
-            <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-10 shrink-0 rounded-xl px-4"
-                disabled={sendingTest}
-                onClick={handleTestPush}
-            >
-                <BellRing className="size-4" />
-                {sendingTest ? 'Sending…' : 'Test push'}
-            </Button>
+            <div className="flex shrink-0 items-center gap-2">
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-10 rounded-xl px-4"
+                    disabled={disabled || sendingTest || removing}
+                    onClick={handleTestPush}
+                >
+                    <BellRing className="size-4" />
+                    {sendingTest ? 'Sending…' : 'Test push'}
+                </Button>
+
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-10 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            disabled={disabled || sendingTest || removing}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Remove</span>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogTitle>Remove linked device</DialogTitle>
+                        <DialogDescription>
+                            Remove {subscription.label} from your linked
+                            devices? It will stop receiving push alerts.
+                            {isCurrentDevice &&
+                                ' You will need to enable notifications again on this browser to re-register it.'}
+                        </DialogDescription>
+                        <DialogFooter className="gap-2">
+                            <DialogClose asChild>
+                                <Button variant="secondary">Cancel</Button>
+                            </DialogClose>
+                            <Button
+                                variant="destructive"
+                                onClick={handleRemove}
+                                disabled={removing}
+                            >
+                                {removing ? 'Removing…' : 'Remove device'}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
         </div>
     );
 }

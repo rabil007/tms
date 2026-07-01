@@ -284,6 +284,53 @@ export function usePushNotifications(
         }
     }, [status]);
 
+    const removeSubscription = React.useCallback(
+        async (endpoint: string) => {
+            setProcessing(true);
+            setError(null);
+
+            try {
+                await new Promise<void>((resolve, reject) => {
+                    router.delete(PUSH_ROUTES.destroy, {
+                        data: { endpoint },
+                        preserveScroll: true,
+                        onSuccess: () => resolve(),
+                        onError: () =>
+                            reject(
+                                new Error(
+                                    'Failed to remove push subscription.',
+                                ),
+                            ),
+                    });
+                });
+
+                if (currentEndpoint === endpoint && status === 'supported') {
+                    const registration =
+                        await navigator.serviceWorker.getRegistration('/');
+
+                    const subscription =
+                        await registration?.pushManager.getSubscription();
+
+                    if (subscription?.endpoint === endpoint) {
+                        await subscription.unsubscribe();
+                    }
+
+                    setEnabled(false);
+                    setCurrentEndpoint(null);
+                }
+
+                return true;
+            } catch (caught) {
+                setError(resolvePushError(caught));
+
+                return false;
+            } finally {
+                setProcessing(false);
+            }
+        },
+        [currentEndpoint, status],
+    );
+
     return {
         status,
         supported: status === 'supported',
@@ -295,5 +342,6 @@ export function usePushNotifications(
         setupError,
         enable,
         disable,
+        removeSubscription,
     };
 }

@@ -248,3 +248,45 @@ test('device test push does not create in app notification', function () {
 
     expect($user->fresh()->notifications)->toHaveCount(0);
 });
+
+test('users can remove their own push subscription', function () {
+    $user = adminUser();
+
+    $user->updatePushSubscription(
+        'https://fcm.googleapis.com/fcm/send/device-8',
+        'test-public-key',
+        'test-auth-token',
+        'aes128gcm',
+    );
+
+    $endpoint = 'https://fcm.googleapis.com/fcm/send/device-8';
+
+    $response = $this->actingAs($user)->delete(route('push-subscriptions.destroy'), [
+        'endpoint' => $endpoint,
+    ]);
+
+    $response->assertRedirect();
+
+    expect($user->fresh()->pushSubscriptions)->toHaveCount(0);
+});
+
+test('removing push subscription updates notification settings list', function () {
+    $user = adminUser();
+
+    $user->updatePushSubscription(
+        'https://fcm.googleapis.com/fcm/send/device-9',
+        'test-public-key',
+        'test-auth-token',
+        'aes128gcm',
+    );
+
+    $this->actingAs($user)->delete(route('push-subscriptions.destroy'), [
+        'endpoint' => 'https://fcm.googleapis.com/fcm/send/device-9',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('notifications.edit'));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page->has('pushSubscriptions', 0));
+});

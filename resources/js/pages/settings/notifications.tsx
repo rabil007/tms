@@ -29,6 +29,7 @@ export default function NotificationsSettings({
         setupError,
         enable,
         disable,
+        removeSubscription,
     } = usePushNotifications(vapidPublicKey, pushEnabled);
 
     const httpsUrl =
@@ -171,6 +172,8 @@ export default function NotificationsSettings({
                                         currentEndpoint !== null &&
                                         subscription.endpoint === currentEndpoint
                                     }
+                                    onRemove={removeSubscription}
+                                    disabled={processing}
                                 />
                             ))
                         ) : (
