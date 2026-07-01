@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Concerns\BuildsWebPushMessage;
 use App\Concerns\ResolvesNotificationChannels;
 use App\Models\Schedule;
 use App\Models\User;
@@ -13,7 +14,7 @@ use NotificationChannels\WebPush\WebPushMessage;
 
 class ScheduleActivityNotification extends Notification
 {
-    use Queueable, ResolvesNotificationChannels;
+    use BuildsWebPushMessage, Queueable, ResolvesNotificationChannels;
 
     public function __construct(
         public Schedule $schedule,
@@ -56,11 +57,12 @@ class ScheduleActivityNotification extends Notification
     {
         $payload = $this->payload();
 
-        return (new WebPushMessage)
-            ->title($payload['title'])
-            ->body($payload['message'])
-            ->action('View', $payload['action_url'])
-            ->data(['url' => $payload['action_url']]);
+        return $this->buildWebPushMessage(
+            title: $payload['title'],
+            body: $payload['message'],
+            actionUrl: $payload['action_url'],
+            tag: 'overseas-schedule-'.$this->schedule->id,
+        );
     }
 
     /**
@@ -72,22 +74,23 @@ class ScheduleActivityNotification extends Notification
 
         $projectTitle = $this->schedule->project->title;
         $formattedDate = $this->schedule->scheduled_date->format('M j, Y');
+        $appName = (string) config('app.name');
 
         if ($this->action === 'created') {
-            $title = __('New schedule submitted');
-            $message = __(':actor scheduled :crew for :date (:project).', [
-                'actor' => $this->actor->name,
+            $title = __('New schedule · :project', ['project' => $projectTitle]);
+            $message = __(':crew on :date — submitted by :actor via :app.', [
                 'crew' => $this->schedule->crew_name,
                 'date' => $formattedDate,
-                'project' => $projectTitle,
+                'actor' => $this->actor->name,
+                'app' => $appName,
             ]);
         } else {
-            $title = __('Schedule updated');
-            $message = __(':actor updated the schedule for :crew on :date (:project).', [
-                'actor' => $this->actor->name,
+            $title = __('Schedule updated · :project', ['project' => $projectTitle]);
+            $message = __(':crew on :date — updated by :actor via :app.', [
                 'crew' => $this->schedule->crew_name,
                 'date' => $formattedDate,
-                'project' => $projectTitle,
+                'actor' => $this->actor->name,
+                'app' => $appName,
             ]);
         }
 

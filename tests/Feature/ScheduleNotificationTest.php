@@ -28,7 +28,7 @@ test('regular user creating a schedule notifies all admin users', function () {
     $notification = $admin->fresh()->notifications->first();
 
     expect($notification)->not->toBeNull();
-    expect($notification->data['title'])->toBe('New schedule submitted');
+    expect($notification->data['title'])->toBe('New schedule · '.$project->title);
     expect($notification->data['action_url'])->toBe(route('schedules.show', $schedule));
 });
 
@@ -46,7 +46,7 @@ test('regular user updating a schedule notifies all admin users', function () {
     $notification = $admin->fresh()->notifications->first();
 
     expect($notification)->not->toBeNull();
-    expect($notification->data['title'])->toBe('Schedule updated');
+    expect($notification->data['title'])->toBe('Schedule updated · '.$schedule->project->title);
     expect($notification->data['message'])->toContain('Jane Crew');
 });
 

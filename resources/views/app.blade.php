@@ -34,6 +34,10 @@
 
         <link rel="icon" href="/logo.png" type="image/png">
         <link rel="apple-touch-icon" href="/logo.png">
+        <link rel="manifest" href="/manifest.webmanifest">
+        <meta name="application-name" content="{{ config('app.name') }}">
+        <meta name="apple-mobile-web-app-title" content="{{ config('app.name') }}">
+        <meta name="theme-color" content="#0f172a">
 
         @fonts
 

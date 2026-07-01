@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Concerns\BuildsWebPushMessage;
 use App\Concerns\ResolvesNotificationChannels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
@@ -11,7 +12,7 @@ use NotificationChannels\WebPush\WebPushMessage;
 
 class TestNotification extends Notification
 {
-    use Queueable, ResolvesNotificationChannels;
+    use BuildsWebPushMessage, Queueable, ResolvesNotificationChannels;
 
     public function __construct(public bool $withEmail = true) {}
 
@@ -56,11 +57,12 @@ class TestNotification extends Notification
     {
         $payload = $this->payload();
 
-        return (new WebPushMessage)
-            ->title($payload['title'])
-            ->body($payload['message'])
-            ->action('Open', $payload['action_url'])
-            ->data(['url' => $payload['action_url']]);
+        return $this->buildWebPushMessage(
+            title: $payload['title'],
+            body: $payload['message'],
+            actionUrl: $payload['action_url'],
+            tag: 'overseas-test',
+        );
     }
 
     /**
@@ -68,9 +70,13 @@ class TestNotification extends Notification
      */
     private function payload(): array
     {
+        $appName = (string) config('app.name');
+
         return [
-            'title' => __('Test notification'),
-            'message' => __('This is a test alert from Overseas. If you see this, notifications are working.'),
+            'title' => __('Push notifications enabled'),
+            'message' => __('You will receive :app alerts when schedules are created or updated.', [
+                'app' => $appName,
+            ]),
             'action_url' => route('notifications.edit'),
         ];
     }

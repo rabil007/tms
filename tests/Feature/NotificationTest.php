@@ -86,7 +86,7 @@ test('authenticated users can send a test notification', function () {
 
     $notification = $user->fresh()->notifications->first();
 
-    expect($notification->data['title'])->toBe('Test notification');
+    expect($notification->data['title'])->toBe('Push notifications enabled');
 });
 
 test('test notification uses web push channel when user has a subscription', function () {

@@ -12,15 +12,19 @@ self.addEventListener('push', (event) => {
     }
 
     const payload = event.data.json();
-    const title = payload.title ?? 'Overseas';
+    const appName = payload.data?.app_name ?? payload.app_name ?? 'Overseas';
+    const title = payload.title ?? appName;
     const actionUrl = payload.data?.url ?? payload.actions?.[0]?.action ?? '/dashboard';
     const iconUrl = new URL('/logo.png', self.location.origin).toString();
     const options = {
         body: payload.body ?? '',
         icon: iconUrl,
         badge: iconUrl,
+        tag: payload.tag ?? 'overseas-notification',
+        renotify: true,
         data: {
             url: actionUrl,
+            app_name: appName,
         },
     };
 
