@@ -70,7 +70,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                 </div>
             </div>
             {breadcrumbs.length > 1 && (
-                <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-40 border-b border-border/60 bg-background/80 backdrop-blur-2xl dark:border-white/10 dark:bg-white/5 sm:top-[calc(4rem+env(safe-area-inset-top))]">
+                <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-40 border-b border-border/60 bg-background/80 backdrop-blur-2xl sm:top-[calc(4rem+env(safe-area-inset-top))] dark:border-white/10 dark:bg-white/5">
                     <div className="mx-auto flex h-11 w-full items-center justify-start overflow-x-auto px-4 text-muted-foreground sm:h-12 sm:px-6 md:max-w-7xl">
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>

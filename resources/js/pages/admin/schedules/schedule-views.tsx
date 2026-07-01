@@ -15,7 +15,10 @@ import {
     scheduleStatusLabel,
     SCHEDULE_ROUTES,
 } from '@/pages/admin/schedules/schedule-format';
-import type { ScheduleRow, ScheduleStatus } from '@/pages/admin/schedules/schedule-format';
+import type {
+    ScheduleRow,
+    ScheduleStatus,
+} from '@/pages/admin/schedules/schedule-format';
 
 export {
     canUserModifySchedule,

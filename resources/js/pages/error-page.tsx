@@ -24,7 +24,8 @@ const errorContent: Record<
     },
     500: {
         title: '500 · Server Error',
-        description: 'Something went wrong on our servers. Please try again later.',
+        description:
+            'Something went wrong on our servers. Please try again later.',
         icon: ServerCrash,
     },
     503: {

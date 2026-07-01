@@ -18,7 +18,7 @@ export type UseIndexQueryParamsOptions = {
     defaultSort?: string;
     allowedSorts?: string[];
     debounceMs?: number;
-    reloadOnly?: string[];
+    reloadOnly?: readonly string[];
 };
 
 function isIndexFilters(value: unknown): value is IndexFilters {
@@ -138,7 +138,7 @@ export function useIndexQueryParams({
         () => ({
             preserveScroll: true,
             replace: true as const,
-            ...(reloadOnly ? { only: reloadOnly } : {}),
+            ...(reloadOnly ? { only: [...reloadOnly] } : {}),
         }),
         [reloadOnly],
     );

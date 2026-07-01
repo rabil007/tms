@@ -83,9 +83,7 @@ export default function PushSubscriptionItem({
                     </div>
                     <p className="text-sm text-muted-foreground">
                         Registered {subscription.created_at_diff}
-                        <span className="mx-1 text-muted-foreground/50">
-                            /
-                        </span>
+                        <span className="mx-1 text-muted-foreground/50">/</span>
                         Updated {subscription.updated_at_diff}
                     </p>
                     <p className="truncate text-[12px] text-muted-foreground/80">

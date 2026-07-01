@@ -204,7 +204,9 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
                                             rel="noopener noreferrer"
                                             className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
                                         >
-                                            {isImageMime(schedule.attachment_mime)
+                                            {isImageMime(
+                                                schedule.attachment_mime,
+                                            )
                                                 ? 'Open full image'
                                                 : 'Open PDF'}
                                         </a>

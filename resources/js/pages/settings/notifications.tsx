@@ -170,7 +170,8 @@ export default function NotificationsSettings({
                                     subscription={subscription}
                                     isCurrentDevice={
                                         currentEndpoint !== null &&
-                                        subscription.endpoint === currentEndpoint
+                                        subscription.endpoint ===
+                                            currentEndpoint
                                     }
                                     onRemove={removeSubscription}
                                     disabled={processing}
@@ -181,7 +182,9 @@ export default function NotificationsSettings({
                                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
                                     <Smartphone className="h-7 w-7 text-muted-foreground" />
                                 </div>
-                                <p className="font-medium">No linked devices yet</p>
+                                <p className="font-medium">
+                                    No linked devices yet
+                                </p>
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     Enable notifications on this browser to
                                     register a device.

@@ -6,10 +6,10 @@ import {
     FormSubmitButton,
     formInputClassName,
 } from '@/components/forms/form-page';
-import type { ExistingScheduleAttachment } from '@/components/forms/schedule-attachment-field';
-import { ScheduleAttachmentField } from '@/components/forms/schedule-attachment-field';
 import type { CountryPhoneOption } from '@/components/forms/phone-input';
 import { PhoneInput } from '@/components/forms/phone-input';
+import type { ExistingScheduleAttachment } from '@/components/forms/schedule-attachment-field';
+import { ScheduleAttachmentField } from '@/components/forms/schedule-attachment-field';
 import { Input } from '@/components/ui/input';
 import { SearchSelect } from '@/components/ui/search-select';
 import { cn } from '@/lib/utils';
@@ -251,7 +251,7 @@ export function ScheduleForm({
                             rows={3}
                             className={cn(
                                 formInputClassName(!!errors.remarks),
-                                'h-auto min-h-[6rem] resize-y py-3',
+                                'h-auto min-h-28 resize-y py-3.5 text-base sm:min-h-24 sm:py-3 sm:text-[14px]',
                             )}
                             placeholder="Any additional details…"
                             aria-invalid={!!errors.remarks}

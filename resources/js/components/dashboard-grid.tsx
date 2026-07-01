@@ -1,7 +1,11 @@
 import { Link } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
 import React from 'react';
-import { APP_LAUNCH_COMPLETE_EVENT, hasAppLaunchedThisSession, prefersReducedMotion } from '@/lib/pwa';
+import {
+    APP_LAUNCH_COMPLETE_EVENT,
+    hasAppLaunchedThisSession,
+    prefersReducedMotion,
+} from '@/lib/pwa';
 import { cn } from '@/lib/utils';
 
 export type DashboardModule = {
@@ -88,30 +92,47 @@ export function glassColor(gradientClass: string): ModuleIconStyle {
 const PINNED_TAIL_ORDER = ['projects', 'countries', 'settings'] as const;
 const PINNED_TAIL_SET = new Set<string>(PINNED_TAIL_ORDER);
 
-function enforceModuleOrder(base: DashboardModule[], order: string[] | null): DashboardModule[] {
+function enforceModuleOrder(
+    base: DashboardModule[],
+    order: string[] | null,
+): DashboardModule[] {
     const map = new Map(base.map((m) => [m.id, m] as const));
-    const pinned = PINNED_TAIL_ORDER.filter((id) => map.has(id)).map((id) => map.get(id)!);
+    const pinned = PINNED_TAIL_ORDER.filter((id) => map.has(id)).map((id) =>
+        map.get(id)!,
+    );
     const unpinnedBase = base.filter((m) => !PINNED_TAIL_SET.has(m.id));
 
     if (!order || !Array.isArray(order) || order.length === 0) {
         return [...unpinnedBase, ...pinned];
     }
 
-    const unpinnedIds = order.filter((id) => !PINNED_TAIL_SET.has(id) && map.has(id));
+    const unpinnedIds = order.filter(
+        (id) => !PINNED_TAIL_SET.has(id) && map.has(id),
+    );
     const orderedUnpinned = unpinnedIds.map((id) => map.get(id)!);
-    const leftoverUnpinned = unpinnedBase.filter((m) => !unpinnedIds.includes(m.id));
+    const leftoverUnpinned = unpinnedBase.filter(
+        (m) => !unpinnedIds.includes(m.id),
+    );
 
     return [...orderedUnpinned, ...leftoverUnpinned, ...pinned];
 }
 
 function findModuleIdAtPoint(x: number, y: number): string | null {
-    const element = document.elementFromPoint(x, y)?.closest('[data-dashboard-module]');
+    const element = document
+        .elementFromPoint(x, y)
+        ?.closest('[data-dashboard-module]');
 
     return element?.getAttribute('data-dashboard-module') ?? null;
 }
 
-export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKey, className }: DashboardGridProps) {
-    const [modules, setModules] = React.useState<DashboardModule[]>(baseModules);
+export function DashboardGrid({
+    modules: baseModules,
+    iconSize = 'lg',
+    storageKey,
+    className,
+}: DashboardGridProps) {
+    const [modules, setModules] =
+        React.useState<DashboardModule[]>(baseModules);
     const [draggingId, setDraggingId] = React.useState<string | null>(null);
     const [isReordering, setIsReordering] = React.useState(false);
     const [animateTiles, setAnimateTiles] = React.useState(() => {
@@ -136,13 +157,23 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
 
         const handleLaunchComplete = () => setAnimateTiles(true);
 
-        window.addEventListener(APP_LAUNCH_COMPLETE_EVENT, handleLaunchComplete);
+        window.addEventListener(
+            APP_LAUNCH_COMPLETE_EVENT,
+            handleLaunchComplete,
+        );
 
-        return () => window.removeEventListener(APP_LAUNCH_COMPLETE_EVENT, handleLaunchComplete);
+        return () =>
+            window.removeEventListener(
+                APP_LAUNCH_COMPLETE_EVENT,
+                handleLaunchComplete,
+            );
     }, [animateTiles]);
 
     // --- Load saved order from localStorage ---
-    const baseKey = React.useMemo(() => baseModules.map((m) => m.id).join('|'), [baseModules]);
+    const baseKey = React.useMemo(
+        () => baseModules.map((m) => m.id).join('|'),
+        [baseModules],
+    );
 
     React.useEffect(() => {
         if (!storageKey) {
@@ -154,7 +185,9 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
         try {
             const raw = window.localStorage.getItem(storageKey);
             const order = raw ? (JSON.parse(raw) as string[]) : null;
-            queueMicrotask(() => setModules(enforceModuleOrder(baseModules, order)));
+            queueMicrotask(() =>
+                setModules(enforceModuleOrder(baseModules, order)),
+            );
         } catch {
             queueMicrotask(() => setModules(baseModules));
         }
@@ -167,7 +200,10 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
             }
 
             try {
-                window.localStorage.setItem(storageKey, JSON.stringify(next.map((m) => m.id)));
+                window.localStorage.setItem(
+                    storageKey,
+                    JSON.stringify(next.map((m) => m.id)),
+                );
             } catch {
                 void 0;
             }
@@ -192,7 +228,10 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                 const next = [...current];
                 const [item] = next.splice(from, 1);
                 next.splice(to, 0, item);
-                const enforced = enforceModuleOrder(baseModules, next.map((m) => m.id));
+                const enforced = enforceModuleOrder(
+                    baseModules,
+                    next.map((m) => m.id),
+                );
                 persistOrder(enforced);
 
                 return enforced;
@@ -244,7 +283,9 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
             };
 
             // passive: false so we can call preventDefault() to suppress page scroll
-            document.addEventListener('pointermove', onMove, { passive: false });
+            document.addEventListener('pointermove', onMove, {
+                passive: false,
+            });
             document.addEventListener('pointerup', onUp);
             document.addEventListener('pointercancel', onUp);
         },
@@ -290,7 +331,10 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                     return;
                 }
 
-                const dist = Math.hypot(pe.clientX - startX, pe.clientY - startY);
+                const dist = Math.hypot(
+                    pe.clientX - startX,
+                    pe.clientY - startY,
+                );
 
                 if (dist > DRAG_THRESHOLD) {
                     cancel();
@@ -315,7 +359,9 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
             }
 
             // Passive listener so scroll works normally until drag is confirmed
-            document.addEventListener('pointermove', onPreMove, { passive: true });
+            document.addEventListener('pointermove', onPreMove, {
+                passive: true,
+            });
             document.addEventListener('pointerup', onPreUp);
             document.addEventListener('pointercancel', onPreUp);
 
@@ -382,7 +428,11 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                             prefetch
                             data-dashboard-module={module.id}
                             onClick={handleClick}
-                            onPointerDown={isDraggable ? (e) => handleTilePointerDown(module.id, e) : undefined}
+                            onPointerDown={
+                                isDraggable
+                                    ? (e) => handleTilePointerDown(module.id, e)
+                                    : undefined
+                            }
                             className={cn(
                                 'group flex min-w-[88px] touch-manipulation flex-col items-center gap-2.5 outline-none sm:gap-3',
                                 !animateTiles && 'opacity-0',
@@ -410,22 +460,29 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                                         tileSizeClass,
                                         'rounded-3xl',
                                         'transition-all duration-200 ease-out',
-                                        !isReordering && 'group-hover:-translate-y-0.5 group-hover:scale-[1.10]',
-                                        !isReordering && 'group-hover:shadow-2xl',
-                                        !isReordering && 'group-active:scale-95',
+                                        !isReordering &&
+                                            'group-hover:-translate-y-0.5 group-hover:scale-[1.10]',
+                                        !isReordering &&
+                                            'group-hover:shadow-2xl',
+                                        !isReordering &&
+                                            'group-active:scale-95',
                                         'group-focus-visible:ring-4 group-focus-visible:ring-ring/30',
-                                        isDragging && 'shadow-2xl ring-2 ring-primary/40',
+                                        isDragging &&
+                                            'shadow-2xl ring-2 ring-primary/40',
                                     )}
                                     style={{
                                         background: `${iconStyle.bg}, var(--dashboard-tile-surface)`,
-                                        backdropFilter: 'blur(16px) saturate(1.3)',
-                                        WebkitBackdropFilter: 'blur(16px) saturate(1.3)',
+                                        backdropFilter:
+                                            'blur(16px) saturate(1.3)',
+                                        WebkitBackdropFilter:
+                                            'blur(16px) saturate(1.3)',
                                         border: '1px solid var(--dashboard-tile-border)',
-                                        boxShadow: 'var(--dashboard-tile-shadow)',
+                                        boxShadow:
+                                            'var(--dashboard-tile-shadow)',
                                     }}
                                 >
                                     <span
-                                        className="pointer-events-none absolute left-0 top-0 z-1 h-[55%] w-[65%] dark:hidden"
+                                        className="pointer-events-none absolute top-0 left-0 z-1 h-[55%] w-[65%] dark:hidden"
                                         style={{
                                             background:
                                                 'linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.12) 60%, transparent 100%)',
@@ -433,7 +490,7 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                                         }}
                                     />
                                     <span
-                                        className="pointer-events-none absolute left-0 top-0 z-1 hidden h-[55%] w-[65%] dark:block"
+                                        className="pointer-events-none absolute top-0 left-0 z-1 hidden h-[55%] w-[65%] dark:block"
                                         style={{
                                             background:
                                                 'linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.05) 60%, transparent 100%)',
@@ -452,11 +509,12 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                                     />
                                 </div>
 
-                                {module.badge != null && Number(module.badge) > 0 && (
-                                    <span className="absolute -right-1.5 -top-1.5 z-10 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-background bg-destructive px-1.5 text-[11px] font-black text-destructive-foreground shadow-lg">
-                                        {Number(module.badge)}
-                                    </span>
-                                )}
+                                {module.badge != null &&
+                                    Number(module.badge) > 0 && (
+                                        <span className="absolute -top-1.5 -right-1.5 z-10 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-background bg-destructive px-1.5 text-[11px] font-black text-destructive-foreground shadow-lg">
+                                            {Number(module.badge)}
+                                        </span>
+                                    )}
                             </div>
 
                             <span className="text-center text-[12px] font-bold tracking-wide text-foreground/90 transition-colors group-hover:text-foreground sm:text-[13px]">

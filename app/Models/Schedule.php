@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\ScheduleStatus;
 use Database\Factories\ScheduleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -77,22 +76,16 @@ class Schedule extends Model
         ];
     }
 
-    /**
-     * @return Attribute<string|null, never>
-     */
-    protected function attachmentUrl(): Attribute
+    public function getAttachmentUrlAttribute(): ?string
     {
-        return Attribute::get(fn (): ?string => $this->attachment_path
+        return $this->attachment_path
             ? Storage::disk('public')->url($this->attachment_path)
-            : null);
+            : null;
     }
 
-    /**
-     * @return Attribute<bool, never>
-     */
-    protected function hasAttachment(): Attribute
+    public function getHasAttachmentAttribute(): bool
     {
-        return Attribute::get(fn (): bool => $this->attachment_path !== null);
+        return $this->attachment_path !== null;
     }
 
     public function hasAttachmentFile(): bool

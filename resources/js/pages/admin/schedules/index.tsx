@@ -222,8 +222,7 @@ export default function SchedulesIndex({
         indexFilters.dateTo === todayDate &&
         statusFilter === '';
     const isPendingFilterActive = statusFilter === 'pending';
-    const isTotalFilterActive =
-        !isTodayFilterActive && !isPendingFilterActive;
+    const isTotalFilterActive = !isTodayFilterActive && !isPendingFilterActive;
     const hasSearch = q.length > 0;
     const hasActiveFilters =
         hasSearch ||
@@ -568,8 +567,7 @@ export default function SchedulesIndex({
 
     const listResultsKey = React.useMemo(
         () =>
-            schedules.data.map((schedule) => schedule.id).join('-') ||
-            'empty',
+            schedules.data.map((schedule) => schedule.id).join('-') || 'empty',
         [schedules.data],
     );
 
@@ -705,9 +703,7 @@ export default function SchedulesIndex({
                             schedules={schedules.data}
                             onDelete={confirmDelete}
                             onShare={(schedule) => openShare([schedule])}
-                            onApprove={
-                                isAdmin ? confirmApprove : undefined
-                            }
+                            onApprove={isAdmin ? confirmApprove : undefined}
                             isAdmin={isAdmin}
                             {...cardSelectionProps}
                         />

@@ -35,7 +35,7 @@ export default function AppWallpaper() {
                 style={{ background: LIGHT_MOBILE_GRADIENT }}
             />
             <div
-                className="absolute inset-0 hidden dark:block md:hidden"
+                className="absolute inset-0 hidden md:hidden dark:block"
                 style={{ background: DARK_MOBILE_GRADIENT }}
             />
 
