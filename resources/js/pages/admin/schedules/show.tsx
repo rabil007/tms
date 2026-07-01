@@ -6,6 +6,7 @@ import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { ScheduleShareModal } from '@/components/schedules/schedule-share-modal';
 import { Button } from '@/components/ui/button';
 import {
+    formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
 } from '@/pages/admin/schedules/schedule-views';
@@ -24,6 +25,7 @@ type Schedule = {
     drop_off_location: string;
     pick_up_time: string;
     remarks: string | null;
+    created_at: string | null;
     project?: { id: number; title: string };
 };
 
@@ -119,6 +121,12 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
                             <DetailRow
                                 label="Remarks"
                                 value={schedule.remarks || '—'}
+                            />
+                        </div>
+                        <div className="py-4">
+                            <DetailRow
+                                label="Created"
+                                value={formatCreatedAt(schedule.created_at)}
                             />
                         </div>
                     </dl>

@@ -54,7 +54,12 @@ test('authenticated users can visit schedule show page', function () {
 
     $response = $this->actingAs($user)->get(route('schedules.show', $schedule));
 
-    $response->assertOk();
+    $response
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('admin/schedules/show')
+            ->has('schedule.created_at')
+        );
 });
 
 test('authenticated users can visit schedule edit page', function () {
@@ -170,7 +175,30 @@ test('schedules index loads without sort query param', function () {
     $response->assertInertia(fn ($page) => $page
         ->component('admin/schedules/index')
         ->has('schedules.data', 1)
-        ->where('schedules.data.0.crew_name', 'Alpha Crew'));
+        ->where('schedules.data.0.crew_name', 'Alpha Crew')
+        ->has('schedules.data.0.created_at'));
+});
+
+test('schedules index defaults to newest created first', function () {
+    $user = User::factory()->create();
+    $older = Schedule::factory()->create([
+        'crew_name' => 'Older Crew',
+        'created_at' => now()->subDay(),
+    ]);
+    $latest = Schedule::factory()->create([
+        'crew_name' => 'Latest Crew',
+        'created_at' => now(),
+    ]);
+
+    $response = $this->actingAs($user)->get(route('schedules.index'));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->has('schedules.data', 2)
+        ->where('schedules.data.0.id', $latest->id)
+        ->where('schedules.data.1.id', $older->id));
 });
 
 test('schedules index search returns matching crew name', function () {

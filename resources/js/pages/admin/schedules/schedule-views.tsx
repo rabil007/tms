@@ -7,6 +7,7 @@ import { RowActions } from '@/components/list/row-actions';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
+    formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
     SCHEDULE_ROUTES,
@@ -14,6 +15,7 @@ import {
 import type { ScheduleRow } from '@/pages/admin/schedules/schedule-format';
 
 export {
+    formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
     SCHEDULE_ROUTES,
@@ -139,6 +141,9 @@ export function ScheduleListCards({
                                 {formatScheduleDate(schedule.scheduled_date)} ·{' '}
                                 {formatPickUpTime(schedule.pick_up_time)}
                             </p>
+                            <p className="mt-1 text-[12px] text-muted-foreground">
+                                Created {formatCreatedAt(schedule.created_at)}
+                            </p>
                             <div className="mt-2 flex flex-wrap gap-1.5">
                                 {schedule.project?.title && (
                                     <Badge
@@ -215,6 +220,9 @@ export function ScheduleGridCards({
                     <p className="mt-1 text-[13px] text-foreground/70">
                         {formatScheduleDate(schedule.scheduled_date)} ·{' '}
                         {formatPickUpTime(schedule.pick_up_time)}
+                    </p>
+                    <p className="mt-1 text-[12px] text-muted-foreground">
+                        Created {formatCreatedAt(schedule.created_at)}
                     </p>
                     {schedule.project?.title && (
                         <Badge

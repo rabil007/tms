@@ -25,6 +25,7 @@ class ScheduleController extends Controller
         'pick_up_time',
         'pick_up_location',
         'drop_off_location',
+        'created_at',
     ];
 
     /**
@@ -45,7 +46,7 @@ class ScheduleController extends Controller
     {
         $sort = in_array($request->input('sort'), self::SORTABLE_COLUMNS, true)
             ? $request->input('sort')
-            : 'scheduled_date';
+            : 'created_at';
 
         $dir = $request->input('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 

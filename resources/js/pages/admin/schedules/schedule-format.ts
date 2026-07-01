@@ -16,6 +16,7 @@ export type ScheduleRow = {
     drop_off_location: string;
     pick_up_time: string;
     remarks: string | null;
+    created_at: string | null;
     project?: { id: number; title: string };
 };
 
@@ -89,4 +90,24 @@ export function toTimeInputValue(value: string): string {
     }
 
     return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+export function formatCreatedAt(value: string | null): string {
+    if (!value) {
+        return '—';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return date.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    });
 }

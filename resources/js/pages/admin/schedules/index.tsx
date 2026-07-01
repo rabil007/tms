@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils';
 import { ScheduleIndexFilters } from '@/pages/admin/schedules/schedule-index-filters';
 import type { ProjectFilterOption } from '@/pages/admin/schedules/schedule-index-filters';
 import {
+    formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
     SCHEDULE_ROUTES,
@@ -61,6 +62,7 @@ const ALLOWED_SORTS = [
     'pick_up_time',
     'pick_up_location',
     'drop_off_location',
+    'created_at',
 ];
 
 type ScheduleFilters = {
@@ -115,7 +117,7 @@ export default function SchedulesIndex({
             href: SCHEDULE_ROUTES.index,
             filters,
             defaultPerPage: 15,
-            defaultSort: 'scheduled_date',
+            defaultSort: 'created_at',
             allowedSorts: ALLOWED_SORTS,
             extras: {
                 project_id: indexFilters.projectId
@@ -380,6 +382,23 @@ export default function SchedulesIndex({
                 cell: ({ row }) => (
                     <span className="max-w-[12rem] truncate text-[13px] text-foreground">
                         {row.original.drop_off_location}
+                    </span>
+                ),
+            },
+            {
+                accessorKey: 'created_at',
+                header: () => (
+                    <SortableHeader
+                        label="Created"
+                        column="created_at"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
+                ),
+                cell: ({ row }) => (
+                    <span className="text-[13px] text-foreground">
+                        {formatCreatedAt(row.original.created_at)}
                     </span>
                 ),
             },
