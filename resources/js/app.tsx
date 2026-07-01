@@ -5,6 +5,7 @@ import { PwaThemeMeta } from '@/components/pwa-theme-meta';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
+import { registerServiceWorker } from '@/lib/register-service-worker';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
@@ -113,3 +114,9 @@ createInertiaApp({
 
 // This will set light / dark mode on load...
 initializeTheme();
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('load', () => {
+        void registerServiceWorker();
+    });
+}

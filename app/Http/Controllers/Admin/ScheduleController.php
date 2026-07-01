@@ -89,9 +89,9 @@ class ScheduleController extends Controller
         return Inertia::render('admin/schedules/index', [
             'schedules' => $schedules,
             'filters' => (object) $filters,
-            'projects' => $this->projectOptions(),
-            'totalCount' => Schedule::query()->count(),
-            'todayCount' => Schedule::query()->whereDate('scheduled_date', today())->count(),
+            'projects' => Inertia::defer(fn (): array => $this->projectOptions()),
+            'totalCount' => Inertia::defer(fn (): int => Schedule::query()->count()),
+            'todayCount' => Inertia::defer(fn (): int => Schedule::query()->whereDate('scheduled_date', today())->count()),
             'todayDate' => today()->toDateString(),
         ]);
     }

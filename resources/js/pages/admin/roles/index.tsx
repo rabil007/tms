@@ -7,6 +7,7 @@ import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { SectionHeader } from '@/components/layout/section-header';
 import { EmptyState } from '@/components/list/empty-state';
+import { PullToRefresh } from '@/components/list/pull-to-refresh';
 import { IndexToolbar } from '@/components/list/index-toolbar';
 import { PaginationBar } from '@/components/list/pagination-bar';
 import { RowActions } from '@/components/list/row-actions';
@@ -140,6 +141,7 @@ export default function RolesIndex({
 
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
+            <PullToRefresh only={['roles']}>
             <ConfirmDialog />
             <Head title="Roles" />
 
@@ -151,7 +153,7 @@ export default function RolesIndex({
                 iconClassName="text-rose-500"
                 right={
                     <Button asChild className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto">
-                        <Link href={ROLE_ROUTES.create}>
+                        <Link href={ROLE_ROUTES.create} prefetch>
                             <Plus className="size-4" />
                             New Role
                         </Link>
@@ -194,7 +196,7 @@ export default function RolesIndex({
                     action={
                         !hasSearch ? (
                             <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
-                                <Link href={ROLE_ROUTES.create}>
+                                <Link href={ROLE_ROUTES.create} prefetch>
                                     <Plus className="size-4" />
                                     Add Role
                                 </Link>
@@ -219,6 +221,7 @@ export default function RolesIndex({
                     left={<RowsPerPageSelect value={perPage} onChange={setPerPage} />}
                 />
             )}
+            </PullToRefresh>
         </ModulePageLayout>
     );
 }

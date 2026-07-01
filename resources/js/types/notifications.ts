@@ -8,6 +8,5 @@ export type AppNotification = {
 };
 
 export type SharedNotifications = {
-    unread_count: number;
     items: AppNotification[];
 };

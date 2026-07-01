@@ -1,6 +1,8 @@
 import { Link } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import React from 'react';
+import { Button } from '@/components/ui/button';
 import { APP_LAUNCH_COMPLETE_EVENT, hasAppLaunchedThisSession, prefersReducedMotion } from '@/lib/pwa';
 import { cn } from '@/lib/utils';
 export type DashboardModule = {
@@ -107,6 +109,7 @@ export function DashboardGrid({
 }: DashboardGridProps) {
     const [modules, setModules] = React.useState<DashboardModule[]>(baseModules);
     const [draggingId, setDraggingId] = React.useState<string | null>(null);
+    const [editMode, setEditMode] = React.useState(false);
     const [animateTiles, setAnimateTiles] = React.useState(() => {
         if (typeof window === 'undefined') {
             return true;
@@ -196,6 +199,23 @@ export function DashboardGrid({
         });
     };
 
+    const moveByOffset = (moduleId: string, offset: -1 | 1) => {
+        const currentIndex = modules.findIndex((module) => module.id === moduleId);
+
+        if (currentIndex === -1) {
+            return;
+        }
+
+        const targetIndex = currentIndex + offset;
+        const targetModule = modules[targetIndex];
+
+        if (!targetModule || PINNED_TAIL_SET.has(moduleId) || PINNED_TAIL_SET.has(targetModule.id)) {
+            return;
+        }
+
+        move(moduleId, targetModule.id);
+    };
+
     const canReorder = React.useMemo(
         () => typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches,
         [],
@@ -216,15 +236,29 @@ export function DashboardGrid({
               : 'size-8 sm:size-9';
 
     return (
-        <div
-            className={cn(
-                'grid w-full max-w-lg grid-cols-3 justify-items-center gap-x-3 gap-y-8 px-1',
-                'sm:max-w-2xl sm:gap-x-6 sm:gap-y-10 sm:px-0',
-                'md:max-w-4xl md:grid-cols-4 md:gap-x-10 md:gap-y-14',
-                'lg:max-w-5xl lg:grid-cols-5',
-                className,
+        <div className={cn('w-full', className)}>
+            {!canReorder && storageKey && (
+                <div className="mb-4 flex justify-center">
+                    <Button
+                        type="button"
+                        variant={editMode ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-9 rounded-full px-4"
+                        onClick={() => setEditMode((current) => !current)}
+                    >
+                        {editMode ? 'Done' : 'Edit layout'}
+                    </Button>
+                </div>
             )}
-        >
+
+            <div
+                className={cn(
+                    'grid w-full max-w-lg grid-cols-3 justify-items-center gap-x-3 gap-y-8 px-1',
+                    'sm:max-w-2xl sm:gap-x-6 sm:gap-y-10 sm:px-0',
+                    'md:max-w-4xl md:grid-cols-4 md:gap-x-10 md:gap-y-14',
+                    'lg:max-w-5xl lg:grid-cols-5',
+                )}
+            >
             {modules.map((module, index) => (
                 <Link
                     key={module.id}
@@ -270,6 +304,39 @@ export function DashboardGrid({
                     }
                 >
                     <div className="relative">
+                        {editMode && !PINNED_TAIL_SET.has(module.id) && (
+                            <div className="absolute -top-2 left-1/2 z-20 flex -translate-x-1/2 gap-1">
+                                <button
+                                    type="button"
+                                    aria-label={`Move ${module.name} up`}
+                                    disabled={index === 0 || PINNED_TAIL_SET.has(modules[index - 1]?.id ?? '')}
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        moveByOffset(module.id, -1);
+                                    }}
+                                    className="flex size-7 items-center justify-center rounded-full border border-border/60 bg-background/90 text-foreground shadow-sm disabled:opacity-40"
+                                >
+                                    <ChevronUp className="size-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label={`Move ${module.name} down`}
+                                    disabled={
+                                        index === modules.length - 1
+                                        || PINNED_TAIL_SET.has(modules[index + 1]?.id ?? '')
+                                    }
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        moveByOffset(module.id, 1);
+                                    }}
+                                    className="flex size-7 items-center justify-center rounded-full border border-border/60 bg-background/90 text-foreground shadow-sm disabled:opacity-40"
+                                >
+                                    <ChevronDown className="size-4" />
+                                </button>
+                            </div>
+                        )}
                         <div
                             className={cn(
                                 'flex items-center justify-center',
@@ -323,6 +390,7 @@ export function DashboardGrid({
                     </span>
                 </Link>
             ))}
+            </div>
         </div>
     );
 }

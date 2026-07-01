@@ -10,7 +10,7 @@ test('guests do not receive shared notifications', function () {
 
     $response->assertOk();
 
-    $response->assertInertia(fn ($page) => $page->where('notifications', null));
+    $response->assertInertia(fn ($page) => $page->where('notificationsUnreadCount', 0));
 });
 
 test('authenticated users receive shared notifications', function () {
@@ -27,10 +27,11 @@ test('authenticated users receive shared notifications', function () {
     $response->assertOk();
 
     $response->assertInertia(fn ($page) => $page
-        ->where('notifications.unread_count', 1)
-        ->has('notifications.items', 1)
-        ->where('notifications.items.0.title', 'Test alert')
-        ->where('notifications.items.0.message', 'Something happened.'));
+        ->where('notificationsUnreadCount', 1)
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->has('notifications.items', 1)
+            ->where('notifications.items.0.title', 'Test alert')
+            ->where('notifications.items.0.message', 'Something happened.')));
 });
 
 test('users can mark a notification as read', function () {

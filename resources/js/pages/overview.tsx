@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Deferred, Head, Link, router, usePage } from '@inertiajs/react';
 import { Bell, CalendarClock, ChevronRight, LayoutDashboard } from 'lucide-react';
 import type { ElementType } from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
@@ -11,6 +11,9 @@ import {
     TopProjectsPanel,
     type OverviewAnalytics,
 } from '@/components/overview/analytics-panels';
+import { AnalyticsPanelsSkeleton } from '@/components/loading/analytics-panel-skeleton';
+import { FeedListSkeleton } from '@/components/loading/feed-list-skeleton';
+import { StatCardsSkeleton } from '@/components/loading/stat-cards-skeleton';
 import { cn } from '@/lib/utils';
 import {
     formatPickUpTime,
@@ -84,8 +87,82 @@ function FeedEmpty({ icon: Icon, title, description }: { icon: ElementType; titl
 }
 
 export default function Overview() {
-    const { auth, stats, analytics, recentSchedules, recentActivity } = usePage<PageProps>().props;
+    const { auth } = usePage<PageProps>().props;
     const isAdmin = auth.user?.role?.slug === 'admin';
+
+    return (
+        <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
+            <Head title="Overview" />
+
+            <SectionHeader
+                title="Overview"
+                subtitle={`Welcome back, ${auth.user?.name ?? 'there'}`}
+                icon={LayoutDashboard}
+                iconWrapperClassName="bg-linear-to-br from-slate-500/15 to-slate-700/15"
+                iconClassName="text-slate-500"
+                className="mb-6 sm:mb-8"
+            />
+
+            <Deferred data="stats" fallback={<StatCardsSkeleton count={isAdmin ? 9 : 7} className="mb-6" />}>
+                <OverviewStats isAdmin={isAdmin} />
+            </Deferred>
+
+            <Deferred data="analytics" fallback={<AnalyticsPanelsSkeleton />}>
+                <OverviewAnalyticsPanels />
+            </Deferred>
+
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                <Deferred
+                    data="recentSchedules"
+                    fallback={
+                        <GlassCard className="overflow-hidden">
+                            <div className="border-b border-border/40 px-5 py-4">
+                                <SkeletonHeader title="Recent Schedules" icon={CalendarClock} iconClassName="text-emerald-500" />
+                            </div>
+                            <FeedListSkeleton />
+                        </GlassCard>
+                    }
+                >
+                    <RecentSchedulesFeed />
+                </Deferred>
+
+                <Deferred
+                    data="recentActivity"
+                    fallback={
+                        <GlassCard className="overflow-hidden">
+                            <div className="border-b border-border/40 px-5 py-4">
+                                <SkeletonHeader title="Recent Activity" icon={Bell} iconClassName="text-primary" />
+                            </div>
+                            <FeedListSkeleton />
+                        </GlassCard>
+                    }
+                >
+                    <RecentActivityFeed />
+                </Deferred>
+            </div>
+        </ModulePageLayout>
+    );
+}
+
+function SkeletonHeader({
+    title,
+    icon: Icon,
+    iconClassName,
+}: {
+    title: string;
+    icon: ElementType;
+    iconClassName: string;
+}) {
+    return (
+        <div className="flex items-center gap-2.5">
+            <Icon className={cn('size-4', iconClassName)} />
+            <h3 className="text-[15px] font-bold tracking-tight text-foreground">{title}</h3>
+        </div>
+    );
+}
+
+function OverviewStats({ isAdmin }: { isAdmin: boolean }) {
+    const { stats } = usePage<PageProps>().props;
 
     const statCards = [
         { label: 'Today', value: stats.schedules_today },
@@ -107,31 +184,20 @@ export default function Overview() {
             : []),
     ];
 
-    const handleActivityClick = (activity: RecentActivity) => {
-        if (activity.action_url) {
-            router.visit(activity.action_url);
-        }
-    };
+    return (
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+            {statCards.map((card) => (
+                <StatCard key={card.label} label={card.label} value={card.value} accent={card.accent} />
+            ))}
+        </div>
+    );
+}
+
+function OverviewAnalyticsPanels() {
+    const { analytics } = usePage<PageProps>().props;
 
     return (
-        <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
-            <Head title="Overview" />
-
-            <SectionHeader
-                title="Overview"
-                subtitle={`Welcome back, ${auth.user?.name ?? 'there'}`}
-                icon={LayoutDashboard}
-                iconWrapperClassName="bg-linear-to-br from-slate-500/15 to-slate-700/15"
-                iconClassName="text-slate-500"
-                className="mb-6 sm:mb-8"
-            />
-
-            <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
-                {statCards.map((card) => (
-                    <StatCard key={card.label} label={card.label} value={card.value} accent={card.accent} />
-                ))}
-            </div>
-
+        <>
             <div className="mb-6 grid gap-4 lg:grid-cols-2">
                 <ScheduleForecastPanel data={analytics.scheduleTrend} />
                 <MonthlyTrendPanel data={analytics.monthlyTrend} />
@@ -141,116 +207,134 @@ export default function Overview() {
                 <TopProjectsPanel data={analytics.topProjects} />
                 <TopPickUpLocationsPanel data={analytics.topPickUpLocations} />
             </div>
+        </>
+    );
+}
 
-            <div className="grid gap-4 lg:grid-cols-2">
-                <GlassCard className="flex flex-col overflow-hidden">
-                    <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
-                        <div className="flex items-center gap-2.5">
-                            <CalendarClock className="size-4 text-emerald-500" />
-                            <h3 className="text-[15px] font-bold tracking-tight text-foreground">Recent Schedules</h3>
-                        </div>
-                        <Link
-                            href={ROUTES.schedulesIndex}
-                            className="text-[12px] font-semibold text-primary hover:underline"
-                        >
-                            View all
-                        </Link>
-                    </div>
+function RecentSchedulesFeed() {
+    const { recentSchedules } = usePage<PageProps>().props;
 
-                    <div className={cn('custom-scrollbar h-112 overflow-y-auto', recentSchedules.length === 0 && 'h-auto')}>
-                        {recentSchedules.length === 0 ? (
-                            <FeedEmpty
-                                icon={CalendarClock}
-                                title="No schedules yet"
-                                description="New crew transport schedules will appear here."
-                            />
-                        ) : (
-                            <ul className="divide-y divide-border/40">
-                                {recentSchedules.map((schedule) => (
-                                    <li key={schedule.id}>
-                                        <Link
-                                            href={ROUTES.scheduleShow(schedule.id)}
-                                            className="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-muted/30"
-                                        >
-                                            <div className="min-w-0 flex-1">
-                                                <p className="truncate text-[13px] font-semibold text-foreground">
-                                                    {schedule.crew_name}
-                                                </p>
-                                                <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
-                                                    {schedule.project?.title ?? 'No project'}
-                                                    {' · '}
-                                                    {formatScheduleDate(schedule.scheduled_date)}
-                                                    {' · '}
-                                                    {formatPickUpTime(schedule.pick_up_time)}
-                                                </p>
-                                            </div>
-                                            <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </GlassCard>
-
-                <GlassCard className="flex flex-col overflow-hidden">
-                    <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
-                        <div className="flex items-center gap-2.5">
-                            <Bell className="size-4 text-primary" />
-                            <h3 className="text-[15px] font-bold tracking-tight text-foreground">Recent Activity</h3>
-                        </div>
-                    </div>
-
-                    <div className={cn('custom-scrollbar h-112 overflow-y-auto', recentActivity.length === 0 && 'h-auto')}>
-                        {recentActivity.length === 0 ? (
-                            <FeedEmpty
-                                icon={Bell}
-                                title="No recent activity"
-                                description="Notifications about schedule changes will show up here."
-                            />
-                        ) : (
-                            <ul className="divide-y divide-border/40">
-                                {recentActivity.map((activity) => (
-                                    <li key={activity.id}>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleActivityClick(activity)}
-                                            disabled={!activity.action_url}
-                                            className={cn(
-                                                'group flex w-full items-start gap-3 px-5 py-3.5 text-left transition-colors',
-                                                activity.action_url ? 'cursor-pointer hover:bg-muted/30' : 'cursor-default',
-                                            )}
-                                        >
-                                            <div
-                                                className={cn(
-                                                    'mt-1.5 size-2 shrink-0 rounded-full',
-                                                    activity.read_at ? 'bg-muted-foreground/30' : 'bg-primary',
-                                                )}
-                                            />
-                                            <div className="min-w-0 flex-1">
-                                                <p className="truncate text-[13px] font-semibold text-foreground">
-                                                    {activity.title}
-                                                </p>
-                                                <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
-                                                    {activity.message}
-                                                </p>
-                                                {activity.created_at_diff && (
-                                                    <p className="mt-1 text-[11px] text-muted-foreground/80">
-                                                        {activity.created_at_diff}
-                                                    </p>
-                                                )}
-                                            </div>
-                                            {activity.action_url && (
-                                                <ChevronRight className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
-                                            )}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </GlassCard>
+    return (
+        <GlassCard className="flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
+                <div className="flex items-center gap-2.5">
+                    <CalendarClock className="size-4 text-emerald-500" />
+                    <h3 className="text-[15px] font-bold tracking-tight text-foreground">Recent Schedules</h3>
+                </div>
+                <Link
+                    href={ROUTES.schedulesIndex}
+                    prefetch
+                    className="text-[12px] font-semibold text-primary hover:underline"
+                >
+                    View all
+                </Link>
             </div>
-        </ModulePageLayout>
+
+            <div className={cn('custom-scrollbar h-112 overflow-y-auto', recentSchedules.length === 0 && 'h-auto')}>
+                {recentSchedules.length === 0 ? (
+                    <FeedEmpty
+                        icon={CalendarClock}
+                        title="No schedules yet"
+                        description="New crew transport schedules will appear here."
+                    />
+                ) : (
+                    <ul className="divide-y divide-border/40">
+                        {recentSchedules.map((schedule) => (
+                            <li key={schedule.id}>
+                                <Link
+                                    href={ROUTES.scheduleShow(schedule.id)}
+                                    prefetch
+                                    className="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-muted/30"
+                                >
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-[13px] font-semibold text-foreground">
+                                            {schedule.crew_name}
+                                        </p>
+                                        <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+                                            {schedule.project?.title ?? 'No project'}
+                                            {' · '}
+                                            {formatScheduleDate(schedule.scheduled_date)}
+                                            {' · '}
+                                            {formatPickUpTime(schedule.pick_up_time)}
+                                        </p>
+                                    </div>
+                                    <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        </GlassCard>
+    );
+}
+
+function RecentActivityFeed() {
+    const { recentActivity } = usePage<PageProps>().props;
+
+    const handleActivityClick = (activity: RecentActivity) => {
+        if (activity.action_url) {
+            router.visit(activity.action_url);
+        }
+    };
+
+    return (
+        <GlassCard className="flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
+                <div className="flex items-center gap-2.5">
+                    <Bell className="size-4 text-primary" />
+                    <h3 className="text-[15px] font-bold tracking-tight text-foreground">Recent Activity</h3>
+                </div>
+            </div>
+
+            <div className={cn('custom-scrollbar h-112 overflow-y-auto', recentActivity.length === 0 && 'h-auto')}>
+                {recentActivity.length === 0 ? (
+                    <FeedEmpty
+                        icon={Bell}
+                        title="No recent activity"
+                        description="Notifications about schedule changes will show up here."
+                    />
+                ) : (
+                    <ul className="divide-y divide-border/40">
+                        {recentActivity.map((activity) => (
+                            <li key={activity.id}>
+                                <button
+                                    type="button"
+                                    onClick={() => handleActivityClick(activity)}
+                                    disabled={!activity.action_url}
+                                    className={cn(
+                                        'group flex w-full items-start gap-3 px-5 py-3.5 text-left transition-colors',
+                                        activity.action_url ? 'cursor-pointer hover:bg-muted/30' : 'cursor-default',
+                                    )}
+                                >
+                                    <div
+                                        className={cn(
+                                            'mt-1.5 size-2 shrink-0 rounded-full',
+                                            activity.read_at ? 'bg-muted-foreground/30' : 'bg-primary',
+                                        )}
+                                    />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-[13px] font-semibold text-foreground">
+                                            {activity.title}
+                                        </p>
+                                        <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
+                                            {activity.message}
+                                        </p>
+                                        {activity.created_at_diff && (
+                                            <p className="mt-1 text-[11px] text-muted-foreground/80">
+                                                {activity.created_at_diff}
+                                            </p>
+                                        )}
+                                    </div>
+                                    {activity.action_url && (
+                                        <ChevronRight className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                                    )}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        </GlassCard>
     );
 }

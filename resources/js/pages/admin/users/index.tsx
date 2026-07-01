@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Deferred, Head, Link, router, usePage } from '@inertiajs/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Plus } from 'lucide-react';
@@ -7,6 +7,8 @@ import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { SectionHeader } from '@/components/layout/section-header';
 import { EmptyState } from '@/components/list/empty-state';
+import { PullToRefresh } from '@/components/list/pull-to-refresh';
+import { StatCardsSkeleton } from '@/components/loading/stat-cards-skeleton';
 import { IndexToolbar } from '@/components/list/index-toolbar';
 import { PaginationBar } from '@/components/list/pagination-bar';
 import { RowActions } from '@/components/list/row-actions';
@@ -38,11 +40,10 @@ type Paged<T> = {
 export default function UsersIndex({
     users,
     filters,
-    counts,
 }: {
     users: Paged<UserRow>;
     filters: { q?: string; sort?: string; dir?: 'asc' | 'desc'; per_page?: number };
-    counts: { total: number; admins: number; users: number };
+    counts?: { total: number; admins: number; users: number };
 }) {
     const isMobile = useIsMobile();
     const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'users:index:view' });
@@ -156,6 +157,7 @@ export default function UsersIndex({
 
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
+            <PullToRefresh only={['users', 'counts']}>
             <ConfirmDialog />
             <Head title="Users" />
 
@@ -167,7 +169,7 @@ export default function UsersIndex({
                 iconClassName="text-cyan-500"
                 right={
                     <Button asChild className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto">
-                        <Link href={USER_ROUTES.create}>
+                        <Link href={USER_ROUTES.create} prefetch>
                             <Plus className="size-4" />
                             New User
                         </Link>
@@ -176,20 +178,9 @@ export default function UsersIndex({
                 className="mb-6 sm:mb-8"
             />
 
-            <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.total}</p>
-                </GlassCard>
-                <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Admins</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.admins}</p>
-                </GlassCard>
-                <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Users</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.users}</p>
-                </GlassCard>
-            </div>
+            <Deferred data="counts" fallback={<StatCardsSkeleton count={3} columns="grid-cols-1 sm:grid-cols-3" className="mb-6" />}>
+                <UserStatCards />
+            </Deferred>
 
             <IndexToolbar
                 search={q}
@@ -212,7 +203,7 @@ export default function UsersIndex({
                     action={
                         !hasSearch ? (
                             <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
-                                <Link href={USER_ROUTES.create}>
+                                <Link href={USER_ROUTES.create} prefetch>
                                     <Plus className="size-4" />
                                     Add User
                                 </Link>
@@ -237,6 +228,28 @@ export default function UsersIndex({
                     left={<RowsPerPageSelect value={perPage} onChange={setPerPage} />}
                 />
             )}
+            </PullToRefresh>
         </ModulePageLayout>
+    );
+}
+
+function UserStatCards() {
+    const { counts } = usePage<{ counts: { total: number; admins: number; users: number } }>().props;
+
+    return (
+        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <GlassCard level="inner" className="px-4 py-3.5">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.total}</p>
+            </GlassCard>
+            <GlassCard level="inner" className="px-4 py-3.5">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Admins</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.admins}</p>
+            </GlassCard>
+            <GlassCard level="inner" className="px-4 py-3.5">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Users</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.users}</p>
+            </GlassCard>
+        </div>
     );
 }

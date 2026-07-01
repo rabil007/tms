@@ -22,15 +22,15 @@ class OverviewController extends Controller
         $today = today();
 
         return Inertia::render('overview', [
-            'stats' => $this->stats($user, $today),
-            'analytics' => [
+            'stats' => Inertia::defer(fn (): array => $this->stats($user, $today)),
+            'analytics' => Inertia::defer(fn (): array => [
                 'scheduleTrend' => $this->scheduleTrend($today),
                 'monthlyTrend' => $this->monthlyTrend($today),
                 'topProjects' => $this->topProjects(),
                 'topPickUpLocations' => $this->topPickUpLocations(),
-            ],
-            'recentSchedules' => $this->recentSchedules(),
-            'recentActivity' => $this->recentActivity($user),
+            ]),
+            'recentSchedules' => Inertia::defer(fn (): array => $this->recentSchedules()),
+            'recentActivity' => Inertia::defer(fn (): array => $this->recentActivity($user)),
         ]);
     }
 

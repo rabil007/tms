@@ -52,11 +52,11 @@ class UserController extends Controller
         return Inertia::render('admin/users/index', [
             'users' => $users,
             'filters' => (object) $filters,
-            'counts' => [
+            'counts' => Inertia::defer(fn (): array => [
                 'total' => (clone $manageableUsers)->count(),
                 'admins' => (clone $manageableUsers)->whereHas('role', fn (Builder $query) => $query->where('slug', 'admin'))->count(),
                 'users' => (clone $manageableUsers)->whereHas('role', fn (Builder $query) => $query->where('slug', 'user'))->count(),
-            ],
+            ]),
         ]);
     }
 

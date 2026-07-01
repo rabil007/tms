@@ -42,6 +42,8 @@ export function CountryListCards({ countries, onDelete }: CountryCardsProps) {
                     key={country.id}
                     className="group cursor-pointer p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(COUNTRY_ROUTES.show(country.id))}
+                    onMouseEnter={() => router.prefetch(COUNTRY_ROUTES.show(country.id))}
+                    onTouchStart={() => router.prefetch(COUNTRY_ROUTES.show(country.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(COUNTRY_ROUTES.show(country.id));
@@ -91,6 +93,8 @@ export function CountryGridCards({ countries, onDelete }: CountryCardsProps) {
                     key={country.id}
                     className="group flex cursor-pointer flex-col p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(COUNTRY_ROUTES.show(country.id))}
+                    onMouseEnter={() => router.prefetch(COUNTRY_ROUTES.show(country.id))}
+                    onTouchStart={() => router.prefetch(COUNTRY_ROUTES.show(country.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(COUNTRY_ROUTES.show(country.id));

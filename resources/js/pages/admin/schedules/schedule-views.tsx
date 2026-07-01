@@ -100,6 +100,8 @@ export function ScheduleListCards({ schedules, onDelete, onShare, rowSelection, 
                     key={schedule.id}
                     className="group relative cursor-pointer p-4 pt-10 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(SCHEDULE_ROUTES.show(schedule.id))}
+                    onMouseEnter={() => router.prefetch(SCHEDULE_ROUTES.show(schedule.id))}
+                    onTouchStart={() => router.prefetch(SCHEDULE_ROUTES.show(schedule.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(SCHEDULE_ROUTES.show(schedule.id));
@@ -150,6 +152,8 @@ export function ScheduleGridCards({ schedules, onDelete, onShare, rowSelection, 
                     key={schedule.id}
                     className="group relative flex cursor-pointer flex-col p-4 pt-10 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(SCHEDULE_ROUTES.show(schedule.id))}
+                    onMouseEnter={() => router.prefetch(SCHEDULE_ROUTES.show(schedule.id))}
+                    onTouchStart={() => router.prefetch(SCHEDULE_ROUTES.show(schedule.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(SCHEDULE_ROUTES.show(schedule.id));

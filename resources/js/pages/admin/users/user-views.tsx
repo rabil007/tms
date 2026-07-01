@@ -78,6 +78,8 @@ export function UserListCards({ users, onDelete }: UserCardsProps) {
                     key={user.id}
                     className="group cursor-pointer p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(USER_ROUTES.show(user.id))}
+                    onMouseEnter={() => router.prefetch(USER_ROUTES.show(user.id))}
+                    onTouchStart={() => router.prefetch(USER_ROUTES.show(user.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(USER_ROUTES.show(user.id));
@@ -121,6 +123,8 @@ export function UserGridCards({ users, onDelete }: UserCardsProps) {
                     key={user.id}
                     className="group flex cursor-pointer flex-col p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(USER_ROUTES.show(user.id))}
+                    onMouseEnter={() => router.prefetch(USER_ROUTES.show(user.id))}
+                    onTouchStart={() => router.prefetch(USER_ROUTES.show(user.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(USER_ROUTES.show(user.id));

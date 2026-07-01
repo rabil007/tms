@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -41,14 +42,15 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => fn () => $request->user()?->load('role'),
             ],
-            'notifications' => fn () => $this->sharedNotifications($request),
+            'notificationsUnreadCount' => fn () => $request->user()?->unreadNotifications()->count() ?? 0,
+            'notifications' => Inertia::defer(fn (): ?array => $this->notificationItems($request)),
         ];
     }
 
     /**
-     * @return array{unread_count: int, items: array<int, array<string, mixed>>}|null
+     * @return array{items: array<int, array<string, mixed>>}|null
      */
-    private function sharedNotifications(Request $request): ?array
+    private function notificationItems(Request $request): ?array
     {
         $user = $request->user();
 
@@ -71,7 +73,6 @@ class HandleInertiaRequests extends Middleware
             ->all());
 
         return [
-            'unread_count' => $user->unreadNotifications()->count(),
             'items' => $items,
         ];
     }

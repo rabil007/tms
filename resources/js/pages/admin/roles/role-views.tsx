@@ -62,6 +62,8 @@ export function RoleListCards({ roles, onDelete }: RoleCardsProps) {
                     key={role.id}
                     className="group cursor-pointer p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(ROLE_ROUTES.show(role.id))}
+                    onMouseEnter={() => router.prefetch(ROLE_ROUTES.show(role.id))}
+                    onTouchStart={() => router.prefetch(ROLE_ROUTES.show(role.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(ROLE_ROUTES.show(role.id));
@@ -104,6 +106,8 @@ export function RoleGridCards({ roles, onDelete }: RoleCardsProps) {
                     key={role.id}
                     className="group flex cursor-pointer flex-col p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(ROLE_ROUTES.show(role.id))}
+                    onMouseEnter={() => router.prefetch(ROLE_ROUTES.show(role.id))}
+                    onTouchStart={() => router.prefetch(ROLE_ROUTES.show(role.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(ROLE_ROUTES.show(role.id));

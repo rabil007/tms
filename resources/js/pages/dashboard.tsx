@@ -1,5 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { CalendarClock, FolderKanban, Globe, LayoutDashboard, Settings, Shield, Users } from 'lucide-react';
+import { AppOnboardingTips } from '@/components/app-onboarding-tips';
 import { DashboardGrid  } from '@/components/dashboard-grid';
 import type {DashboardModule} from '@/components/dashboard-grid';
 import type { Auth } from '@/types';
@@ -73,12 +74,15 @@ export default function Dashboard() {
     return (
         <>
             <Head title="Dashboard" />
-            <div className="relative z-10 flex flex-1 items-center justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-10">
-                <DashboardGrid
+            <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-10">
+                <div className="w-full max-w-5xl">
+                    <AppOnboardingTips />
+                    <DashboardGrid
                     modules={modules}
                     iconSize="lg"
                     storageKey={storageKey}
                 />
+                </div>
             </div>
         </>
     );

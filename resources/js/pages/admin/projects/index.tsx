@@ -7,6 +7,7 @@ import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { SectionHeader } from '@/components/layout/section-header';
 import { EmptyState } from '@/components/list/empty-state';
+import { PullToRefresh } from '@/components/list/pull-to-refresh';
 import { IndexToolbar } from '@/components/list/index-toolbar';
 import { PaginationBar } from '@/components/list/pagination-bar';
 import { RowActions } from '@/components/list/row-actions';
@@ -131,6 +132,7 @@ export default function ProjectsIndex({
 
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
+            <PullToRefresh only={['projects']}>
             <ConfirmDialog />
             <Head title="Projects" />
 
@@ -142,7 +144,7 @@ export default function ProjectsIndex({
                 iconClassName="text-violet-500"
                 right={
                     <Button asChild className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto">
-                        <Link href={PROJECT_ROUTES.create}>
+                        <Link href={PROJECT_ROUTES.create} prefetch>
                             <Plus className="size-4" />
                             New Project
                         </Link>
@@ -185,7 +187,7 @@ export default function ProjectsIndex({
                     action={
                         !hasSearch ? (
                             <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
-                                <Link href={PROJECT_ROUTES.create}>
+                                <Link href={PROJECT_ROUTES.create} prefetch>
                                     <Plus className="size-4" />
                                     Add Project
                                 </Link>
@@ -210,6 +212,7 @@ export default function ProjectsIndex({
                     left={<RowsPerPageSelect value={perPage} onChange={setPerPage} />}
                 />
             )}
+            </PullToRefresh>
         </ModulePageLayout>
     );
 }

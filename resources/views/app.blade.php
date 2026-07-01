@@ -43,6 +43,8 @@
 
         <link rel="icon" href="/logo.png" type="image/png">
         <link rel="apple-touch-icon" href="/icons/icon-192.png">
+        <link rel="apple-touch-startup-image" href="/splash/splash-light.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+        <link rel="apple-touch-startup-image" href="/splash/splash-dark.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
         <link rel="manifest" href="/manifest.webmanifest">
         <meta name="application-name" content="{{ config('app.name') }}">
         <meta name="apple-mobile-web-app-title" content="{{ config('app.name') }}">

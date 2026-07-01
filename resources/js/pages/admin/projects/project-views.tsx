@@ -51,6 +51,8 @@ export function ProjectListCards({ projects, onDelete }: ProjectCardsProps) {
                     key={project.id}
                     className="group cursor-pointer p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(PROJECT_ROUTES.show(project.id))}
+                    onMouseEnter={() => router.prefetch(PROJECT_ROUTES.show(project.id))}
+                    onTouchStart={() => router.prefetch(PROJECT_ROUTES.show(project.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(PROJECT_ROUTES.show(project.id));
@@ -90,6 +92,8 @@ export function ProjectGridCards({ projects, onDelete }: ProjectCardsProps) {
                     key={project.id}
                     className="group flex cursor-pointer flex-col p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(PROJECT_ROUTES.show(project.id))}
+                    onMouseEnter={() => router.prefetch(PROJECT_ROUTES.show(project.id))}
+                    onTouchStart={() => router.prefetch(PROJECT_ROUTES.show(project.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(PROJECT_ROUTES.show(project.id));

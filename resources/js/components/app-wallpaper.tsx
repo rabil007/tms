@@ -6,7 +6,15 @@ export default function AppWallpaper() {
             <div className="absolute inset-0 [background:var(--dashboard-background)]" />
 
             <div
-                className="absolute inset-0"
+                className="absolute inset-0 md:hidden"
+                style={{
+                    background:
+                        'radial-gradient(ellipse 80% 60% at 20% 15%, rgba(14,165,233,0.22) 0%, transparent 55%), radial-gradient(ellipse 60% 50% at 85% 85%, rgba(139,92,246,0.18) 0%, transparent 50%)',
+                }}
+            />
+
+            <div
+                className="absolute inset-0 hidden md:block"
                 style={{
                     background: `
       radial-gradient(ellipse 80% 60% at 15% 20%, rgba(14,165,233,0.45) 0%, transparent 55%),
@@ -19,14 +27,14 @@ export default function AppWallpaper() {
             />
 
             <div
-                className="pointer-events-none absolute inset-0 [background:color-mix(in_oklch,var(--dashboard-overlay),transparent_70%)]"
+                className="pointer-events-none absolute inset-0 hidden [background:color-mix(in_oklch,var(--dashboard-overlay),transparent_70%)] md:block"
                 style={{
                     mixBlendMode: 'multiply',
                 }}
             />
 
             <div
-                className="absolute inset-0 opacity-[0.045]"
+                className="absolute inset-0 hidden opacity-[0.045] md:block"
                 style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
                     backgroundSize: '180px 180px',
@@ -34,7 +42,7 @@ export default function AppWallpaper() {
             />
 
             <div
-                className="pointer-events-none absolute inset-0 animate-[shimmer_10s_ease-in-out_infinite]"
+                className="pointer-events-none absolute inset-0 hidden motion-safe:animate-[shimmer_10s_ease-in-out_infinite] md:block"
                 style={{
                     background:
                         'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.025) 50%, transparent 60%)',

@@ -36,6 +36,7 @@ export function RowActions({
             )}
             <Link
                 href={showUrl}
+                prefetch
                 className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
                 title={showLabel}
             >
@@ -43,6 +44,7 @@ export function RowActions({
             </Link>
             <Link
                 href={editUrl}
+                prefetch
                 className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
                 title={editLabel}
             >

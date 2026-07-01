@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import React from 'react';
+import { registerServiceWorker } from '@/lib/register-service-worker';
 
 const PUSH_ROUTES = {
     store: '/push-subscriptions',
@@ -71,13 +72,13 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration> {
-    const existing = await navigator.serviceWorker.getRegistration('/');
+    const registration = await registerServiceWorker();
 
-    if (existing) {
-        return existing;
+    if (!registration) {
+        throw new Error('Service worker is not available.');
     }
 
-    return navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    return registration;
 }
 
 export function usePushNotifications(

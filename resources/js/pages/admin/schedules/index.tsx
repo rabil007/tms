@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Deferred, Head, Link, router, usePage } from '@inertiajs/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import type { ColumnDef, RowSelectionState } from '@tanstack/react-table';
 import { CalendarClock, Plus } from 'lucide-react';
@@ -7,6 +7,9 @@ import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { SectionHeader } from '@/components/layout/section-header';
 import { BulkActionBar } from '@/components/list/bulk-action-bar';
+import { PullToRefresh } from '@/components/list/pull-to-refresh';
+import { StatCardsSkeleton } from '@/components/loading/stat-cards-skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/list/empty-state';
 import { IndexToolbar } from '@/components/list/index-toolbar';
 import { PaginationBar } from '@/components/list/pagination-bar';
@@ -66,16 +69,13 @@ type ScheduleFilters = {
 export default function SchedulesIndex({
     schedules,
     filters,
-    projects,
-    totalCount,
-    todayCount,
     todayDate,
 }: {
     schedules: Paged<ScheduleRow>;
     filters: ScheduleFilters;
-    projects: ProjectFilterOption[];
-    totalCount: number;
-    todayCount: number;
+    projects?: ProjectFilterOption[];
+    totalCount?: number;
+    todayCount?: number;
     todayDate: string;
 }) {
     const isMobile = useIsMobile();
@@ -329,6 +329,7 @@ export default function SchedulesIndex({
 
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
+            <PullToRefresh only={['schedules', 'totalCount', 'todayCount', 'projects']}>
             <ConfirmDialog />
             <ScheduleShareModal
                 schedules={shareSchedules ?? []}
@@ -349,7 +350,7 @@ export default function SchedulesIndex({
                 iconClassName="text-emerald-500"
                 right={
                     <Button asChild className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto">
-                        <Link href={SCHEDULE_ROUTES.create}>
+                        <Link href={SCHEDULE_ROUTES.create} prefetch>
                             <Plus className="size-4" />
                             New Schedule
                         </Link>
@@ -358,40 +359,14 @@ export default function SchedulesIndex({
                 className="mb-6 sm:mb-8"
             />
 
-            <div className="mb-6 grid grid-cols-2 gap-3">
-                <GlassCard
-                    as="button"
-                    type="button"
-                    level="inner"
-                    onClick={() => setIndexFilters((current) => ({ ...current, dateFrom: '', dateTo: '' }))}
-                    className={cn(
-                        'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
-                        isTotalFilterActive && 'ring-2 ring-primary/40',
-                    )}
-                >
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{totalCount}</p>
-                </GlassCard>
-                <GlassCard
-                    as="button"
-                    type="button"
-                    level="inner"
-                    onClick={() =>
-                        setIndexFilters((current) => ({
-                            ...current,
-                            dateFrom: todayDate,
-                            dateTo: todayDate,
-                        }))
-                    }
-                    className={cn(
-                        'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
-                        isTodayFilterActive && 'ring-2 ring-emerald-500/50',
-                    )}
-                >
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Today</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{todayCount}</p>
-                </GlassCard>
-            </div>
+            <Deferred data={['totalCount', 'todayCount']} fallback={<StatCardsSkeleton count={2} columns="grid-cols-2" className="mb-6" />}>
+                <ScheduleStatCards
+                    todayDate={todayDate}
+                    isTodayFilterActive={isTodayFilterActive}
+                    isTotalFilterActive={isTotalFilterActive}
+                    setIndexFilters={setIndexFilters}
+                />
+            </Deferred>
 
             <IndexToolbar
                 search={q}
@@ -402,12 +377,19 @@ export default function SchedulesIndex({
                 onViewModeChange={setViewMode}
             />
 
-            <ScheduleIndexFilters
-                projects={projects}
-                value={indexFilters}
-                onChange={setIndexFilters}
-                onClear={() => setIndexFilters({ projectId: '', dateFrom: '', dateTo: '' })}
-            />
+            <Deferred
+                data="projects"
+                fallback={
+                    <div className="mb-4 rounded-2xl border border-border/50 bg-card/40 p-4">
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                }
+            >
+                <ScheduleFiltersSection
+                    indexFilters={indexFilters}
+                    setIndexFilters={setIndexFilters}
+                />
+            </Deferred>
 
             <BulkActionBar
                 count={selectedCount}
@@ -427,7 +409,7 @@ export default function SchedulesIndex({
                     action={
                         !hasActiveFilters ? (
                             <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
-                                <Link href={SCHEDULE_ROUTES.create}>
+                                <Link href={SCHEDULE_ROUTES.create} prefetch>
                                     <Plus className="size-4" />
                                     Add Schedule
                                 </Link>
@@ -469,6 +451,83 @@ export default function SchedulesIndex({
                     left={<RowsPerPageSelect value={perPage} onChange={setPerPage} />}
                 />
             )}
+            </PullToRefresh>
         </ModulePageLayout>
+    );
+}
+
+type SchedulePageProps = {
+    totalCount: number;
+    todayCount: number;
+    projects: ProjectFilterOption[];
+};
+
+function ScheduleStatCards({
+    todayDate,
+    isTodayFilterActive,
+    isTotalFilterActive,
+    setIndexFilters,
+}: {
+    todayDate: string;
+    isTodayFilterActive: boolean;
+    isTotalFilterActive: boolean;
+    setIndexFilters: React.Dispatch<React.SetStateAction<{ projectId: string; dateFrom: string; dateTo: string }>>;
+}) {
+    const { totalCount, todayCount } = usePage<SchedulePageProps>().props;
+
+    return (
+        <div className="mb-6 grid grid-cols-2 gap-3">
+            <GlassCard
+                as="button"
+                type="button"
+                level="inner"
+                onClick={() => setIndexFilters((current) => ({ ...current, dateFrom: '', dateTo: '' }))}
+                className={cn(
+                    'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
+                    isTotalFilterActive && 'ring-2 ring-primary/40',
+                )}
+            >
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{totalCount}</p>
+            </GlassCard>
+            <GlassCard
+                as="button"
+                type="button"
+                level="inner"
+                onClick={() =>
+                    setIndexFilters((current) => ({
+                        ...current,
+                        dateFrom: todayDate,
+                        dateTo: todayDate,
+                    }))
+                }
+                className={cn(
+                    'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
+                    isTodayFilterActive && 'ring-2 ring-emerald-500/50',
+                )}
+            >
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Today</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{todayCount}</p>
+            </GlassCard>
+        </div>
+    );
+}
+
+function ScheduleFiltersSection({
+    indexFilters,
+    setIndexFilters,
+}: {
+    indexFilters: { projectId: string; dateFrom: string; dateTo: string };
+    setIndexFilters: React.Dispatch<React.SetStateAction<{ projectId: string; dateFrom: string; dateTo: string }>>;
+}) {
+    const { projects } = usePage<SchedulePageProps>().props;
+
+    return (
+        <ScheduleIndexFilters
+            projects={projects}
+            value={indexFilters}
+            onChange={setIndexFilters}
+            onClear={() => setIndexFilters({ projectId: '', dateFrom: '', dateTo: '' })}
+        />
     );
 }

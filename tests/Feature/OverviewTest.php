@@ -20,10 +20,11 @@ test('authenticated users can visit the overview page', function () {
 
     $response->assertInertia(fn ($page) => $page
         ->component('overview')
-        ->has('stats')
-        ->has('analytics')
-        ->has('recentSchedules')
-        ->has('recentActivity'));
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->has('stats')
+            ->has('analytics')
+            ->has('recentSchedules')
+            ->has('recentActivity')));
 });
 
 test('overview includes schedule stats and recent data', function () {
@@ -51,16 +52,17 @@ test('overview includes schedule stats and recent data', function () {
     $response->assertOk();
 
     $response->assertInertia(fn ($page) => $page
-        ->where('stats.schedules_today', 1)
-        ->where('stats.schedules_upcoming', 2)
-        ->where('stats.schedules_this_month', 2)
-        ->where('stats.schedules_total', 2)
-        ->where('stats.unread_notifications', 1)
-        ->has('analytics.scheduleTrend', 7)
-        ->has('analytics.monthlyTrend', 6)
-        ->has('recentSchedules', 2)
-        ->has('recentActivity', 1)
-        ->where('recentActivity.0.title', 'Schedule alert'));
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->where('stats.schedules_today', 1)
+            ->where('stats.schedules_upcoming', 2)
+            ->where('stats.schedules_this_month', 2)
+            ->where('stats.schedules_total', 2)
+            ->where('stats.unread_notifications', 1)
+            ->has('analytics.scheduleTrend', 7)
+            ->has('analytics.monthlyTrend', 6)
+            ->has('recentSchedules', 2)
+            ->has('recentActivity', 1)
+            ->where('recentActivity.0.title', 'Schedule alert')));
 });
 
 test('admin users receive admin-only stats', function () {
@@ -74,8 +76,9 @@ test('admin users receive admin-only stats', function () {
     $response->assertOk();
 
     $response->assertInertia(fn ($page) => $page
-        ->where('stats.users_count', 1)
-        ->where('stats.projects_count', 2));
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->where('stats.users_count', 1)
+            ->where('stats.projects_count', 2)));
 });
 
 test('non-admin users do not receive admin-only stats', function () {
@@ -88,8 +91,9 @@ test('non-admin users do not receive admin-only stats', function () {
     $response->assertOk();
 
     $response->assertInertia(fn ($page) => $page
-        ->missing('stats.users_count')
-        ->missing('stats.projects_count'));
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->missing('stats.users_count')
+            ->missing('stats.projects_count')));
 });
 
 test('overview includes project and location analytics', function () {
@@ -118,11 +122,12 @@ test('overview includes project and location analytics', function () {
     $response->assertOk();
 
     $response->assertInertia(fn ($page) => $page
-        ->where('analytics.topProjects.0.title', 'NMDC')
-        ->where('analytics.topProjects.0.count', 3)
-        ->where('analytics.topProjects.0.percentage', 60)
-        ->where('analytics.topPickUpLocations.0.location', 'Airport Terminal 1')
-        ->where('analytics.topPickUpLocations.0.count', 4));
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->where('analytics.topProjects.0.title', 'NMDC')
+            ->where('analytics.topProjects.0.count', 3)
+            ->where('analytics.topProjects.0.percentage', 60)
+            ->where('analytics.topPickUpLocations.0.location', 'Airport Terminal 1')
+            ->where('analytics.topPickUpLocations.0.count', 4)));
 });
 
 test('recent schedules are ordered by scheduled date descending', function () {
@@ -146,6 +151,7 @@ test('recent schedules are ordered by scheduled date descending', function () {
     $response->assertOk();
 
     $response->assertInertia(fn ($page) => $page
-        ->where('recentSchedules.0.id', $newer->id)
-        ->where('recentSchedules.1.id', $older->id));
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->where('recentSchedules.0.id', $newer->id)
+            ->where('recentSchedules.1.id', $older->id)));
 });
