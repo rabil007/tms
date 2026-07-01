@@ -56,4 +56,13 @@ class ScheduleFactory extends Factory
             'status' => ScheduleStatus::Completed,
         ]);
     }
+
+    public function withAttachment(): static
+    {
+        return $this->state(fn (): array => [
+            'attachment_path' => 'schedules/1/sample.jpg',
+            'attachment_name' => 'sample.jpg',
+            'attachment_mime' => 'image/jpeg',
+        ]);
+    }
 }

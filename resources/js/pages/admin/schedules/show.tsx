@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Check, Pencil, Share2 } from 'lucide-react';
+import { Check, FileText, Pencil, Share2 } from 'lucide-react';
 import React from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
@@ -32,6 +32,10 @@ type Schedule = {
     remarks: string | null;
     created_at: string | null;
     status: ScheduleStatus;
+    attachment_url: string | null;
+    attachment_name: string | null;
+    attachment_mime: string | null;
+    has_attachment: boolean;
     project?: { id: number; title: string };
     created_by?: { id: number; name: string } | null;
 };
@@ -51,6 +55,10 @@ function DetailRow({ label, value, mono = false }: DetailRowProps) {
             </dd>
         </div>
     );
+}
+
+function isImageMime(mime: string): boolean {
+    return mime.startsWith('image/');
 }
 
 export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
@@ -157,6 +165,54 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
                         </div>
                     </dl>
                 </GlassCard>
+
+                {schedule.has_attachment &&
+                    schedule.attachment_url &&
+                    schedule.attachment_name &&
+                    schedule.attachment_mime && (
+                        <GlassCard className="mt-6">
+                            <div className="px-5 py-5 sm:px-8">
+                                <h3 className="text-[13px] font-semibold text-muted-foreground">
+                                    Attachment
+                                </h3>
+                                <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
+                                    {isImageMime(schedule.attachment_mime) ? (
+                                        <a
+                                            href={schedule.attachment_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block shrink-0"
+                                        >
+                                            <img
+                                                src={schedule.attachment_url}
+                                                alt={schedule.attachment_name}
+                                                className="max-h-48 rounded-xl object-cover ring-1 ring-border"
+                                            />
+                                        </a>
+                                    ) : (
+                                        <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-muted ring-1 ring-border">
+                                            <FileText className="size-7 text-muted-foreground" />
+                                        </div>
+                                    )}
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-medium text-foreground">
+                                            {schedule.attachment_name}
+                                        </p>
+                                        <a
+                                            href={schedule.attachment_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+                                        >
+                                            {isImageMime(schedule.attachment_mime)
+                                                ? 'Open full image'
+                                                : 'Open PDF'}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </GlassCard>
+                    )}
 
                 <div className="mt-6 flex flex-col gap-3 border-t border-border/40 pt-6 sm:flex-row sm:justify-end">
                     <Button

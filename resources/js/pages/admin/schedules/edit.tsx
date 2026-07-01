@@ -22,6 +22,9 @@ type Schedule = {
     drop_off_location: string;
     pick_up_time: string;
     remarks: string | null;
+    attachment_url: string | null;
+    attachment_name: string | null;
+    attachment_mime: string | null;
 };
 
 function toFormDate(value: string): string {
@@ -49,7 +52,20 @@ export default function SchedulesEdit({
         drop_off_location: schedule.drop_off_location,
         pick_up_time: toTimeInputValue(schedule.pick_up_time),
         remarks: schedule.remarks ?? '',
+        attachment: null as File | null,
+        remove_attachment: false,
     });
+
+    const existingAttachment =
+        schedule.attachment_url &&
+        schedule.attachment_name &&
+        schedule.attachment_mime
+            ? {
+                  url: schedule.attachment_url,
+                  name: schedule.attachment_name,
+                  mime: schedule.attachment_mime,
+              }
+            : null;
 
     transform((formData) => ({
         ...formData,
@@ -59,7 +75,7 @@ export default function SchedulesEdit({
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(ROUTES.update(schedule.id));
+        put(ROUTES.update(schedule.id), { forceFormData: true });
     };
 
     return (
@@ -76,6 +92,7 @@ export default function SchedulesEdit({
                 cancelHref={ROUTES.index}
                 projects={projects}
                 countries={countries}
+                existingAttachment={existingAttachment}
                 onChange={setData}
                 onSubmit={submit}
             />

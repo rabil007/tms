@@ -6,6 +6,8 @@ import {
     FormSubmitButton,
     formInputClassName,
 } from '@/components/forms/form-page';
+import type { ExistingScheduleAttachment } from '@/components/forms/schedule-attachment-field';
+import { ScheduleAttachmentField } from '@/components/forms/schedule-attachment-field';
 import type { CountryPhoneOption } from '@/components/forms/phone-input';
 import { PhoneInput } from '@/components/forms/phone-input';
 import { Input } from '@/components/ui/input';
@@ -24,6 +26,8 @@ export type ScheduleFormData = {
     drop_off_location: string;
     pick_up_time: string;
     remarks: string;
+    attachment: File | null;
+    remove_attachment: boolean;
 };
 
 type ScheduleFormErrors = Partial<
@@ -40,6 +44,7 @@ type ScheduleFormProps = {
     cancelHref: string;
     projects: ProjectOption[];
     countries: CountryPhoneOption[];
+    existingAttachment?: ExistingScheduleAttachment | null;
     onChange: <K extends keyof ScheduleFormData>(
         key: K,
         value: ScheduleFormData[K],
@@ -57,6 +62,7 @@ export function ScheduleForm({
     cancelHref,
     projects,
     countries,
+    existingAttachment = null,
     onChange,
     onSubmit,
 }: ScheduleFormProps) {
@@ -251,6 +257,19 @@ export function ScheduleForm({
                             aria-invalid={!!errors.remarks}
                         />
                     </FormField>
+
+                    <ScheduleAttachmentField
+                        attachment={data.attachment}
+                        removeAttachment={data.remove_attachment}
+                        existingAttachment={existingAttachment}
+                        error={errors.attachment}
+                        onAttachmentChange={(file) =>
+                            onChange('attachment', file)
+                        }
+                        onRemoveAttachmentChange={(remove) =>
+                            onChange('remove_attachment', remove)
+                        }
+                    />
                 </div>
 
                 <FormActions cancelHref={cancelHref} className="mt-8">

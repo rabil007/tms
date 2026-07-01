@@ -1,8 +1,11 @@
 <?php
 
 use App\Enums\ScheduleStatus;
+use App\Models\Project;
 use App\Models\Schedule;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 test('guests are redirected from schedules index', function () {
     $response = $this->get(route('schedules.index'));
@@ -471,4 +474,135 @@ test('schedules index can filter by date range', function () {
         ->component('admin/schedules/index')
         ->has('schedules.data', 1)
         ->where('schedules.data.0.id', $inRange->id));
+});
+
+test('authenticated users can create a schedule with an image attachment', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $payload = validSchedulePayload();
+    $payload['attachment'] = UploadedFile::fake()->image('crew-photo.jpg');
+
+    $response = $this->actingAs($user)->post(route('schedules.store'), $payload);
+
+    $response->assertRedirect(route('schedules.index'));
+
+    $schedule = Schedule::query()->where('crew_name', 'John Smith')->firstOrFail();
+
+    expect($schedule->attachment_path)->not->toBeNull();
+    expect($schedule->attachment_name)->toBe('crew-photo.jpg');
+    expect($schedule->attachment_mime)->toStartWith('image/');
+    expect($schedule->has_attachment)->toBeTrue();
+    Storage::disk('public')->assertExists($schedule->attachment_path);
+
+    $showResponse = $this->actingAs($user)->get(route('schedules.show', $schedule));
+
+    $showResponse->assertOk();
+    $showResponse->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/show')
+        ->where('schedule.has_attachment', true)
+        ->where('schedule.attachment_name', 'crew-photo.jpg'));
+});
+
+test('authenticated users can create a schedule without an attachment', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->post(route('schedules.store'), validSchedulePayload());
+
+    $response->assertRedirect(route('schedules.index'));
+
+    $schedule = Schedule::query()->where('crew_name', 'John Smith')->firstOrFail();
+
+    expect($schedule->attachment_path)->toBeNull();
+    expect($schedule->has_attachment)->toBeFalse();
+    Storage::disk('public')->assertDirectoryEmpty('schedules');
+});
+
+test('authenticated users can replace a schedule attachment', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $schedule = Schedule::factory()->pending()->create();
+    $originalPath = UploadedFile::fake()->image('original.jpg')->store("schedules/{$schedule->id}", 'public');
+
+    $schedule->update([
+        'attachment_path' => $originalPath,
+        'attachment_name' => 'original.jpg',
+        'attachment_mime' => 'image/jpeg',
+    ]);
+
+    $payload = validSchedulePayload($schedule->project);
+    $payload['attachment'] = UploadedFile::fake()->image('replacement.jpg');
+
+    $response = $this->actingAs($user)->put(route('schedules.update', $schedule), $payload);
+
+    $response->assertRedirect(route('schedules.index'));
+
+    $schedule->refresh();
+
+    expect($schedule->attachment_name)->toBe('replacement.jpg');
+    Storage::disk('public')->assertMissing($originalPath);
+    Storage::disk('public')->assertExists($schedule->attachment_path);
+});
+
+test('authenticated users can remove a schedule attachment', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $schedule = Schedule::factory()->pending()->create();
+    $path = UploadedFile::fake()->image('remove-me.jpg')->store("schedules/{$schedule->id}", 'public');
+
+    $schedule->update([
+        'attachment_path' => $path,
+        'attachment_name' => 'remove-me.jpg',
+        'attachment_mime' => 'image/jpeg',
+    ]);
+
+    $payload = validSchedulePayload($schedule->project);
+    $payload['remove_attachment'] = true;
+
+    $response = $this->actingAs($user)->put(route('schedules.update', $schedule), $payload);
+
+    $response->assertRedirect(route('schedules.index'));
+
+    $schedule->refresh();
+
+    expect($schedule->attachment_path)->toBeNull();
+    expect($schedule->attachment_name)->toBeNull();
+    expect($schedule->attachment_mime)->toBeNull();
+    Storage::disk('public')->assertMissing($path);
+});
+
+test('schedule attachment validation rejects invalid file types', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $payload = validSchedulePayload();
+    $payload['attachment'] = UploadedFile::fake()->create('notes.txt', 10, 'text/plain');
+
+    $response = $this->actingAs($user)->post(route('schedules.store'), $payload);
+
+    $response->assertSessionHasErrors('attachment');
+});
+
+test('deleting a schedule removes its attachment from storage', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $schedule = Schedule::factory()->pending()->create();
+    $path = UploadedFile::fake()->image('delete-with-schedule.jpg')->store("schedules/{$schedule->id}", 'public');
+
+    $schedule->update([
+        'attachment_path' => $path,
+        'attachment_name' => 'delete-with-schedule.jpg',
+        'attachment_mime' => 'image/jpeg',
+    ]);
+
+    $response = $this->actingAs($user)->delete(route('schedules.destroy', $schedule));
+
+    $response->assertRedirect(route('schedules.index'));
+    Storage::disk('public')->assertMissing($path);
+    expect(Schedule::query()->find($schedule->id))->toBeNull();
 });

@@ -21,6 +21,10 @@ export type ScheduleRow = {
     remarks: string | null;
     created_at: string | null;
     status: ScheduleStatus;
+    attachment_url: string | null;
+    attachment_name: string | null;
+    attachment_mime: string | null;
+    has_attachment: boolean;
     project?: { id: number; title: string };
     created_by?: { id: number; name: string } | null;
 };

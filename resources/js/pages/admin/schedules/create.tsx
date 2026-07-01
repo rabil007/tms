@@ -28,6 +28,8 @@ export default function SchedulesCreate({
         drop_off_location: '',
         pick_up_time: '',
         remarks: '',
+        attachment: null as File | null,
+        remove_attachment: false,
     });
 
     transform((formData) => ({
@@ -38,7 +40,7 @@ export default function SchedulesCreate({
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(ROUTES.store);
+        post(ROUTES.store, { forceFormData: true });
     };
 
     return (

@@ -20,6 +20,8 @@ trait ScheduleValidationRules
             'drop_off_location' => ['required', 'string', 'max:255'],
             'pick_up_time' => ['required', 'date_format:H:i'],
             'remarks' => ['nullable', 'string', 'max:1000'],
+            'attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'remove_attachment' => ['sometimes', 'boolean'],
         ];
     }
 }

@@ -13,6 +13,8 @@ use App\Services\ScheduleAdminNotifier;
 use App\Services\ScheduleUserNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -123,13 +125,15 @@ class ScheduleController extends Controller
     public function store(StoreScheduleRequest $request, ScheduleAdminNotifier $notifier): RedirectResponse
     {
         $schedule = Schedule::query()->create([
-            ...$request->validated(),
+            ...$this->validatedScheduleAttributes($request),
             'user_id' => $request->user()->id,
             'created_by_id' => $request->user()->id,
             'status' => $request->user()->isAdmin()
                 ? ScheduleStatus::Completed
                 : ScheduleStatus::Pending,
         ]);
+
+        $this->storeScheduleAttachment($request, $schedule);
 
         $notifier->notify($schedule, $request->user(), 'created');
 
@@ -187,7 +191,9 @@ class ScheduleController extends Controller
     {
         $this->ensureUserCanModifySchedule($request, $schedule);
 
-        $schedule->update($request->validated());
+        $schedule->update($this->validatedScheduleAttributes($request));
+
+        $this->syncScheduleAttachment($request, $schedule);
 
         if (! $request->user()->isAdmin()) {
             $schedule->status = ScheduleStatus::Pending;
@@ -230,11 +236,71 @@ class ScheduleController extends Controller
     {
         $this->ensureUserCanModifySchedule($request, $schedule);
 
+        $this->deleteScheduleAttachment($schedule);
         $schedule->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Schedule deleted.')]);
 
         return to_route('schedules.index');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function validatedScheduleAttributes(StoreScheduleRequest|UpdateScheduleRequest $request): array
+    {
+        return collect($request->validated())
+            ->except(['attachment', 'remove_attachment'])
+            ->all();
+    }
+
+    private function storeScheduleAttachment(Request $request, Schedule $schedule): void
+    {
+        if (! $request->hasFile('attachment')) {
+            return;
+        }
+
+        $file = $request->file('attachment');
+
+        if (! $file instanceof UploadedFile) {
+            return;
+        }
+
+        $path = $file->store("schedules/{$schedule->id}", 'public');
+
+        $schedule->update([
+            'attachment_path' => $path,
+            'attachment_name' => $file->getClientOriginalName(),
+            'attachment_mime' => $file->getMimeType(),
+        ]);
+    }
+
+    private function syncScheduleAttachment(Request $request, Schedule $schedule): void
+    {
+        if ($request->boolean('remove_attachment')) {
+            $this->deleteScheduleAttachment($schedule);
+            $schedule->update([
+                'attachment_path' => null,
+                'attachment_name' => null,
+                'attachment_mime' => null,
+            ]);
+
+            return;
+        }
+
+        if ($request->hasFile('attachment')) {
+            $this->deleteScheduleAttachment($schedule);
+            $this->storeScheduleAttachment($request, $schedule);
+        }
+    }
+
+    private function deleteScheduleAttachment(Schedule $schedule): void
+    {
+        if ($schedule->attachment_path === null) {
+            return;
+        }
+
+        Storage::disk('public')->delete($schedule->attachment_path);
     }
 
     /**
