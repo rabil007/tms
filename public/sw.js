@@ -1,7 +1,7 @@
 function agentPushDebugLog(hypothesisId, location, message, data = {}) {
     const payload = {
         sessionId: '55a27f',
-        runId: 'pre-fix',
+        runId: 'post-fix',
         hypothesisId,
         location,
         message,
@@ -24,10 +24,17 @@ function agentPushDebugLog(hypothesisId, location, message, data = {}) {
             'Content-Type': 'application/json',
             Accept: 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify(payload),
     }).catch(() => {});
 }
+
+self.addEventListener('install', (event) => {
+    event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(self.clients.claim());
+});
 
 self.addEventListener('push', (event) => {
     const rawPayload = event.data ? event.data.text() : null;
@@ -36,6 +43,7 @@ self.addEventListener('push', (event) => {
     agentPushDebugLog('D', 'sw.js:push', 'Service worker received push event', {
         has_data: Boolean(rawPayload),
         data_text: rawPayload ? rawPayload.slice(0, 200) : null,
+        origin: self.location.origin,
     });
     // #endregion
 
@@ -49,12 +57,14 @@ self.addEventListener('push', (event) => {
 
     const payload = JSON.parse(rawPayload);
     const title = payload.title ?? 'Overseas';
+    const actionUrl = payload.data?.url ?? payload.actions?.[0]?.action ?? '/dashboard';
+    const iconUrl = new URL('/logo.png', self.location.origin).toString();
     const options = {
         body: payload.body ?? '',
-        icon: '/logo.png',
-        badge: '/logo.png',
+        icon: iconUrl,
+        badge: iconUrl,
         data: {
-            url: payload.data?.url ?? payload.action ?? '/dashboard',
+            url: actionUrl,
         },
     };
 
@@ -64,6 +74,7 @@ self.addEventListener('push', (event) => {
             agentPushDebugLog('D', 'sw.js:showNotification', 'OS notification displayed', {
                 title,
                 body: options.body,
+                icon: iconUrl,
             });
             // #endregion
         }).catch((error) => {

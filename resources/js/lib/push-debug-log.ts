@@ -14,7 +14,7 @@ export function pushDebugLog({
     location,
     message,
     data = {},
-    runId = 'pre-fix',
+    runId = 'post-fix',
 }: PushDebugPayload): void {
     const payload = {
         sessionId: SESSION_ID,

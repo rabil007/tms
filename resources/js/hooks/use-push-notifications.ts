@@ -54,13 +54,13 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration> {
-    const existing = await navigator.serviceWorker.getRegistration('/sw.js');
+    const existing = await navigator.serviceWorker.getRegistration('/');
 
     if (existing) {
         return existing;
     }
 
-    return navigator.serviceWorker.register('/sw.js');
+    return navigator.serviceWorker.register('/sw.js', { scope: '/' });
 }
 
 export function usePushNotifications(
@@ -245,7 +245,7 @@ export function usePushNotifications(
         setError(null);
 
         try {
-            const registration = await navigator.serviceWorker.getRegistration('/sw.js');
+            const registration = await navigator.serviceWorker.getRegistration('/');
 
             if (!registration) {
                 setEnabled(false);

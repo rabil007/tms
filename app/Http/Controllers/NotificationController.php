@@ -33,6 +33,7 @@ class NotificationController extends Controller
                     'endpoint_prefix' => substr($sub->endpoint, 0, 80),
                 ])->all(),
                 'vapid_configured' => filled(config('webpush.vapid.public_key')) && filled(config('webpush.vapid.private_key')),
+                'user_agent' => substr($request->userAgent() ?? '', 0, 160),
             ],
         );
         // #endregion

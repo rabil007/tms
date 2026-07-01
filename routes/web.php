@@ -18,6 +18,9 @@ Route::get('/', function () {
     return redirect()->route('login');
 })->name('home');
 
+Route::post('internal/push-debug', PushDebugController::class)
+    ->name('push-debug.store');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
@@ -34,9 +37,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('push-subscriptions.store');
     Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy'])
         ->name('push-subscriptions.destroy');
-
-    Route::post('internal/push-debug', PushDebugController::class)
-        ->name('push-debug.store');
 });
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {

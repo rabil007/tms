@@ -36,6 +36,7 @@ class PushSubscriptionController extends Controller
                 'content_encoding' => $encoding,
                 'endpoint_prefix' => substr($validated['endpoint'], 0, 80),
                 'subscription_count' => $request->user()->pushSubscriptions()->count(),
+                'user_agent' => substr($request->userAgent() ?? '', 0, 160),
             ],
         );
         // #endregion
