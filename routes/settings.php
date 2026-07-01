@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\ApplicationSettingsController;
 use App\Http\Controllers\Settings\MailSettingsController;
 use App\Http\Controllers\Settings\NotificationSettingsController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -43,6 +44,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('admin')->group(function () {
         Route::patch('settings/smtp', [MailSettingsController::class, 'update'])
             ->name('smtp.update');
+
+        Route::get('settings/application', [ApplicationSettingsController::class, 'edit'])
+            ->name('application.edit');
+
+        Route::patch('settings/application', [ApplicationSettingsController::class, 'update'])
+            ->name('application.update');
     });
 });
 

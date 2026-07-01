@@ -61,6 +61,14 @@ export function NotificationBell() {
         router.post(ROUTES.readAll, {}, { preserveScroll: true });
     }, [unreadCount]);
 
+    const handleOpenChange = React.useCallback((nextOpen: boolean) => {
+        setOpen(nextOpen);
+
+        if (nextOpen) {
+            router.reload({ only: ['notifications'], preserveScroll: true });
+        }
+    }, []);
+
     if (!notifications) {
         return null;
     }
@@ -68,7 +76,7 @@ export function NotificationBell() {
     return (
         <>
             {userId && echoIsConfigured() ? <NotificationEchoListener userId={userId} /> : null}
-            <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+            <DropdownMenu open={open} onOpenChange={handleOpenChange} modal={false}>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"

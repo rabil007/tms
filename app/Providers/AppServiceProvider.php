@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\ApplicationConfigService;
 use App\Services\MailConfigService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -27,7 +28,13 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureUrls();
+        $this->configureApplication();
         $this->configureMail();
+    }
+
+    protected function configureApplication(): void
+    {
+        $this->app->make(ApplicationConfigService::class)->apply();
     }
 
     protected function configureMail(): void

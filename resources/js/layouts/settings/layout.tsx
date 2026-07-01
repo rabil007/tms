@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import Heading from '@/components/heading';
@@ -6,14 +6,16 @@ import { Button } from '@/components/ui/button';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
+import { edit as editApplication } from '@/routes/application';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editNotifications } from '@/routes/notifications';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import { edit as editSmtp } from '@/routes/smtp';
+import type { Auth } from '@/types/auth';
 import type { NavItem } from '@/types';
 
-const settingsNavItems: NavItem[] = [
+const baseSettingsNavItems: NavItem[] = [
     {
         title: 'Profile',
         href: edit(),
@@ -41,8 +43,17 @@ const settingsNavItems: NavItem[] = [
     },
 ];
 
+const applicationNavItem: NavItem = {
+    title: 'Application',
+    href: editApplication(),
+    icon: null,
+};
+
 export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
+    const { auth } = usePage<{ auth: Auth }>().props;
+    const isAdmin = auth.user.role?.slug === 'admin';
+    const settingsNavItems = isAdmin ? [...baseSettingsNavItems, applicationNavItem] : baseSettingsNavItems;
 
     return (
         <div className="px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:py-6">

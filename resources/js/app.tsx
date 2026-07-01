@@ -1,4 +1,4 @@
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import { configureEcho } from '@laravel/echo-react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -38,6 +38,33 @@ function shouldEnableEcho(): boolean {
     return true;
 }
 
+function readInitialAppName(): string {
+    const fallback = import.meta.env.VITE_APP_NAME || 'Laravel';
+    const root = document.getElementById('app');
+
+    if (!root?.dataset.page) {
+        return fallback;
+    }
+
+    try {
+        const page = JSON.parse(root.dataset.page) as { props?: { name?: unknown } };
+
+        if (typeof page.props?.name === 'string' && page.props.name.length > 0) {
+            return page.props.name;
+        }
+    } catch {
+        return fallback;
+    }
+
+    return fallback;
+}
+
+function syncAppNameFromPage(page: { props?: { name?: unknown } }): void {
+    if (typeof page.props?.name === 'string' && page.props.name.length > 0) {
+        resolvedAppName = page.props.name;
+    }
+}
+
 redirectToHttpsIfNeeded();
 
 if (shouldEnableEcho()) {
@@ -46,10 +73,14 @@ if (shouldEnableEcho()) {
     });
 }
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+let resolvedAppName = readInitialAppName();
+
+router.on('navigate', (event) => {
+    syncAppNameFromPage(event.detail.page);
+});
 
 createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
+    title: (title) => (title ? `${title} - ${resolvedAppName}` : resolvedAppName),
     layout: (name) => {
         switch (true) {
             case name === 'welcome':
