@@ -4,6 +4,13 @@ import type { ElementType } from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { SectionHeader } from '@/components/layout/section-header';
+import {
+    MonthlyTrendPanel,
+    ScheduleForecastPanel,
+    TopPickUpLocationsPanel,
+    TopProjectsPanel,
+    type OverviewAnalytics,
+} from '@/components/overview/analytics-panels';
 import { cn } from '@/lib/utils';
 import {
     formatPickUpTime,
@@ -14,7 +21,11 @@ import type { Auth } from '@/types';
 type OverviewStats = {
     schedules_today: number;
     schedules_upcoming: number;
+    schedules_this_month: number;
+    schedules_past: number;
     schedules_total: number;
+    schedules_created_this_week: number;
+    unread_notifications: number;
     users_count?: number;
     projects_count?: number;
 };
@@ -39,6 +50,7 @@ type RecentActivity = {
 type PageProps = {
     auth: Auth;
     stats: OverviewStats;
+    analytics: OverviewAnalytics;
     recentSchedules: RecentSchedule[];
     recentActivity: RecentActivity[];
 };
@@ -48,11 +60,13 @@ const ROUTES = {
     schedulesIndex: '/schedules',
 } as const;
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, value, accent }: { label: string; value: number; accent?: string }) {
     return (
         <GlassCard level="inner" className="px-4 py-3.5">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{value}</p>
+            <p className={cn('mt-1 text-2xl font-bold tabular-nums tracking-tight', accent ?? 'text-foreground')}>
+                {value}
+            </p>
         </GlassCard>
     );
 }
@@ -70,12 +84,20 @@ function FeedEmpty({ icon: Icon, title, description }: { icon: ElementType; titl
 }
 
 export default function Overview() {
-    const { auth, stats, recentSchedules, recentActivity } = usePage<PageProps>().props;
+    const { auth, stats, analytics, recentSchedules, recentActivity } = usePage<PageProps>().props;
     const isAdmin = auth.user?.role?.slug === 'admin';
 
     const statCards = [
         { label: 'Today', value: stats.schedules_today },
+        { label: 'This month', value: stats.schedules_this_month },
         { label: 'Next 7 days', value: stats.schedules_upcoming },
+        { label: 'Completed', value: stats.schedules_past },
+        { label: 'New this week', value: stats.schedules_created_this_week },
+        {
+            label: 'Unread alerts',
+            value: stats.unread_notifications,
+            accent: stats.unread_notifications > 0 ? 'text-primary' : undefined,
+        },
         { label: 'Total schedules', value: stats.schedules_total },
         ...(isAdmin && stats.users_count !== undefined
             ? [{ label: 'Users', value: stats.users_count }]
@@ -104,10 +126,20 @@ export default function Overview() {
                 className="mb-6 sm:mb-8"
             />
 
-            <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-3">
+            <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
                 {statCards.map((card) => (
-                    <StatCard key={card.label} label={card.label} value={card.value} />
+                    <StatCard key={card.label} label={card.label} value={card.value} accent={card.accent} />
                 ))}
+            </div>
+
+            <div className="mb-6 grid gap-4 lg:grid-cols-2">
+                <ScheduleForecastPanel data={analytics.scheduleTrend} />
+                <MonthlyTrendPanel data={analytics.monthlyTrend} />
+            </div>
+
+            <div className="mb-6 grid gap-4 lg:grid-cols-2">
+                <TopProjectsPanel data={analytics.topProjects} />
+                <TopPickUpLocationsPanel data={analytics.topPickUpLocations} />
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">

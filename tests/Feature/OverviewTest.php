@@ -21,6 +21,7 @@ test('authenticated users can visit the overview page', function () {
     $response->assertInertia(fn ($page) => $page
         ->component('overview')
         ->has('stats')
+        ->has('analytics')
         ->has('recentSchedules')
         ->has('recentActivity'));
 });
@@ -52,7 +53,11 @@ test('overview includes schedule stats and recent data', function () {
     $response->assertInertia(fn ($page) => $page
         ->where('stats.schedules_today', 1)
         ->where('stats.schedules_upcoming', 2)
+        ->where('stats.schedules_this_month', 2)
         ->where('stats.schedules_total', 2)
+        ->where('stats.unread_notifications', 1)
+        ->has('analytics.scheduleTrend', 7)
+        ->has('analytics.monthlyTrend', 6)
         ->has('recentSchedules', 2)
         ->has('recentActivity', 1)
         ->where('recentActivity.0.title', 'Schedule alert'));
@@ -85,6 +90,39 @@ test('non-admin users do not receive admin-only stats', function () {
     $response->assertInertia(fn ($page) => $page
         ->missing('stats.users_count')
         ->missing('stats.projects_count'));
+});
+
+test('overview includes project and location analytics', function () {
+    $user = regularUser();
+
+    $alpha = Project::factory()->create(['title' => 'NMDC']);
+    $beta = Project::factory()->create(['title' => 'CREWING']);
+
+    Schedule::factory()->count(3)->create([
+        'project_id' => $alpha->id,
+        'pick_up_location' => 'Airport Terminal 1',
+    ]);
+
+    Schedule::factory()->create([
+        'project_id' => $beta->id,
+        'pick_up_location' => 'Hotel Grand',
+    ]);
+
+    Schedule::factory()->create([
+        'project_id' => $beta->id,
+        'pick_up_location' => 'Airport Terminal 1',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('overview'));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('analytics.topProjects.0.title', 'NMDC')
+        ->where('analytics.topProjects.0.count', 3)
+        ->where('analytics.topProjects.0.percentage', 60)
+        ->where('analytics.topPickUpLocations.0.location', 'Airport Terminal 1')
+        ->where('analytics.topPickUpLocations.0.count', 4));
 });
 
 test('recent schedules are ordered by scheduled date descending', function () {

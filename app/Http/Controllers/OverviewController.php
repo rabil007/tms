@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Schedule;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,13 +21,40 @@ class OverviewController extends Controller
         $user = $request->user();
         $today = today();
 
+        return Inertia::render('overview', [
+            'stats' => $this->stats($user, $today),
+            'analytics' => [
+                'scheduleTrend' => $this->scheduleTrend($today),
+                'monthlyTrend' => $this->monthlyTrend($today),
+                'topProjects' => $this->topProjects(),
+                'topPickUpLocations' => $this->topPickUpLocations(),
+            ],
+            'recentSchedules' => $this->recentSchedules(),
+            'recentActivity' => $this->recentActivity($user),
+        ]);
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function stats(User $user, CarbonInterface $today): array
+    {
         $stats = [
             'schedules_today' => Schedule::query()->whereDate('scheduled_date', $today)->count(),
             'schedules_upcoming' => Schedule::query()
                 ->whereDate('scheduled_date', '>=', $today)
                 ->whereDate('scheduled_date', '<=', $today->copy()->addDays(7))
                 ->count(),
+            'schedules_this_month' => Schedule::query()
+                ->whereYear('scheduled_date', $today->year)
+                ->whereMonth('scheduled_date', $today->month)
+                ->count(),
+            'schedules_past' => Schedule::query()->whereDate('scheduled_date', '<', $today)->count(),
             'schedules_total' => Schedule::query()->count(),
+            'schedules_created_this_week' => Schedule::query()
+                ->where('created_at', '>=', $today->copy()->startOfWeek())
+                ->count(),
+            'unread_notifications' => $user->unreadNotifications()->count(),
         ];
 
         if ($user->isAdmin()) {
@@ -33,7 +62,115 @@ class OverviewController extends Controller
             $stats['projects_count'] = Project::query()->count();
         }
 
-        $recentSchedules = Schedule::query()
+        return $stats;
+    }
+
+    /**
+     * @return list<array{date: string, label: string, count: int}>
+     */
+    private function scheduleTrend(CarbonInterface $today): array
+    {
+        $end = $today->copy()->addDays(6);
+
+        /** @var Collection<string, int> $counts */
+        $counts = Schedule::query()
+            ->whereDate('scheduled_date', '>=', $today)
+            ->whereDate('scheduled_date', '<=', $end)
+            ->get(['scheduled_date'])
+            ->groupBy(fn (Schedule $schedule): string => $schedule->scheduled_date->toDateString())
+            ->map(fn (Collection $group): int => $group->count());
+
+        $trend = [];
+
+        for ($offset = 0; $offset < 7; $offset++) {
+            $date = $today->copy()->addDays($offset);
+            $key = $date->toDateString();
+
+            $trend[] = [
+                'date' => $key,
+                'label' => $date->format('D'),
+                'count' => $counts[$key] ?? 0,
+            ];
+        }
+
+        return $trend;
+    }
+
+    /**
+     * @return list<array{label: string, year: int, count: int}>
+     */
+    private function monthlyTrend(CarbonInterface $today): array
+    {
+        $trend = [];
+
+        for ($monthsAgo = 5; $monthsAgo >= 0; $monthsAgo--) {
+            $month = $today->copy()->subMonths($monthsAgo);
+
+            $trend[] = [
+                'label' => $month->format('M'),
+                'year' => $month->year,
+                'count' => Schedule::query()
+                    ->whereYear('scheduled_date', $month->year)
+                    ->whereMonth('scheduled_date', $month->month)
+                    ->count(),
+            ];
+        }
+
+        return $trend;
+    }
+
+    /**
+     * @return list<array{id: int, title: string, count: int, percentage: int}>
+     */
+    private function topProjects(): array
+    {
+        $total = Schedule::query()->count();
+
+        if ($total === 0) {
+            return [];
+        }
+
+        return Project::query()
+            ->withCount('schedules')
+            ->whereHas('schedules')
+            ->orderByDesc('schedules_count')
+            ->limit(5)
+            ->get(['id', 'title'])
+            ->map(fn (Project $project): array => [
+                'id' => $project->id,
+                'title' => $project->title,
+                'count' => $project->schedules_count,
+                'percentage' => (int) round(($project->schedules_count / $total) * 100),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{location: string, count: int}>
+     */
+    private function topPickUpLocations(): array
+    {
+        return Schedule::query()
+            ->selectRaw('pick_up_location, COUNT(*) as count')
+            ->groupBy('pick_up_location')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get()
+            ->map(fn ($row): array => [
+                'location' => $row->pick_up_location,
+                'count' => (int) $row->count,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{id: int, crew_name: string, scheduled_date: string, pick_up_time: string, project: array{title: string}|null}>
+     */
+    private function recentSchedules(): array
+    {
+        return Schedule::query()
             ->with('project:id,title')
             ->orderByDesc('scheduled_date')
             ->orderBy('pick_up_time')
@@ -48,8 +185,14 @@ class OverviewController extends Controller
             ])
             ->values()
             ->all();
+    }
 
-        $recentActivity = $user->notifications()
+    /**
+     * @return list<array{id: string, title: string, message: string, action_url: string|null, read_at: string|null, created_at_diff: string|null}>
+     */
+    private function recentActivity(User $user): array
+    {
+        return $user->notifications()
             ->latest()
             ->limit(10)
             ->get()
@@ -63,11 +206,5 @@ class OverviewController extends Controller
             ])
             ->values()
             ->all();
-
-        return Inertia::render('overview', [
-            'stats' => $stats,
-            'recentSchedules' => $recentSchedules,
-            'recentActivity' => $recentActivity,
-        ]);
     }
 }
