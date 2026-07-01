@@ -34,6 +34,15 @@ class ScheduleFactory extends Factory
         ];
     }
 
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Schedule $schedule): void {
+            if ($schedule->created_by_id === null && $schedule->user_id !== null) {
+                $schedule->forceFill(['created_by_id' => $schedule->user_id])->saveQuietly();
+            }
+        });
+    }
+
     public function pending(): static
     {
         return $this->state(fn (): array => [

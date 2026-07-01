@@ -448,7 +448,7 @@ export default function SchedulesIndex({
                             {formatCreatedAt(row.original.created_at)}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                            {row.original.user?.name ?? '—'}
+                            {row.original.created_by?.name ?? '—'}
                         </span>
                     </div>
                 ),

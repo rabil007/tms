@@ -55,7 +55,7 @@ class ScheduleController extends Controller
         $dir = $request->input('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
         $schedules = Schedule::query()
-            ->with(['project', 'user:id,name'])
+            ->with(['project', 'createdBy:id,name'])
             ->when($request->q, function ($query) use ($request): void {
                 $search = '%'.$request->q.'%';
 
@@ -125,6 +125,7 @@ class ScheduleController extends Controller
         $schedule = Schedule::query()->create([
             ...$request->validated(),
             'user_id' => $request->user()->id,
+            'created_by_id' => $request->user()->id,
             'status' => $request->user()->isAdmin()
                 ? ScheduleStatus::Completed
                 : ScheduleStatus::Pending,
@@ -142,7 +143,7 @@ class ScheduleController extends Controller
      */
     public function show(Schedule $schedule): Response
     {
-        $schedule->load(['project', 'user:id,name']);
+        $schedule->load(['project', 'createdBy:id,name']);
 
         return Inertia::render('admin/schedules/show', [
             'schedule' => $schedule,
@@ -154,7 +155,7 @@ class ScheduleController extends Controller
      */
     public function edit(Schedule $schedule): Response
     {
-        $schedule->load(['project', 'user:id,name']);
+        $schedule->load(['project', 'createdBy:id,name']);
 
         return Inertia::render('admin/schedules/edit', [
             'schedule' => $schedule,

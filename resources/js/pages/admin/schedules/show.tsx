@@ -32,7 +32,7 @@ type Schedule = {
     created_at: string | null;
     status: ScheduleStatus;
     project?: { id: number; title: string };
-    user?: { id: number; name: string } | null;
+    created_by?: { id: number; name: string } | null;
 };
 
 type DetailRowProps = { label: string; value: string; mono?: boolean };
@@ -147,8 +147,8 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
                             <DetailRow
                                 label="Created"
                                 value={
-                                    schedule.user?.name
-                                        ? `${formatCreatedAt(schedule.created_at)} · ${schedule.user.name}`
+                                    schedule.created_by?.name
+                                        ? `${formatCreatedAt(schedule.created_at)} · ${schedule.created_by.name}`
                                         : formatCreatedAt(schedule.created_at)
                                 }
                             />

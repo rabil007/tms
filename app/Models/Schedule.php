@@ -22,10 +22,12 @@ use Illuminate\Support\Carbon;
  * @property string|null $remarks
  * @property ScheduleStatus $status
  * @property int|null $user_id
+ * @property int|null $created_by_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Project|null $project
  * @property-read User|null $user
+ * @property-read User|null $createdBy
  */
 #[Fillable([
     'crew_name',
@@ -38,6 +40,7 @@ use Illuminate\Support\Carbon;
     'remarks',
     'status',
     'user_id',
+    'created_by_id',
 ])]
 class Schedule extends Model
 {
@@ -70,5 +73,13 @@ class Schedule extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_id');
     }
 }

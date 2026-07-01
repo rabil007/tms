@@ -89,6 +89,7 @@ test('authenticated users can store a valid schedule', function () {
         'pick_up_location' => 'Dubai Airport Terminal 1',
         'status' => ScheduleStatus::Pending->value,
         'user_id' => $user->id,
+        'created_by_id' => $user->id,
     ]);
 });
 
@@ -106,6 +107,7 @@ test('admin users store schedules as completed', function () {
         'crew_name' => 'John Smith',
         'status' => ScheduleStatus::Completed->value,
         'user_id' => $admin->id,
+        'created_by_id' => $admin->id,
     ]);
 });
 
@@ -293,7 +295,7 @@ test('schedules index loads without sort query param', function () {
         ->has('schedules.data', 1)
         ->where('schedules.data.0.crew_name', 'Alpha Crew')
         ->has('schedules.data.0.created_at')
-        ->has('schedules.data.0.user.name'));
+        ->has('schedules.data.0.created_by.name'));
 });
 
 test('schedules index defaults to newest created first', function () {
