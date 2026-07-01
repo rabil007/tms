@@ -38,9 +38,11 @@ import {
     SCHEDULE_ROUTES,
     ScheduleGridCards,
     ScheduleListCards,
+    ScheduleStatusBadge,
     ScheduleTable,
 } from '@/pages/admin/schedules/schedule-views';
 import type { ScheduleRow } from '@/pages/admin/schedules/schedule-views';
+import type { Auth } from '@/types';
 
 type Paged<T> = {
     data: T[];
@@ -63,6 +65,7 @@ const ALLOWED_SORTS = [
     'pick_up_location',
     'drop_off_location',
     'created_at',
+    'status',
 ];
 
 type ScheduleFilters = {
@@ -73,6 +76,7 @@ type ScheduleFilters = {
     project_id?: number | string;
     date_from?: string;
     date_to?: string;
+    status?: string;
 };
 
 export default function SchedulesIndex({
@@ -88,6 +92,8 @@ export default function SchedulesIndex({
     todayDate: string;
 }) {
     const isMobile = useIsMobile();
+    const { auth } = usePage<{ auth: Auth }>().props;
+    const isAdmin = auth.user?.role?.slug === 'admin';
     const { viewMode, setViewMode } = useIndexViewMode({
         storageKey: 'schedules:index:view',
     });
@@ -97,6 +103,14 @@ export default function SchedulesIndex({
     const [shareSchedules, setShareSchedules] = React.useState<
         ScheduleRow[] | null
     >(null);
+
+    const [statusFilter, setStatusFilter] = React.useState(
+        filters.status ?? '',
+    );
+
+    React.useEffect(() => {
+        setStatusFilter(filters.status ?? '');
+    }, [filters.status]);
 
     const [indexFilters, setIndexFilters] = React.useState({
         projectId: filters.project_id ? String(filters.project_id) : '',
@@ -125,6 +139,7 @@ export default function SchedulesIndex({
                     : undefined,
                 date_from: indexFilters.dateFrom || undefined,
                 date_to: indexFilters.dateTo || undefined,
+                status: statusFilter || undefined,
             },
         });
 
@@ -142,6 +157,7 @@ export default function SchedulesIndex({
         indexFilters.projectId,
         indexFilters.dateFrom,
         indexFilters.dateTo,
+        statusFilter,
     ]);
 
     const slOffset =
@@ -149,14 +165,18 @@ export default function SchedulesIndex({
         (schedules?.meta?.per_page ?? schedules?.per_page ?? 15);
     const isTodayFilterActive =
         indexFilters.dateFrom === todayDate &&
-        indexFilters.dateTo === todayDate;
-    const isTotalFilterActive = !isTodayFilterActive;
+        indexFilters.dateTo === todayDate &&
+        statusFilter === '';
+    const isPendingFilterActive = statusFilter === 'pending';
+    const isTotalFilterActive =
+        !isTodayFilterActive && !isPendingFilterActive;
     const hasSearch = q.length > 0;
     const hasActiveFilters =
         hasSearch ||
         !!indexFilters.projectId ||
         !!indexFilters.dateFrom ||
-        !!indexFilters.dateTo;
+        !!indexFilters.dateTo ||
+        !!statusFilter;
     const isEmpty = schedules.data.length === 0;
 
     const toggleSelected = React.useCallback((id: number) => {
@@ -242,6 +262,17 @@ export default function SchedulesIndex({
             });
         },
         [requestConfirm],
+    );
+
+    const confirmApprove = React.useCallback(
+        (schedule: ScheduleRow) => () => {
+            router.post(
+                SCHEDULE_ROUTES.approve(schedule.id),
+                {},
+                { preserveScroll: true },
+            );
+        },
+        [],
     );
 
     const selectedOnPage = schedules.data.filter(
@@ -386,6 +417,21 @@ export default function SchedulesIndex({
                 ),
             },
             {
+                accessorKey: 'status',
+                header: () => (
+                    <SortableHeader
+                        label="Status"
+                        column="status"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
+                ),
+                cell: ({ row }) => (
+                    <ScheduleStatusBadge status={row.original.status} />
+                ),
+            },
+            {
                 accessorKey: 'created_at',
                 header: () => (
                     <SortableHeader
@@ -415,11 +461,25 @@ export default function SchedulesIndex({
                         editUrl={SCHEDULE_ROUTES.edit(row.original.id)}
                         onDelete={confirmDelete(row.original)}
                         onShare={() => openShare([row.original])}
+                        onApprove={
+                            isAdmin && row.original.status === 'pending'
+                                ? confirmApprove(row.original)
+                                : undefined
+                        }
                     />
                 ),
             },
         ],
-        [slOffset, sort, dir, toggleSort, confirmDelete, openShare],
+        [
+            slOffset,
+            sort,
+            dir,
+            toggleSort,
+            confirmDelete,
+            openShare,
+            isAdmin,
+            confirmApprove,
+        ],
     );
 
     const table = useReactTable({
@@ -439,7 +499,13 @@ export default function SchedulesIndex({
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
             <PullToRefresh
-                only={['schedules', 'totalCount', 'todayCount', 'projects']}
+                only={[
+                    'schedules',
+                    'totalCount',
+                    'todayCount',
+                    'pendingCount',
+                    'projects',
+                ]}
             >
                 <ConfirmDialog />
                 <ScheduleShareModal
@@ -474,11 +540,11 @@ export default function SchedulesIndex({
                 />
 
                 <Deferred
-                    data={['totalCount', 'todayCount']}
+                    data={['totalCount', 'todayCount', 'pendingCount']}
                     fallback={
                         <StatCardsSkeleton
-                            count={2}
-                            columns="grid-cols-2"
+                            count={3}
+                            columns="grid-cols-1 sm:grid-cols-3"
                             className="mb-6"
                         />
                     }
@@ -487,7 +553,9 @@ export default function SchedulesIndex({
                         todayDate={todayDate}
                         isTodayFilterActive={isTodayFilterActive}
                         isTotalFilterActive={isTotalFilterActive}
+                        isPendingFilterActive={isPendingFilterActive}
                         setIndexFilters={setIndexFilters}
+                        setStatusFilter={setStatusFilter}
                     />
                 </Deferred>
 
@@ -556,6 +624,9 @@ export default function SchedulesIndex({
                             schedules={schedules.data}
                             onDelete={confirmDelete}
                             onShare={(schedule) => openShare([schedule])}
+                            onApprove={
+                                isAdmin ? confirmApprove : undefined
+                            }
                             {...cardSelectionProps}
                         />
                     ) : (
@@ -573,6 +644,7 @@ export default function SchedulesIndex({
                         schedules={schedules.data}
                         onDelete={confirmDelete}
                         onShare={(schedule) => openShare([schedule])}
+                        onApprove={isAdmin ? confirmApprove : undefined}
                         {...cardSelectionProps}
                     />
                 )}
@@ -603,6 +675,7 @@ export default function SchedulesIndex({
 type SchedulePageProps = {
     totalCount: number;
     todayCount: number;
+    pendingCount: number;
     projects: ProjectFilterOption[];
 };
 
@@ -610,11 +683,14 @@ function ScheduleStatCards({
     todayDate,
     isTodayFilterActive,
     isTotalFilterActive,
+    isPendingFilterActive,
     setIndexFilters,
+    setStatusFilter,
 }: {
     todayDate: string;
     isTodayFilterActive: boolean;
     isTotalFilterActive: boolean;
+    isPendingFilterActive: boolean;
     setIndexFilters: React.Dispatch<
         React.SetStateAction<{
             projectId: string;
@@ -622,22 +698,25 @@ function ScheduleStatCards({
             dateTo: string;
         }>
     >;
+    setStatusFilter: React.Dispatch<React.SetStateAction<string>>;
 }) {
-    const { totalCount, todayCount } = usePage<SchedulePageProps>().props;
+    const { totalCount, todayCount, pendingCount } =
+        usePage<SchedulePageProps>().props;
 
     return (
-        <div className="mb-6 grid grid-cols-2 gap-3">
+        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <GlassCard
                 as="button"
                 type="button"
                 level="inner"
-                onClick={() =>
+                onClick={() => {
+                    setStatusFilter('');
                     setIndexFilters((current) => ({
                         ...current,
                         dateFrom: '',
                         dateTo: '',
-                    }))
-                }
+                    }));
+                }}
                 className={cn(
                     'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
                     isTotalFilterActive && 'ring-2 ring-primary/40',
@@ -654,13 +733,14 @@ function ScheduleStatCards({
                 as="button"
                 type="button"
                 level="inner"
-                onClick={() =>
+                onClick={() => {
+                    setStatusFilter('');
                     setIndexFilters((current) => ({
                         ...current,
                         dateFrom: todayDate,
                         dateTo: todayDate,
-                    }))
-                }
+                    }));
+                }}
                 className={cn(
                     'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
                     isTodayFilterActive && 'ring-2 ring-emerald-500/50',
@@ -671,6 +751,30 @@ function ScheduleStatCards({
                 </p>
                 <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
                     {todayCount}
+                </p>
+            </GlassCard>
+            <GlassCard
+                as="button"
+                type="button"
+                level="inner"
+                onClick={() => {
+                    setStatusFilter('pending');
+                    setIndexFilters((current) => ({
+                        ...current,
+                        dateFrom: '',
+                        dateTo: '',
+                    }));
+                }}
+                className={cn(
+                    'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
+                    isPendingFilterActive && 'ring-2 ring-amber-500/50',
+                )}
+            >
+                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                    Pending
+                </p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                    {pendingCount}
                 </p>
             </GlassCard>
         </div>

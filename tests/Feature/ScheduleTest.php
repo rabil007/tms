@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ScheduleStatus;
 use App\Models\Country;
 use App\Models\Project;
 use App\Models\Schedule;
@@ -86,7 +87,122 @@ test('authenticated users can store a valid schedule', function () {
         'crew_contact' => '+971501234567',
         'project_id' => $project->id,
         'pick_up_location' => 'Dubai Airport Terminal 1',
+        'status' => ScheduleStatus::Pending->value,
+        'user_id' => $user->id,
     ]);
+});
+
+test('admin users store schedules as completed', function () {
+    $admin = adminUser();
+    $project = Project::factory()->create(['title' => 'NMDC']);
+
+    $response = $this->actingAs($admin)->post(route('schedules.store'), validSchedulePayload($project));
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('schedules.index'));
+
+    $this->assertDatabaseHas('schedules', [
+        'crew_name' => 'John Smith',
+        'status' => ScheduleStatus::Completed->value,
+        'user_id' => $admin->id,
+    ]);
+});
+
+test('regular user updating a completed schedule resets status to pending', function () {
+    $user = regularUser();
+    $schedule = Schedule::factory()->completed()->create([
+        'user_id' => $user->id,
+        'crew_name' => 'Jane Doe',
+    ]);
+
+    $response = $this->actingAs($user)->put(route('schedules.update', $schedule), [
+        ...validSchedulePayload($schedule->project),
+        'crew_name' => 'Jane Smith',
+    ]);
+
+    $response->assertRedirect(route('schedules.index'));
+
+    expect($schedule->fresh()->status)->toBe(ScheduleStatus::Pending);
+});
+
+test('admin updating a schedule does not change status', function () {
+    $admin = adminUser();
+    $schedule = Schedule::factory()->pending()->create(['crew_name' => 'Jane Doe']);
+
+    $response = $this->actingAs($admin)->put(route('schedules.update', $schedule), [
+        ...validSchedulePayload($schedule->project),
+        'crew_name' => 'Jane Smith',
+    ]);
+
+    $response->assertRedirect(route('schedules.index'));
+
+    expect($schedule->fresh())
+        ->crew_name->toBe('Jane Smith')
+        ->status->toBe(ScheduleStatus::Pending);
+});
+
+test('admin can approve a pending schedule', function () {
+    $admin = adminUser();
+    $schedule = Schedule::factory()->pending()->create();
+
+    $response = $this->actingAs($admin)->post(route('schedules.approve', $schedule));
+
+    $response->assertRedirect();
+
+    expect($schedule->fresh()->status)->toBe(ScheduleStatus::Completed);
+});
+
+test('regular users cannot approve schedules', function () {
+    $user = regularUser();
+    $schedule = Schedule::factory()->pending()->create();
+
+    $response = $this->actingAs($user)->post(route('schedules.approve', $schedule));
+
+    $response->assertForbidden();
+
+    expect($schedule->fresh()->status)->toBe(ScheduleStatus::Pending);
+});
+
+test('approving an already completed schedule returns an error', function () {
+    $admin = adminUser();
+    $schedule = Schedule::factory()->completed()->create();
+
+    $response = $this->actingAs($admin)->post(route('schedules.approve', $schedule));
+
+    $response->assertStatus(422);
+
+    expect($schedule->fresh()->status)->toBe(ScheduleStatus::Completed);
+});
+
+test('schedules index includes pending count', function () {
+    $user = User::factory()->create();
+    Schedule::factory()->pending()->count(2)->create();
+    Schedule::factory()->completed()->create();
+
+    $response = $this->actingAs($user)->get(route('schedules.index'));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->where('pendingCount', 2)));
+});
+
+test('schedules index can filter by pending status', function () {
+    $user = User::factory()->create();
+    $pending = Schedule::factory()->pending()->create(['crew_name' => 'Pending Crew']);
+    Schedule::factory()->completed()->create(['crew_name' => 'Completed Crew']);
+
+    $response = $this->actingAs($user)->get(route('schedules.index', ['status' => 'pending']));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->has('schedules.data', 1)
+        ->where('schedules.data.0.id', $pending->id));
 });
 
 test('store validation fails for missing fields', function () {

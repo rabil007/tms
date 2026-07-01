@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ScheduleStatus;
 use Database\Factories\ScheduleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,9 +20,12 @@ use Illuminate\Support\Carbon;
  * @property string $drop_off_location
  * @property string $pick_up_time
  * @property string|null $remarks
+ * @property ScheduleStatus $status
+ * @property int|null $user_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Project|null $project
+ * @property-read User|null $user
  */
 #[Fillable([
     'crew_name',
@@ -32,6 +36,8 @@ use Illuminate\Support\Carbon;
     'drop_off_location',
     'pick_up_time',
     'remarks',
+    'status',
+    'user_id',
 ])]
 class Schedule extends Model
 {
@@ -46,6 +52,7 @@ class Schedule extends Model
         return [
             'scheduled_date' => 'date',
             'pick_up_time' => 'datetime:H:i',
+            'status' => ScheduleStatus::class,
         ];
     }
 
@@ -55,5 +62,13 @@ class Schedule extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

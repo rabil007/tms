@@ -1,5 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
-import { Pencil, Share2 } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Check, Pencil, Share2 } from 'lucide-react';
 import React from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
@@ -9,7 +9,11 @@ import {
     formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
+    SCHEDULE_ROUTES,
+    ScheduleStatusBadge,
 } from '@/pages/admin/schedules/schedule-views';
+import type { ScheduleStatus } from '@/pages/admin/schedules/schedule-views';
+import type { Auth } from '@/types';
 
 const ROUTES = {
     index: '/schedules',
@@ -26,6 +30,7 @@ type Schedule = {
     pick_up_time: string;
     remarks: string | null;
     created_at: string | null;
+    status: ScheduleStatus;
     project?: { id: number; title: string };
 };
 
@@ -48,6 +53,17 @@ function DetailRow({ label, value, mono = false }: DetailRowProps) {
 
 export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
     const [shareOpen, setShareOpen] = React.useState(false);
+    const { auth } = usePage<{ auth: Auth }>().props;
+    const isAdmin = auth.user?.role?.slug === 'admin';
+    const canApprove = isAdmin && schedule.status === 'pending';
+
+    const handleApprove = () => {
+        router.post(
+            SCHEDULE_ROUTES.approve(schedule.id),
+            {},
+            { preserveScroll: true },
+        );
+    };
 
     return (
         <ModulePageLayout backHref={ROUTES.index} backLabel="Schedules">
@@ -61,9 +77,12 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
 
             <div className="mx-auto w-full max-w-3xl">
                 <div className="mb-6">
-                    <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                        {schedule.crew_name}
-                    </h2>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                            {schedule.crew_name}
+                        </h2>
+                        <ScheduleStatusBadge status={schedule.status} />
+                    </div>
                     <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
                         {formatScheduleDate(schedule.scheduled_date)} ·{' '}
                         {formatPickUpTime(schedule.pick_up_time)}
@@ -149,6 +168,16 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
                         <Share2 className="size-4" />
                         Share
                     </Button>
+                    {canApprove && (
+                        <Button
+                            type="button"
+                            onClick={handleApprove}
+                            className="h-12 w-full rounded-xl bg-emerald-600 px-8 text-[14px] font-semibold text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-600/90 sm:w-auto"
+                        >
+                            <Check className="size-4" />
+                            Approve
+                        </Button>
+                    )}
                     <Button
                         asChild
                         className="h-12 w-full rounded-xl px-8 text-[14px] font-semibold shadow-lg shadow-primary/20 sm:w-auto"

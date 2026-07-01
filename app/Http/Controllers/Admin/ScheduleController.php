@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ScheduleStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreScheduleRequest;
 use App\Http\Requests\Admin\UpdateScheduleRequest;
@@ -9,10 +10,12 @@ use App\Models\Country;
 use App\Models\Project;
 use App\Models\Schedule;
 use App\Services\ScheduleAdminNotifier;
+use App\Services\ScheduleUserNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class ScheduleController extends Controller
 {
@@ -26,6 +29,7 @@ class ScheduleController extends Controller
         'pick_up_location',
         'drop_off_location',
         'created_at',
+        'status',
     ];
 
     /**
@@ -78,12 +82,16 @@ class ScheduleController extends Controller
             ->when($request->filled('date_to'), function ($query) use ($request): void {
                 $query->whereDate('scheduled_date', '<=', $request->date('date_to'));
             })
+            ->when(
+                in_array($request->input('status'), [ScheduleStatus::Pending->value, ScheduleStatus::Completed->value], true),
+                fn ($query) => $query->where('status', $request->input('status')),
+            )
             ->orderBy($sort, $dir)
             ->paginate($request->integer('per_page', 15))
             ->withQueryString();
 
         $filters = array_filter(
-            $request->only(['q', 'sort', 'dir', 'per_page', 'project_id', 'date_from', 'date_to']),
+            $request->only(['q', 'sort', 'dir', 'per_page', 'project_id', 'date_from', 'date_to', 'status']),
             fn (mixed $value): bool => $value !== null && $value !== '',
         );
 
@@ -93,6 +101,7 @@ class ScheduleController extends Controller
             'projects' => Inertia::defer(fn (): array => $this->projectOptions()),
             'totalCount' => Inertia::defer(fn (): int => Schedule::query()->count()),
             'todayCount' => Inertia::defer(fn (): int => Schedule::query()->whereDate('scheduled_date', today())->count()),
+            'pendingCount' => Inertia::defer(fn (): int => Schedule::query()->where('status', ScheduleStatus::Pending)->count()),
             'todayDate' => today()->toDateString(),
         ]);
     }
@@ -113,7 +122,13 @@ class ScheduleController extends Controller
      */
     public function store(StoreScheduleRequest $request, ScheduleAdminNotifier $notifier): RedirectResponse
     {
-        $schedule = Schedule::query()->create($request->validated());
+        $schedule = Schedule::query()->create([
+            ...$request->validated(),
+            'user_id' => $request->user()->id,
+            'status' => $request->user()->isAdmin()
+                ? ScheduleStatus::Completed
+                : ScheduleStatus::Pending,
+        ]);
 
         $notifier->notify($schedule, $request->user(), 'created');
 
@@ -155,11 +170,38 @@ class ScheduleController extends Controller
     {
         $schedule->update($request->validated());
 
+        if (! $request->user()->isAdmin()) {
+            $schedule->status = ScheduleStatus::Pending;
+            $schedule->save();
+        }
+
         $notifier->notify($schedule, $request->user(), 'updated');
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Schedule updated.')]);
 
         return to_route('schedules.index');
+    }
+
+    /**
+     * Approve a pending schedule.
+     */
+    public function approve(Request $request, Schedule $schedule, ScheduleUserNotifier $notifier): RedirectResponse
+    {
+        if (! $request->user()->isAdmin()) {
+            abort(403);
+        }
+
+        if ($schedule->status === ScheduleStatus::Completed) {
+            throw new UnprocessableEntityHttpException(__('Schedule is already completed.'));
+        }
+
+        $schedule->update(['status' => ScheduleStatus::Completed]);
+
+        $notifier->notifyApproved($schedule, $request->user());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Schedule approved.')]);
+
+        return back();
     }
 
     /**

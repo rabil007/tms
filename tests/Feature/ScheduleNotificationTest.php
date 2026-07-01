@@ -5,6 +5,7 @@ use App\Models\Project;
 use App\Models\Schedule;
 use App\Models\User;
 use App\Notifications\ScheduleActivityNotification;
+use App\Notifications\ScheduleApprovedNotification;
 use App\Services\ScheduleAdminNotifier;
 use Illuminate\Support\Facades\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
@@ -105,4 +106,53 @@ test('schedule admin notifier skips admin actors', function () {
     app(ScheduleAdminNotifier::class)->notify($schedule, $admin, 'created');
 
     Notification::assertNothingSent();
+});
+
+test('admin approving a schedule notifies the submitter only', function () {
+    Notification::fake();
+
+    $admin = adminUser();
+    $submitter = regularUser();
+    $otherUser = regularUser();
+    $schedule = Schedule::factory()->pending()->create(['user_id' => $submitter->id]);
+
+    $this->actingAs($admin)->post(route('schedules.approve', $schedule));
+
+    Notification::assertSentTo($submitter, ScheduleApprovedNotification::class);
+    Notification::assertNotSentTo($otherUser, ScheduleApprovedNotification::class);
+    Notification::assertNotSentTo($admin, ScheduleApprovedNotification::class);
+});
+
+test('admin approving a schedule without a submitter sends no user notification', function () {
+    Notification::fake();
+
+    $admin = adminUser();
+    $submitter = regularUser();
+    $schedule = Schedule::factory()->pending()->create(['user_id' => null]);
+
+    $this->actingAs($admin)->post(route('schedules.approve', $schedule));
+
+    Notification::assertNotSentTo($submitter, ScheduleApprovedNotification::class);
+    Notification::assertNothingSent();
+});
+
+test('admin creating a schedule directly does not send an approval notification', function () {
+    Notification::fake();
+
+    $admin = adminUser();
+    $project = Project::factory()->create();
+
+    $this->actingAs($admin)->post(route('schedules.store'), validSchedulePayload($project));
+
+    Notification::assertNothingSent();
+});
+
+test('schedule approved notification uses database and broadcast channels', function () {
+    $admin = adminUser();
+    $submitter = regularUser();
+    $schedule = Schedule::factory()->pending()->create(['user_id' => $submitter->id]);
+
+    $notification = new ScheduleApprovedNotification($schedule, $admin);
+
+    expect($notification->via($submitter))->toContain('database', 'broadcast');
 });

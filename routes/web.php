@@ -26,6 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('overview', OverviewController::class)->name('overview');
 
     Route::resource('schedules', ScheduleController::class);
+    Route::post('schedules/{schedule}/approve', [ScheduleController::class, 'approve'])
+        ->middleware('admin')
+        ->name('schedules.approve');
 
     Route::post('notifications/test', [NotificationController::class, 'sendTest'])
         ->name('notifications.test');

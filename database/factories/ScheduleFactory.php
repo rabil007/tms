@@ -2,8 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\ScheduleStatus;
 use App\Models\Project;
 use App\Models\Schedule;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -27,6 +29,22 @@ class ScheduleFactory extends Factory
             'drop_off_location' => fake()->streetAddress(),
             'pick_up_time' => fake()->dateTime()->format('H:i'),
             'remarks' => fake()->optional()->sentence(),
+            'status' => ScheduleStatus::Completed,
+            'user_id' => User::factory(),
         ];
+    }
+
+    public function pending(): static
+    {
+        return $this->state(fn (): array => [
+            'status' => ScheduleStatus::Pending,
+        ]);
+    }
+
+    public function completed(): static
+    {
+        return $this->state(fn (): array => [
+            'status' => ScheduleStatus::Completed,
+        ]);
     }
 }

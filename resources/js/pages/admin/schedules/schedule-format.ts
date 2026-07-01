@@ -4,7 +4,10 @@ export const SCHEDULE_ROUTES = {
     show: (id: number) => `/schedules/${id}`,
     edit: (id: number) => `/schedules/${id}/edit`,
     destroy: (id: number) => `/schedules/${id}`,
+    approve: (id: number) => `/schedules/${id}/approve`,
 } as const;
+
+export type ScheduleStatus = 'pending' | 'completed';
 
 export type ScheduleRow = {
     id: number;
@@ -17,8 +20,13 @@ export type ScheduleRow = {
     pick_up_time: string;
     remarks: string | null;
     created_at: string | null;
+    status: ScheduleStatus;
     project?: { id: number; title: string };
 };
+
+export function scheduleStatusLabel(status: ScheduleStatus): string {
+    return status === 'pending' ? 'Pending' : 'Completed';
+}
 
 export function formatScheduleDate(value: string): string {
     if (!value) {

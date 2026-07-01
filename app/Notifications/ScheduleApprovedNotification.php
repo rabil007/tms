@@ -12,14 +12,13 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushMessage;
 
-class ScheduleActivityNotification extends Notification
+class ScheduleApprovedNotification extends Notification
 {
     use BuildsWebPushMessage, Queueable, ResolvesNotificationChannels;
 
     public function __construct(
         public Schedule $schedule,
-        public User $actor,
-        public string $action,
+        public User $approver,
     ) {}
 
     /**
@@ -61,7 +60,7 @@ class ScheduleActivityNotification extends Notification
             title: $payload['title'],
             body: $payload['message'],
             actionUrl: $payload['action_url'],
-            tag: 'overseas-schedule-'.$this->schedule->id,
+            tag: 'overseas-schedule-approved-'.$this->schedule->id,
         );
     }
 
@@ -74,29 +73,14 @@ class ScheduleActivityNotification extends Notification
 
         $projectTitle = $this->schedule->project->title;
         $formattedDate = $this->schedule->scheduled_date->format('M j, Y');
-        $appName = (string) config('app.name');
-
-        if ($this->action === 'created') {
-            $title = __('New schedule · :project', ['project' => $projectTitle]);
-            $message = __(':crew on :date — submitted by :actor via :app (pending approval).', [
-                'crew' => $this->schedule->crew_name,
-                'date' => $formattedDate,
-                'actor' => $this->actor->name,
-                'app' => $appName,
-            ]);
-        } else {
-            $title = __('Schedule updated · :project', ['project' => $projectTitle]);
-            $message = __(':crew on :date — updated by :actor via :app (pending approval).', [
-                'crew' => $this->schedule->crew_name,
-                'date' => $formattedDate,
-                'actor' => $this->actor->name,
-                'app' => $appName,
-            ]);
-        }
 
         return [
-            'title' => $title,
-            'message' => $message,
+            'title' => __('Schedule approved · :project', ['project' => $projectTitle]),
+            'message' => __(':crew on :date — approved by :admin.', [
+                'crew' => $this->schedule->crew_name,
+                'date' => $formattedDate,
+                'admin' => $this->approver->name,
+            ]),
             'action_url' => route('schedules.show', $this->schedule),
         ];
     }

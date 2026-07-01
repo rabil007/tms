@@ -6,22 +6,48 @@ import { ResourceTable } from '@/components/list/resource-table';
 import { RowActions } from '@/components/list/row-actions';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
 import {
     formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
+    scheduleStatusLabel,
     SCHEDULE_ROUTES,
 } from '@/pages/admin/schedules/schedule-format';
-import type { ScheduleRow } from '@/pages/admin/schedules/schedule-format';
+import type { ScheduleRow, ScheduleStatus } from '@/pages/admin/schedules/schedule-format';
 
 export {
     formatCreatedAt,
     formatPickUpTime,
     formatScheduleDate,
+    scheduleStatusLabel,
     SCHEDULE_ROUTES,
     toTimeInputValue,
     type ScheduleRow,
+    type ScheduleStatus,
 } from '@/pages/admin/schedules/schedule-format';
+
+export function ScheduleStatusBadge({
+    status,
+    className,
+}: {
+    status: ScheduleStatus;
+    className?: string;
+}) {
+    return (
+        <Badge
+            variant={status === 'pending' ? 'outline' : 'secondary'}
+            className={cn(
+                status === 'pending'
+                    ? 'rounded-md border-amber-500/40 bg-amber-500/10 text-[11px] text-amber-700 dark:text-amber-300'
+                    : 'rounded-md bg-emerald-500/10 text-[11px] text-emerald-700 dark:text-emerald-300',
+                className,
+            )}
+        >
+            {scheduleStatusLabel(status)}
+        </Badge>
+    );
+}
 
 type ScheduleTableProps = {
     table: Table<ScheduleRow>;
@@ -42,6 +68,7 @@ type ScheduleCardsProps = {
     schedules: ScheduleRow[];
     onDelete: (schedule: ScheduleRow) => () => Promise<void>;
     onShare: (schedule: ScheduleRow) => void;
+    onApprove?: (schedule: ScheduleRow) => () => void;
     rowSelection: RowSelectionState;
     onToggleSelect: (id: number) => void;
 };
@@ -50,16 +77,22 @@ function scheduleRowActionsProps(
     schedule: ScheduleRow,
     onDelete: () => Promise<void>,
     onShare: (schedule: ScheduleRow) => void,
+    onApprove?: (schedule: ScheduleRow) => () => void,
 ) {
     return {
         showUrl: SCHEDULE_ROUTES.show(schedule.id),
         editUrl: SCHEDULE_ROUTES.edit(schedule.id),
         onDelete,
         onShare: () => onShare(schedule),
+        onApprove:
+            onApprove && schedule.status === 'pending'
+                ? onApprove(schedule)
+                : undefined,
         showLabel: 'View schedule',
         editLabel: 'Edit schedule',
         deleteLabel: 'Delete schedule',
         shareLabel: 'Share schedule',
+        approveLabel: 'Approve schedule',
     };
 }
 
@@ -100,6 +133,7 @@ export function ScheduleListCards({
     schedules,
     onDelete,
     onShare,
+    onApprove,
     rowSelection,
     onToggleSelect,
 }: ScheduleCardsProps) {
@@ -145,6 +179,7 @@ export function ScheduleListCards({
                                 Created {formatCreatedAt(schedule.created_at)}
                             </p>
                             <div className="mt-2 flex flex-wrap gap-1.5">
+                                <ScheduleStatusBadge status={schedule.status} />
                                 {schedule.project?.title && (
                                     <Badge
                                         variant="secondary"
@@ -169,6 +204,7 @@ export function ScheduleListCards({
                                 schedule,
                                 onDelete(schedule),
                                 onShare,
+                                onApprove,
                             )}
                         />
                     </div>
@@ -182,6 +218,7 @@ export function ScheduleGridCards({
     schedules,
     onDelete,
     onShare,
+    onApprove,
     rowSelection,
     onToggleSelect,
 }: ScheduleCardsProps) {
@@ -224,6 +261,10 @@ export function ScheduleGridCards({
                     <p className="mt-1 text-[12px] text-muted-foreground">
                         Created {formatCreatedAt(schedule.created_at)}
                     </p>
+                    <ScheduleStatusBadge
+                        status={schedule.status}
+                        className="mt-2 w-fit"
+                    />
                     {schedule.project?.title && (
                         <Badge
                             variant="secondary"
@@ -242,6 +283,7 @@ export function ScheduleGridCards({
                                 schedule,
                                 onDelete(schedule),
                                 onShare,
+                                onApprove,
                             )}
                         />
                     </div>

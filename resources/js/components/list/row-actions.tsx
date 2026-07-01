@@ -1,15 +1,17 @@
 import { Link } from '@inertiajs/react';
-import { Eye, Pencil, Share2, Trash2 } from 'lucide-react';
+import { Eye, Check, Pencil, Share2, Trash2 } from 'lucide-react';
 
 export type RowActionsProps = {
     showUrl: string;
     editUrl: string;
     onDelete: () => Promise<void>;
     onShare?: () => void;
+    onApprove?: () => void;
     showLabel?: string;
     editLabel?: string;
     deleteLabel?: string;
     shareLabel?: string;
+    approveLabel?: string;
 };
 
 export function RowActions({
@@ -17,16 +19,28 @@ export function RowActions({
     editUrl,
     onDelete,
     onShare,
+    onApprove,
     showLabel = 'View',
     editLabel = 'Edit',
     deleteLabel = 'Delete',
     shareLabel = 'Share schedule',
+    approveLabel = 'Approve',
 }: RowActionsProps) {
     return (
         <div
             className="flex items-center justify-end gap-1"
             onClick={(e) => e.stopPropagation()}
         >
+            {onApprove && (
+                <button
+                    type="button"
+                    title={approveLabel}
+                    onClick={onApprove}
+                    className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400"
+                >
+                    <Check className="size-4" />
+                </button>
+            )}
             {onShare && (
                 <button
                     type="button"
