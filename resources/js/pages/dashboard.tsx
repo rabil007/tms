@@ -14,7 +14,7 @@ const allModules: (DashboardModule & { adminOnly?: boolean })[] = [
         name: 'Overview',
         icon: LayoutDashboard,
         color: 'from-slate-600 to-slate-700',
-        href: '/dashboard',
+        href: '/overview',
     },
     {
         id: 'schedules',

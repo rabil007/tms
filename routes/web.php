@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\WebManifestController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,7 @@ Route::get('/manifest.webmanifest', WebManifestController::class)->name('manifes
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('overview', OverviewController::class)->name('overview');
 
     Route::resource('schedules', ScheduleController::class);
 
