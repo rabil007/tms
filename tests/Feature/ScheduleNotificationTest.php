@@ -36,7 +36,7 @@ test('regular user creating a schedule notifies all admin users', function () {
 test('regular user updating a schedule notifies all admin users', function () {
     $admin = adminUser();
     $user = regularUser();
-    $schedule = Schedule::factory()->create(['crew_name' => 'Jane Crew']);
+    $schedule = Schedule::factory()->pending()->create(['crew_name' => 'Jane Crew']);
     $payload = validSchedulePayload($schedule->project);
     $payload['crew_name'] = 'Jane Crew';
 

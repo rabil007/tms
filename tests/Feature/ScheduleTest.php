@@ -1,31 +1,8 @@
 <?php
 
 use App\Enums\ScheduleStatus;
-use App\Models\Country;
-use App\Models\Project;
 use App\Models\Schedule;
 use App\Models\User;
-
-/**
- * @return array<string, mixed>
- */
-function validSchedulePayload(?Project $project = null, ?Country $country = null): array
-{
-    $project ??= Project::factory()->create();
-    $country ??= Country::factory()->create(['iso2' => 'AE', 'dial_code' => '+971']);
-
-    return [
-        'crew_name' => 'John Smith',
-        'scheduled_date' => '2026-07-15',
-        'country_id' => $country->id,
-        'crew_phone' => '501234567',
-        'project_id' => $project->id,
-        'pick_up_location' => 'Dubai Airport Terminal 1',
-        'drop_off_location' => 'Marina Hotel',
-        'pick_up_time' => '08:30',
-        'remarks' => 'VIP pickup',
-    ];
-}
 
 test('guests are redirected from schedules index', function () {
     $response = $this->get(route('schedules.index'));

@@ -4,11 +4,15 @@ use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\ForceHttps;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
+use Inertia\ExceptionResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -40,4 +44,30 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
+            if (app()->environment(['local', 'testing'])) {
+                return $response;
+            }
+
+            if (! in_array($response->getStatusCode(), [403, 404, 500, 503], true)) {
+                return $response;
+            }
+
+            $exceptionResponse = new ExceptionResponse(
+                $exception,
+                $request,
+                $response,
+                app(Router::class),
+                app(Kernel::class),
+            );
+
+            return $exceptionResponse
+                ->render('error-page', [
+                    'status' => $exceptionResponse->statusCode(),
+                ])
+                ->usingMiddleware(HandleInertiaRequests::class)
+                ->withSharedData()
+                ->toResponse($request);
+        });
     })->create();
