@@ -53,6 +53,18 @@ jobs:
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           echo '[82.198.227.207]:65002 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIyse96dUeLo4oKa76H8AfK4q4/RHbHMcxt+1GZRGaI9' >> ~/.ssh/known_hosts
+          cat >> ~/.ssh/config <<'EOF'
+          Host hostinger
+            HostName 82.198.227.207
+            Port 65002
+            User u769441461
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking yes
+            ConnectTimeout 60
+            ServerAliveInterval 15
+            ServerAliveCountMax 10
+          EOF
+          chmod 600 ~/.ssh/config
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -78,27 +90,49 @@ jobs:
 
       - name: Upload build to server
         run: |
-          rsync -avz -e "ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=yes" public/build/ \
-            u769441461@82.198.227.207:~/domains/overseas-ms.com/public_html/tms/public/build/
+          DEPLOY_PATH="domains/overseas-ms.com/public_html/tms/public/build"
+          for attempt in 1 2 3 4 5; do
+            echo "Upload attempt ${attempt}/5..."
+            if ssh hostinger "mkdir -p ~/${DEPLOY_PATH}" && \
+               rsync -avz --timeout=120 -e ssh public/build/ "hostinger:~/${DEPLOY_PATH}/"; then
+              echo "Upload succeeded on attempt ${attempt}"
+              exit 0
+            fi
+            echo "Upload failed, waiting 30s before retry..."
+            sleep 30
+          done
+          echo "Upload failed after 5 attempts"
+          exit 1
 
       - name: Deploy Backend
         run: |
-          ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=yes u769441461@82.198.227.207 << 'EOF'
-            set -e
-            cd ~/domains/overseas-ms.com/public_html/tms || exit 1
+          for attempt in 1 2 3 4 5; do
+            echo "Deploy attempt ${attempt}/5..."
+            if ssh hostinger <<'EOF'
+              set -e
+              cd ~/domains/overseas-ms.com/public_html/tms || exit 1
 
-            git fetch origin main
-            git reset --hard origin/main
+              git fetch origin main
+              git reset --hard origin/main
 
-            composer install --no-dev --optimize-autoloader
+              composer install --no-dev --optimize-autoloader
 
-            php artisan migrate --force
-            php artisan db:seed --force
+              php artisan migrate --force
+              php artisan db:seed --force
 
-            php artisan storage:link --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
+              php artisan storage:link --force
+              php artisan config:cache
+              php artisan route:cache
+              php artisan view:cache
 
-            php artisan reverb:restart || nohup php artisan reverb:start >> storage/logs/reverb.log 2>&1 &
+              php artisan reverb:restart || nohup php artisan reverb:start >> storage/logs/reverb.log 2>&1 &
           EOF
+            then
+              echo "Deploy succeeded on attempt ${attempt}"
+              exit 0
+            fi
+            echo "Deploy failed, waiting 30s before retry..."
+            sleep 30
+          done
+          echo "Deploy failed after 5 attempts"
+          exit 1
