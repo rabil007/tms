@@ -63,7 +63,7 @@ function scheduleRowActionsProps(
 
 function ScheduleIcon() {
     return (
-        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-500/15 to-teal-600/15 text-primary ring-1 ring-white/10">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-500/15 to-teal-600/15 text-primary ring-1 ring-border dark:ring-white/10">
             <CalendarClock className="size-5" />
         </div>
     );

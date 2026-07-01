@@ -15,7 +15,7 @@ export function PwaInstallBanner() {
     return (
         <div
             className={cn(
-                'border-b border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl',
+                'border-b border-border/60 bg-background/90 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-white/10',
                 'motion-safe:animate-in motion-safe:duration-300 motion-safe:fade-in motion-safe:slide-in-from-top-2',
             )}
         >

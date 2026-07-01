@@ -25,7 +25,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
 
     return (
         <>
-            <div className="sticky top-0 z-50 border-b border-white/10 bg-white/5 pt-[env(safe-area-inset-top)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-2xl backdrop-saturate-150">
+            <div className="sticky top-0 z-50 border-b border-border/60 bg-background/80 pt-[env(safe-area-inset-top)] shadow-sm backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-white/5 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]">
                 <div className="mx-auto flex h-14 items-center px-4 sm:h-16 sm:px-6 md:max-w-7xl">
                     <Link
                         href={dashboard()}
@@ -70,8 +70,8 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                 </div>
             </div>
             {breadcrumbs.length > 1 && (
-                <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-40 border-b border-white/10 bg-white/5 backdrop-blur-2xl sm:top-[calc(4rem+env(safe-area-inset-top))]">
-                    <div className="mx-auto flex h-11 w-full items-center justify-start overflow-x-auto px-4 text-neutral-500 sm:h-12 sm:px-6 md:max-w-7xl">
+                <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-40 border-b border-border/60 bg-background/80 backdrop-blur-2xl dark:border-white/10 dark:bg-white/5 sm:top-[calc(4rem+env(safe-area-inset-top))]">
+                    <div className="mx-auto flex h-11 w-full items-center justify-start overflow-x-auto px-4 text-muted-foreground sm:h-12 sm:px-6 md:max-w-7xl">
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
                 </div>

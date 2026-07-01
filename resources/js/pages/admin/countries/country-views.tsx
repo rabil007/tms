@@ -64,7 +64,7 @@ export function CountryListCards({ countries, onDelete }: CountryCardsProps) {
                     tabIndex={0}
                 >
                     <div className="flex items-center gap-3.5">
-                        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-blue-500/15 to-indigo-600/15 text-sm font-bold text-primary ring-1 ring-white/10">
+                        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-blue-500/15 to-indigo-600/15 text-sm font-bold text-primary ring-1 ring-border dark:ring-white/10">
                             {country.iso2}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -126,7 +126,7 @@ export function CountryGridCards({ countries, onDelete }: CountryCardsProps) {
                     role="button"
                     tabIndex={0}
                 >
-                    <div className="flex size-12 items-center justify-center rounded-2xl bg-linear-to-br from-blue-500/15 to-indigo-600/15 text-sm font-bold text-primary ring-1 ring-white/10">
+                    <div className="flex size-12 items-center justify-center rounded-2xl bg-linear-to-br from-blue-500/15 to-indigo-600/15 text-sm font-bold text-primary ring-1 ring-border dark:ring-white/10">
                         {country.iso2}
                     </div>
                     <p className="mt-3 line-clamp-2 font-semibold text-foreground">

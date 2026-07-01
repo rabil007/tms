@@ -138,8 +138,10 @@
     --status-confirmed: oklch(0.696 0.17 162.48);
     --status-rejected: oklch(0.637 0.237 25.331);
 
-    --dashboard-background: oklch(0.145 0 0);
-    --dashboard-overlay: oklch(0.129 0 0);
+    --dashboard-background: oklch(0.985 0 0);
+    --dashboard-overlay: oklch(0.97 0 0);
+    --dashboard-tile-border: oklch(0.9 0 0);
+    --dashboard-tile-shadow: 0 4px 24px oklch(0 0 0 / 0.08);
 
     --success: oklch(0.696 0.17 162.48);
     --success-foreground: oklch(0.985 0 0);
@@ -189,6 +191,8 @@
 
     --dashboard-background: oklch(0.145 0 0);
     --dashboard-overlay: oklch(0.129 0 0);
+    --dashboard-tile-border: rgba(255, 255, 255, 0.18);
+    --dashboard-tile-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 
     --success: oklch(0.696 0.17 162.48);
     --success-foreground: oklch(0.985 0 0);
@@ -234,6 +238,10 @@
 /* Referenced by: overview.tsx (Recent Bookings, Recent Changes), activity-log.tsx */
 .custom-scrollbar {
     scrollbar-width: thin;
+    scrollbar-color: oklch(0.65 0 0 / 0.35) transparent;
+}
+
+.dark .custom-scrollbar {
     scrollbar-color: oklch(0.5 0 0 / 0.3) transparent;
 }
 
@@ -246,10 +254,18 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: oklch(0.5 0 0 / 0.3);
+    background-color: oklch(0.65 0 0 / 0.35);
     border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(0.65 0 0 / 0.55);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: oklch(0.5 0 0 / 0.3);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: oklch(0.5 0 0 / 0.5);
 }

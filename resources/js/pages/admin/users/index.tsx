@@ -123,7 +123,7 @@ export default function UsersIndex({
                 ),
                 cell: ({ row }) => (
                     <div className="flex items-center gap-3">
-                        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-cyan-500/15 to-blue-600/15 text-[11px] font-bold text-primary ring-1 ring-white/10">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-cyan-500/15 to-blue-600/15 text-[11px] font-bold text-primary ring-1 ring-border dark:ring-white/10">
                             {row.original.name
                                 .split(' ')
                                 .map((part) => part[0])

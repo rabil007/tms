@@ -43,11 +43,11 @@ export function glassColor(gradientClass: string): { bg: string; icon: string } 
         },
         'from-slate-500 to-slate-700': {
             bg: 'color-mix(in oklch, var(--muted-foreground), transparent 86%)',
-            icon: 'var(--foreground)',
+            icon: 'var(--muted-foreground)',
         },
         'from-slate-600 to-slate-700': {
             bg: 'color-mix(in oklch, var(--muted-foreground), transparent 84%)',
-            icon: 'var(--foreground)',
+            icon: 'var(--muted-foreground)',
         },
         'from-orange-500 to-amber-600': {
             bg: 'color-mix(in oklch, var(--status-pending), transparent 82%)',
@@ -71,7 +71,7 @@ export function glassColor(gradientClass: string): { bg: string; icon: string } 
         },
         'from-zinc-600 to-neutral-800': {
             bg: 'color-mix(in oklch, var(--muted-foreground), transparent 86%)',
-            icon: 'var(--foreground)',
+            icon: 'var(--muted-foreground)',
         },
     };
 
@@ -417,24 +417,26 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                                         background: glassColor(module.color).bg,
                                         backdropFilter: 'blur(20px) saturate(1.4)',
                                         WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
-                                        border: '1px solid rgba(255,255,255,0.18)',
-                                        boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                                        border: '1px solid var(--dashboard-tile-border)',
+                                        boxShadow: 'var(--dashboard-tile-shadow)',
                                     }}
                                 >
                                     <span
-                                        className="pointer-events-none absolute left-0 top-0 z-1 h-[55%] w-[65%]"
+                                        className="pointer-events-none absolute left-0 top-0 z-1 hidden h-[55%] w-[65%] dark:block"
                                         style={{
                                             background:
                                                 'linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.05) 60%, transparent 100%)',
                                             borderRadius: '22px 22px 60% 0',
                                         }}
                                     />
-                                    <span className="pointer-events-none absolute -inset-px z-3 rounded-3xl border border-white/0 transition-all duration-200 group-hover:border-white/30" />
+                                    <span className="pointer-events-none absolute -inset-px z-3 rounded-3xl border border-transparent transition-all duration-200 group-hover:border-border dark:group-hover:border-white/30" />
                                     <module.icon
-                                        className={cn('relative z-2 stroke-[1.4]', iconClass)}
+                                        className={cn(
+                                            'relative z-2 stroke-[1.4] dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.3)]',
+                                            iconClass,
+                                        )}
                                         style={{
                                             color: glassColor(module.color).icon,
-                                            filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))',
                                         }}
                                     />
                                 </div>

@@ -29,7 +29,7 @@ export function EmptyState({
         >
             <div
                 className={cn(
-                    'flex size-16 items-center justify-center rounded-2xl bg-linear-to-br from-blue-500/15 to-indigo-600/15 ring-1 ring-white/10',
+                    'flex size-16 items-center justify-center rounded-2xl bg-linear-to-br from-blue-500/15 to-indigo-600/15 ring-1 ring-border dark:ring-white/10',
                     iconWrapperClassName,
                 )}
             >

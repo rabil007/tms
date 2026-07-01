@@ -38,7 +38,7 @@ function RoleIcon({ name }: { name: string }) {
     const initials = name.slice(0, 2).toUpperCase();
 
     return (
-        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-rose-500/15 to-pink-600/15 text-sm font-bold text-primary ring-1 ring-white/10">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-rose-500/15 to-pink-600/15 text-sm font-bold text-primary ring-1 ring-border dark:ring-white/10">
             {initials}
         </div>
     );
