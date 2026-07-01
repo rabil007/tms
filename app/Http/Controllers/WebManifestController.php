@@ -21,15 +21,27 @@ class WebManifestController extends Controller
             'theme_color' => '#0f172a',
             'icons' => [
                 [
-                    'src' => '/logo.png',
+                    'src' => '/icons/icon-192.png',
+                    'sizes' => '192x192',
+                    'type' => 'image/png',
+                    'purpose' => 'any',
+                ],
+                [
+                    'src' => '/icons/icon-512.png',
                     'sizes' => '512x512',
                     'type' => 'image/png',
-                    'purpose' => 'any maskable',
+                    'purpose' => 'any',
+                ],
+                [
+                    'src' => '/icons/icon-maskable-512.png',
+                    'sizes' => '512x512',
+                    'type' => 'image/png',
+                    'purpose' => 'maskable',
                 ],
             ],
         ], 200, [
             'Content-Type' => 'application/manifest+json',
-            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Cache-Control' => 'public, max-age=3600',
         ]);
     }
 }

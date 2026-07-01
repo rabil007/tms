@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
 import React from 'react';
+import { APP_LAUNCH_COMPLETE_EVENT, hasAppLaunchedThisSession, prefersReducedMotion } from '@/lib/pwa';
 import { cn } from '@/lib/utils';
 export type DashboardModule = {
     id: string;
@@ -106,6 +107,35 @@ export function DashboardGrid({
 }: DashboardGridProps) {
     const [modules, setModules] = React.useState<DashboardModule[]>(baseModules);
     const [draggingId, setDraggingId] = React.useState<string | null>(null);
+    const [animateTiles, setAnimateTiles] = React.useState(() => {
+        if (typeof window === 'undefined') {
+            return true;
+        }
+
+        return hasAppLaunchedThisSession();
+    });
+
+    React.useEffect(() => {
+        if (animateTiles) {
+            return;
+        }
+
+        if (hasAppLaunchedThisSession()) {
+            setAnimateTiles(true);
+
+            return;
+        }
+
+        const handleLaunchComplete = () => {
+            setAnimateTiles(true);
+        };
+
+        window.addEventListener(APP_LAUNCH_COMPLETE_EVENT, handleLaunchComplete);
+
+        return () => {
+            window.removeEventListener(APP_LAUNCH_COMPLETE_EVENT, handleLaunchComplete);
+        };
+    }, [animateTiles]);
 
     const baseKey = React.useMemo(
         () => baseModules.map((m) => m.id).join('|'),
@@ -195,7 +225,7 @@ export function DashboardGrid({
                 className,
             )}
         >
-            {modules.map((module) => (
+            {modules.map((module, index) => (
                 <Link
                     key={module.id}
                     href={module.href}
@@ -226,7 +256,18 @@ export function DashboardGrid({
                         move(activeId, module.id);
                         setDraggingId(null);
                     }}
-                    className="group flex min-w-[88px] touch-manipulation flex-col items-center gap-2.5 outline-none sm:gap-3"
+                    className={cn(
+                        'group flex min-w-[88px] touch-manipulation flex-col items-center gap-2.5 outline-none sm:gap-3',
+                        !animateTiles && 'opacity-0',
+                        animateTiles
+                            && !prefersReducedMotion()
+                            && 'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-300 motion-safe:fill-mode-backwards',
+                    )}
+                    style={
+                        animateTiles && !prefersReducedMotion()
+                            ? { animationDelay: `${index * 50}ms` }
+                            : undefined
+                    }
                 >
                     <div className="relative">
                         <div

@@ -10,13 +10,22 @@
         <script>
             (function() {
                 const appearance = '{{ $appearance ?? "system" }}';
+                const themeColors = { light: '#ffffff', dark: '#0f172a' };
+                let isDark = appearance === 'dark';
 
                 if (appearance === 'system') {
                     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
                     if (prefersDark) {
                         document.documentElement.classList.add('dark');
+                        isDark = true;
                     }
+                }
+
+                const themeMeta = document.querySelector('meta[name="theme-color"]');
+
+                if (themeMeta) {
+                    themeMeta.setAttribute('content', isDark ? themeColors.dark : themeColors.light);
                 }
             })();
         </script>
@@ -33,7 +42,7 @@
         </style>
 
         <link rel="icon" href="/logo.png" type="image/png">
-        <link rel="apple-touch-icon" href="/logo.png">
+        <link rel="apple-touch-icon" href="/icons/icon-192.png">
         <link rel="manifest" href="/manifest.webmanifest">
         <meta name="application-name" content="{{ config('app.name') }}">
         <meta name="apple-mobile-web-app-title" content="{{ config('app.name') }}">

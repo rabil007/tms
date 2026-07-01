@@ -1,5 +1,7 @@
 import { createInertiaApp, router } from '@inertiajs/react';
 import { configureEcho } from '@laravel/echo-react';
+import { AppLaunchOverlay } from '@/components/app-launch-overlay';
+import { PwaThemeMeta } from '@/components/pwa-theme-meta';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -97,6 +99,8 @@ createInertiaApp({
     withApp(app) {
         return (
             <TooltipProvider delayDuration={0}>
+                <PwaThemeMeta />
+                <AppLaunchOverlay />
                 {app}
                 <Toaster />
             </TooltipProvider>

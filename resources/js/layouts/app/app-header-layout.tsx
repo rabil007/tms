@@ -1,6 +1,7 @@
 import { AppContent } from '@/components/app-content';
 import { AppHeader } from '@/components/app-header';
 import { AppShell } from '@/components/app-shell';
+import { PwaInstallBanner } from '@/components/pwa-install-banner';
 import type { AppLayoutProps } from '@/types';
 
 export default function AppHeaderLayout({
@@ -10,6 +11,7 @@ export default function AppHeaderLayout({
     return (
         <AppShell>
             <AppHeader breadcrumbs={breadcrumbs} />
+            <PwaInstallBanner />
             <AppContent>{children}</AppContent>
         </AppShell>
     );
