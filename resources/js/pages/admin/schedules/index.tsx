@@ -34,6 +34,7 @@ import {
     
 } from '@/pages/admin/schedules/schedule-views';
 import type {ScheduleRow} from '@/pages/admin/schedules/schedule-views';
+import { shareScheduleOnWhatsApp } from '@/pages/admin/schedules/schedule-whatsapp';
 
 type Paged<T> = {
     data: T[];
@@ -208,9 +209,11 @@ export default function SchedulesIndex({
                         showUrl={SCHEDULE_ROUTES.show(row.original.id)}
                         editUrl={SCHEDULE_ROUTES.edit(row.original.id)}
                         onDelete={confirmDelete(row.original)}
+                        onShareWhatsApp={() => shareScheduleOnWhatsApp(row.original)}
                         showLabel="View schedule"
                         editLabel="Edit schedule"
                         deleteLabel="Delete schedule"
+                        shareWhatsAppLabel="Share schedule on WhatsApp"
                     />
                 ),
             },

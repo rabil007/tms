@@ -1,9 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import { Pencil } from 'lucide-react';
+import { MessageCircle, Pencil } from 'lucide-react';
 import React from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { Button } from '@/components/ui/button';
+import { shareScheduleOnWhatsApp } from '@/pages/admin/schedules/schedule-whatsapp';
 import { formatPickUpTime, formatScheduleDate } from '@/pages/admin/schedules/schedule-views';
 
 const ROUTES = {
@@ -85,6 +86,15 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
                         className="h-12 w-full rounded-xl border-border/60 bg-background/50 text-[14px] font-semibold sm:w-auto"
                     >
                         <Link href={ROUTES.index}>Back to list</Link>
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => shareScheduleOnWhatsApp(schedule)}
+                        className="h-12 w-full rounded-xl border-emerald-500/30 bg-emerald-500/5 text-[14px] font-semibold text-emerald-700 hover:bg-emerald-500/10 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 sm:w-auto"
+                    >
+                        <MessageCircle className="size-4" />
+                        Share on WhatsApp
                     </Button>
                     <Button asChild className="h-12 w-full rounded-xl px-8 text-[14px] font-semibold shadow-lg shadow-primary/20 sm:w-auto">
                         <Link href={ROUTES.edit(schedule.id)}>
