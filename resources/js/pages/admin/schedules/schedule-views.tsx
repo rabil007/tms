@@ -177,6 +177,9 @@ export function ScheduleListCards({
                             </p>
                             <p className="mt-1 text-[12px] text-muted-foreground">
                                 Created {formatCreatedAt(schedule.created_at)}
+                                {schedule.user?.name
+                                    ? ` · ${schedule.user.name}`
+                                    : ''}
                             </p>
                             <div className="mt-2 flex flex-wrap gap-1.5">
                                 <ScheduleStatusBadge status={schedule.status} />
@@ -260,6 +263,7 @@ export function ScheduleGridCards({
                     </p>
                     <p className="mt-1 text-[12px] text-muted-foreground">
                         Created {formatCreatedAt(schedule.created_at)}
+                        {schedule.user?.name ? ` · ${schedule.user.name}` : ''}
                     </p>
                     <ScheduleStatusBadge
                         status={schedule.status}

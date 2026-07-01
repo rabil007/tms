@@ -443,9 +443,14 @@ export default function SchedulesIndex({
                     />
                 ),
                 cell: ({ row }) => (
-                    <span className="text-[13px] text-foreground">
-                        {formatCreatedAt(row.original.created_at)}
-                    </span>
+                    <div className="flex flex-col gap-0.5">
+                        <span className="text-[13px] text-foreground">
+                            {formatCreatedAt(row.original.created_at)}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                            {row.original.user?.name ?? '—'}
+                        </span>
+                    </div>
                 ),
             },
             {

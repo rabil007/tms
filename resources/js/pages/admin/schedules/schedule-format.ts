@@ -22,6 +22,7 @@ export type ScheduleRow = {
     created_at: string | null;
     status: ScheduleStatus;
     project?: { id: number; title: string };
+    user?: { id: number; name: string } | null;
 };
 
 export function scheduleStatusLabel(status: ScheduleStatus): string {

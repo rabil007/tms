@@ -55,7 +55,7 @@ class ScheduleController extends Controller
         $dir = $request->input('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
         $schedules = Schedule::query()
-            ->with('project')
+            ->with(['project', 'user:id,name'])
             ->when($request->q, function ($query) use ($request): void {
                 $search = '%'.$request->q.'%';
 
@@ -142,7 +142,7 @@ class ScheduleController extends Controller
      */
     public function show(Schedule $schedule): Response
     {
-        $schedule->load('project');
+        $schedule->load(['project', 'user:id,name']);
 
         return Inertia::render('admin/schedules/show', [
             'schedule' => $schedule,
@@ -154,7 +154,7 @@ class ScheduleController extends Controller
      */
     public function edit(Schedule $schedule): Response
     {
-        $schedule->load('project');
+        $schedule->load(['project', 'user:id,name']);
 
         return Inertia::render('admin/schedules/edit', [
             'schedule' => $schedule,

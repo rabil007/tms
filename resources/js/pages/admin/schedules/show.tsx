@@ -32,6 +32,7 @@ type Schedule = {
     created_at: string | null;
     status: ScheduleStatus;
     project?: { id: number; title: string };
+    user?: { id: number; name: string } | null;
 };
 
 type DetailRowProps = { label: string; value: string; mono?: boolean };
@@ -145,7 +146,11 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
                         <div className="py-4">
                             <DetailRow
                                 label="Created"
-                                value={formatCreatedAt(schedule.created_at)}
+                                value={
+                                    schedule.user?.name
+                                        ? `${formatCreatedAt(schedule.created_at)} · ${schedule.user.name}`
+                                        : formatCreatedAt(schedule.created_at)
+                                }
                             />
                         </div>
                     </dl>

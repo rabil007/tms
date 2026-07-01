@@ -292,7 +292,8 @@ test('schedules index loads without sort query param', function () {
         ->component('admin/schedules/index')
         ->has('schedules.data', 1)
         ->where('schedules.data.0.crew_name', 'Alpha Crew')
-        ->has('schedules.data.0.created_at'));
+        ->has('schedules.data.0.created_at')
+        ->has('schedules.data.0.user.name'));
 });
 
 test('schedules index defaults to newest created first', function () {
