@@ -17,7 +17,7 @@ class PushSubscriptionController extends Controller
             'contentEncoding' => ['nullable', 'string', 'in:aesgcm,aes128gcm'],
         ]);
 
-        $encoding = $validated['contentEncoding'] ?? 'aesgcm';
+        $encoding = $validated['contentEncoding'] ?? 'aes128gcm';
 
         $request->user()->updatePushSubscription(
             $validated['endpoint'],
