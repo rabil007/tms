@@ -21,6 +21,9 @@ type FormatOptions = {
     markdown?: boolean;
 };
 
+const SCHEDULE_SEPARATOR = '\n\n---\n\n';
+const WHATSAPP_URL_CHAR_LIMIT = 1800;
+
 function label(text: string, markdown: boolean): string {
     return markdown ? `*${text}:*` : `${text}:`;
 }
@@ -49,20 +52,65 @@ export function formatScheduleShareMessage(schedule: ScheduleShareData, options:
     return lines.join('\n');
 }
 
-export async function copyScheduleShareMessage(schedule: ScheduleShareData): Promise<void> {
-    await navigator.clipboard.writeText(formatScheduleShareMessage(schedule));
+export function formatSchedulesShareMessage(schedules: ScheduleShareData[], options: FormatOptions = {}): string {
+    if (schedules.length === 0) {
+        return '';
+    }
+
+    if (schedules.length === 1) {
+        return formatScheduleShareMessage(schedules[0], options);
+    }
+
+    return schedules.map((schedule) => formatScheduleShareMessage(schedule, options)).join(SCHEDULE_SEPARATOR);
 }
 
-export function openScheduleWhatsAppShare(schedule: ScheduleShareData): void {
-    const message = formatScheduleShareMessage(schedule, { markdown: true });
+function formatEmailSubject(schedules: ScheduleShareData[]): string {
+    if (schedules.length === 1) {
+        return `Crew Transport Schedule - ${schedules[0].crew_name}`;
+    }
+
+    return `Crew Transport Schedules (${schedules.length})`;
+}
+
+export function isWhatsAppShareTooLong(schedules: ScheduleShareData[]): boolean {
+    const message = formatSchedulesShareMessage(schedules, { markdown: true });
+    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+    return url.length > WHATSAPP_URL_CHAR_LIMIT;
+}
+
+export async function copySchedulesShareMessage(schedules: ScheduleShareData[]): Promise<void> {
+    await navigator.clipboard.writeText(formatSchedulesShareMessage(schedules));
+}
+
+export function openSchedulesWhatsAppShare(schedules: ScheduleShareData[]): boolean {
+    if (isWhatsAppShareTooLong(schedules)) {
+        return false;
+    }
+
+    const message = formatSchedulesShareMessage(schedules, { markdown: true });
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
     window.open(url, '_blank', 'noopener,noreferrer');
+
+    return true;
+}
+
+export function openSchedulesEmailShare(schedules: ScheduleShareData[], to: string): void {
+    const subject = encodeURIComponent(formatEmailSubject(schedules));
+    const body = encodeURIComponent(formatSchedulesShareMessage(schedules));
+
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+}
+
+export async function copyScheduleShareMessage(schedule: ScheduleShareData): Promise<void> {
+    await copySchedulesShareMessage([schedule]);
+}
+
+export function openScheduleWhatsAppShare(schedule: ScheduleShareData): void {
+    openSchedulesWhatsAppShare([schedule]);
 }
 
 export function openScheduleEmailShare(schedule: ScheduleShareData, to: string): void {
-    const subject = encodeURIComponent(`Crew Transport Schedule - ${schedule.crew_name}`);
-    const body = encodeURIComponent(formatScheduleShareMessage(schedule));
-
-    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+    openSchedulesEmailShare([schedule], to);
 }

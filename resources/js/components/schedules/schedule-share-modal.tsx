@@ -13,15 +13,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatScheduleDate } from '@/pages/admin/schedules/schedule-format';
 import {
-    copyScheduleShareMessage,
-    formatScheduleShareMessage,
-    openScheduleEmailShare,
-    openScheduleWhatsAppShare,
+    copySchedulesShareMessage,
+    formatSchedulesShareMessage,
+    openSchedulesEmailShare,
+    openSchedulesWhatsAppShare,
     type ScheduleShareData,
 } from '@/pages/admin/schedules/schedule-share';
 
 type ScheduleShareModalProps = {
-    schedule: ScheduleShareData | null;
+    schedules: ScheduleShareData[];
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
@@ -30,10 +30,28 @@ function isValidEmail(value: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-export function ScheduleShareModal({ schedule, open, onOpenChange }: ScheduleShareModalProps) {
+function shareDescription(schedules: ScheduleShareData[]): string {
+    if (schedules.length === 0) {
+        return 'Choose how you want to share this schedule.';
+    }
+
+    if (schedules.length === 1) {
+        return `${schedules[0].crew_name} · ${formatScheduleDate(schedules[0].scheduled_date)}`;
+    }
+
+    const dates = schedules.map((schedule) => schedule.scheduled_date).sort();
+    const firstDate = formatScheduleDate(dates[0]);
+    const lastDate = formatScheduleDate(dates[dates.length - 1]);
+    const dateSpan = firstDate === lastDate ? firstDate : `${firstDate} – ${lastDate}`;
+
+    return `${schedules.length} schedules · ${dateSpan}`;
+}
+
+export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleShareModalProps) {
     const [emailStep, setEmailStep] = React.useState(false);
     const [recipient, setRecipient] = React.useState('');
-    const preview = schedule ? formatScheduleShareMessage(schedule) : '';
+    const preview = schedules.length > 0 ? formatSchedulesShareMessage(schedules) : '';
+    const isMultiple = schedules.length > 1;
 
     React.useEffect(() => {
         if (!open) {
@@ -43,12 +61,12 @@ export function ScheduleShareModal({ schedule, open, onOpenChange }: ScheduleSha
     }, [open]);
 
     const handleCopy = async () => {
-        if (!schedule) {
+        if (schedules.length === 0) {
             return;
         }
 
         try {
-            await copyScheduleShareMessage(schedule);
+            await copySchedulesShareMessage(schedules);
             toast.success('Copied to clipboard');
         } catch {
             toast.error('Unable to copy to clipboard');
@@ -56,16 +74,23 @@ export function ScheduleShareModal({ schedule, open, onOpenChange }: ScheduleSha
     };
 
     const handleWhatsApp = () => {
-        if (!schedule) {
+        if (schedules.length === 0) {
             return;
         }
 
-        openScheduleWhatsAppShare(schedule);
+        const opened = openSchedulesWhatsAppShare(schedules);
+
+        if (!opened) {
+            toast.error('Message is too long for WhatsApp. Try sharing fewer schedules or use Copy instead.');
+
+            return;
+        }
+
         onOpenChange(false);
     };
 
     const handleSendEmail = () => {
-        if (!schedule) {
+        if (schedules.length === 0) {
             return;
         }
 
@@ -83,7 +108,7 @@ export function ScheduleShareModal({ schedule, open, onOpenChange }: ScheduleSha
             return;
         }
 
-        openScheduleEmailShare(schedule, trimmed);
+        openSchedulesEmailShare(schedules, trimmed);
         onOpenChange(false);
     };
 
@@ -91,12 +116,10 @@ export function ScheduleShareModal({ schedule, open, onOpenChange }: ScheduleSha
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-lg">
                 <DialogHeader className="border-b border-border/40 px-5 py-4 text-left">
-                    <DialogTitle>{emailStep ? 'Send by email' : 'Share schedule'}</DialogTitle>
-                    <DialogDescription>
-                        {schedule
-                            ? `${schedule.crew_name} · ${formatScheduleDate(schedule.scheduled_date)}`
-                            : 'Choose how you want to share this schedule.'}
-                    </DialogDescription>
+                    <DialogTitle>
+                        {emailStep ? 'Send by email' : isMultiple ? `Share ${schedules.length} schedules` : 'Share schedule'}
+                    </DialogTitle>
+                    <DialogDescription>{shareDescription(schedules)}</DialogDescription>
                 </DialogHeader>
 
                 <div className="px-5 py-4">

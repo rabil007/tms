@@ -19,9 +19,9 @@ function Checkbox({
     >
       <CheckboxPrimitive.Indicator
         data-slot="checkbox-indicator"
-        className="flex items-center justify-center text-current transition-none"
+        className="grid place-content-center text-current transition-none"
       >
-        <CheckIcon className="size-3.5" />
+        <CheckIcon className="size-3.5 stroke-3" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   )

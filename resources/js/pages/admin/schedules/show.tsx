@@ -44,7 +44,7 @@ export default function SchedulesShow({ schedule }: { schedule: Schedule }) {
         <ModulePageLayout backHref={ROUTES.index} backLabel="Schedules">
             <Head title={schedule.crew_name} />
 
-            <ScheduleShareModal schedule={schedule} open={shareOpen} onOpenChange={setShareOpen} />
+            <ScheduleShareModal schedules={shareOpen ? [schedule] : []} open={shareOpen} onOpenChange={setShareOpen} />
 
             <div className="mx-auto w-full max-w-3xl">
                 <div className="mb-6">

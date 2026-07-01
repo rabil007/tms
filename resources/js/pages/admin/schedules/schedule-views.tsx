@@ -1,10 +1,11 @@
 import { router } from '@inertiajs/react';
-import type { Table } from '@tanstack/react-table';
+import type { RowSelectionState, Table } from '@tanstack/react-table';
 import { CalendarClock, ChevronRight } from 'lucide-react';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ResourceTable } from '@/components/list/resource-table';
 import { RowActions } from '@/components/list/row-actions';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     formatPickUpTime,
     formatScheduleDate,
@@ -37,6 +38,8 @@ type ScheduleCardsProps = {
     schedules: ScheduleRow[];
     onDelete: (schedule: ScheduleRow) => () => Promise<void>;
     onShare: (schedule: ScheduleRow) => void;
+    rowSelection: RowSelectionState;
+    onToggleSelect: (id: number) => void;
 };
 
 function scheduleRowActionsProps(
@@ -64,13 +67,38 @@ function ScheduleIcon() {
     );
 }
 
-export function ScheduleListCards({ schedules, onDelete, onShare }: ScheduleCardsProps) {
+function ScheduleCardCheckbox({
+    scheduleId,
+    rowSelection,
+    onToggleSelect,
+}: {
+    scheduleId: number;
+    rowSelection: RowSelectionState;
+    onToggleSelect: (id: number) => void;
+}) {
+    return (
+        <div
+            className="absolute top-3 left-3 z-10"
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+        >
+            <Checkbox
+                checked={!!rowSelection[String(scheduleId)]}
+                onCheckedChange={() => onToggleSelect(scheduleId)}
+                aria-label="Select schedule"
+                className="size-5 rounded-md bg-background/80 shadow-sm"
+            />
+        </div>
+    );
+}
+
+export function ScheduleListCards({ schedules, onDelete, onShare, rowSelection, onToggleSelect }: ScheduleCardsProps) {
     return (
         <div className="space-y-3">
             {schedules.map((schedule) => (
                 <GlassCard
                     key={schedule.id}
-                    className="group cursor-pointer p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
+                    className="group relative cursor-pointer p-4 pt-10 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(SCHEDULE_ROUTES.show(schedule.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
@@ -80,6 +108,11 @@ export function ScheduleListCards({ schedules, onDelete, onShare }: ScheduleCard
                     role="button"
                     tabIndex={0}
                 >
+                    <ScheduleCardCheckbox
+                        scheduleId={schedule.id}
+                        rowSelection={rowSelection}
+                        onToggleSelect={onToggleSelect}
+                    />
                     <div className="flex items-center gap-3.5">
                         <ScheduleIcon />
                         <div className="min-w-0 flex-1">
@@ -109,13 +142,13 @@ export function ScheduleListCards({ schedules, onDelete, onShare }: ScheduleCard
     );
 }
 
-export function ScheduleGridCards({ schedules, onDelete, onShare }: ScheduleCardsProps) {
+export function ScheduleGridCards({ schedules, onDelete, onShare, rowSelection, onToggleSelect }: ScheduleCardsProps) {
     return (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {schedules.map((schedule) => (
                 <GlassCard
                     key={schedule.id}
-                    className="group flex cursor-pointer flex-col p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
+                    className="group relative flex cursor-pointer flex-col p-4 pt-10 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
                     onClick={() => router.get(SCHEDULE_ROUTES.show(schedule.id))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
@@ -125,6 +158,11 @@ export function ScheduleGridCards({ schedules, onDelete, onShare }: ScheduleCard
                     role="button"
                     tabIndex={0}
                 >
+                    <ScheduleCardCheckbox
+                        scheduleId={schedule.id}
+                        rowSelection={rowSelection}
+                        onToggleSelect={onToggleSelect}
+                    />
                     <ScheduleIcon />
                     <p className="mt-3 line-clamp-1 font-semibold text-foreground">{schedule.crew_name}</p>
                     <p className="mt-1 text-[13px] text-muted-foreground">

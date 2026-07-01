@@ -15,6 +15,10 @@ export default defineConfig({
             fonts: [
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
+                    preload:
+                        process.env.NODE_ENV === 'production'
+                            ? [{ weight: 400, style: 'normal' }]
+                            : false,
                 }),
             ],
         }),

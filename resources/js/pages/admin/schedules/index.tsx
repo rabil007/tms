@@ -1,11 +1,12 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef, RowSelectionState } from '@tanstack/react-table';
 import { CalendarClock, Plus } from 'lucide-react';
 import React from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
 import { SectionHeader } from '@/components/layout/section-header';
+import { BulkActionBar } from '@/components/list/bulk-action-bar';
 import { EmptyState } from '@/components/list/empty-state';
 import { IndexToolbar } from '@/components/list/index-toolbar';
 import { PaginationBar } from '@/components/list/pagination-bar';
@@ -14,6 +15,11 @@ import { RowsPerPageSelect } from '@/components/list/rows-per-page-select';
 import { SortableHeader } from '@/components/list/sortable-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    ScheduleSelectAllCheckbox,
+    ScheduleSelectRowCheckbox,
+    ScheduleSelectionProvider,
+} from '@/components/schedules/schedule-selection-context';
 import { ScheduleShareModal } from '@/components/schedules/schedule-share-modal';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import { useIndexQueryParams } from '@/hooks/use-index-query-params';
@@ -74,7 +80,8 @@ export default function SchedulesIndex({
 }) {
     const isMobile = useIsMobile();
     const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'schedules:index:view' });
-    const [shareSchedule, setShareSchedule] = React.useState<ScheduleRow | null>(null);
+    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+    const [shareSchedules, setShareSchedules] = React.useState<ScheduleRow[] | null>(null);
 
     const [indexFilters, setIndexFilters] = React.useState({
         projectId: filters.project_id ? String(filters.project_id) : '',
@@ -103,12 +110,78 @@ export default function SchedulesIndex({
         },
     });
 
-    const slOffset = ((schedules?.meta?.current_page ?? schedules?.current_page ?? 1) - 1) * (schedules?.meta?.per_page ?? schedules?.per_page ?? 15);
+    const currentPage = schedules?.meta?.current_page ?? schedules?.current_page ?? 1;
+
+    React.useEffect(() => {
+        setRowSelection({});
+    }, [currentPage, perPage, q, sort, dir, indexFilters.projectId, indexFilters.dateFrom, indexFilters.dateTo]);
+
+    const slOffset = (currentPage - 1) * (schedules?.meta?.per_page ?? schedules?.per_page ?? 15);
     const isTodayFilterActive = indexFilters.dateFrom === todayDate && indexFilters.dateTo === todayDate;
     const isTotalFilterActive = !isTodayFilterActive;
     const hasSearch = q.length > 0;
     const hasActiveFilters = hasSearch || !!indexFilters.projectId || !!indexFilters.dateFrom || !!indexFilters.dateTo;
     const isEmpty = schedules.data.length === 0;
+
+    const toggleSelected = React.useCallback((id: number) => {
+        const key = String(id);
+
+        setRowSelection((current) => {
+            if (current[key]) {
+                const next = { ...current };
+                delete next[key];
+
+                return next;
+            }
+
+            return { ...current, [key]: true };
+        });
+    }, []);
+
+    const setRowSelected = React.useCallback((id: number, selected: boolean) => {
+        const key = String(id);
+
+        setRowSelection((current) => {
+            const next = { ...current };
+
+            if (selected) {
+                next[key] = true;
+            } else {
+                delete next[key];
+            }
+
+            return next;
+        });
+    }, []);
+
+    const setAllOnPageSelected = React.useCallback(
+        (selected: boolean) => {
+            setRowSelection((current) => {
+                const next = { ...current };
+
+                if (selected) {
+                    schedules.data.forEach((schedule) => {
+                        next[String(schedule.id)] = true;
+                    });
+                } else {
+                    schedules.data.forEach((schedule) => {
+                        delete next[String(schedule.id)];
+                    });
+                }
+
+                return next;
+            });
+        },
+        [schedules.data],
+    );
+
+    const clearSelection = React.useCallback(() => {
+        setRowSelection({});
+    }, []);
+
+    const openShare = React.useCallback((items: ScheduleRow[]) => {
+        setShareSchedules(items);
+    }, []);
 
     const { requestConfirm, ConfirmDialog } = useConfirmDialog();
 
@@ -130,8 +203,23 @@ export default function SchedulesIndex({
         [requestConfirm],
     );
 
+    const selectedOnPage = schedules.data.filter((schedule) => rowSelection[String(schedule.id)]);
+    const selectedCount = selectedOnPage.length;
+
+    const scheduleIdsOnPage = React.useMemo(
+        () => schedules.data.map((schedule) => schedule.id),
+        [schedules.data],
+    );
+
     const columns = React.useMemo<ColumnDef<ScheduleRow>[]>(
         () => [
+            {
+                id: 'select',
+                header: () => <ScheduleSelectAllCheckbox />,
+                cell: ({ row }) => (
+                    <ScheduleSelectRowCheckbox id={row.original.id} label={row.original.crew_name} />
+                ),
+            },
             {
                 id: 'slno',
                 header: () => <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">#</span>,
@@ -210,12 +298,19 @@ export default function SchedulesIndex({
                         showUrl={SCHEDULE_ROUTES.show(row.original.id)}
                         editUrl={SCHEDULE_ROUTES.edit(row.original.id)}
                         onDelete={confirmDelete(row.original)}
-                        onShare={() => setShareSchedule(row.original)}
+                        onShare={() => openShare([row.original])}
                     />
                 ),
             },
         ],
-        [slOffset, sort, dir, toggleSort, confirmDelete, setShareSchedule],
+        [
+            slOffset,
+            sort,
+            dir,
+            toggleSort,
+            confirmDelete,
+            openShare,
+        ],
     );
 
     const table = useReactTable({
@@ -227,15 +322,20 @@ export default function SchedulesIndex({
         manualFiltering: true,
     });
 
+    const cardSelectionProps = {
+        rowSelection,
+        onToggleSelect: toggleSelected,
+    };
+
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
             <ConfirmDialog />
             <ScheduleShareModal
-                schedule={shareSchedule}
-                open={shareSchedule !== null}
+                schedules={shareSchedules ?? []}
+                open={shareSchedules !== null}
                 onOpenChange={(open) => {
                     if (!open) {
-                        setShareSchedule(null);
+                        setShareSchedules(null);
                     }
                 }}
             />
@@ -309,6 +409,12 @@ export default function SchedulesIndex({
                 onClear={() => setIndexFilters({ projectId: '', dateFrom: '', dateTo: '' })}
             />
 
+            <BulkActionBar
+                count={selectedCount}
+                onClear={clearSelection}
+                onShare={() => openShare(selectedOnPage)}
+            />
+
             {isEmpty ? (
                 <EmptyState
                     icon={CalendarClock}
@@ -331,12 +437,29 @@ export default function SchedulesIndex({
                 />
             ) : viewMode === 'list' ? (
                 isMobile ? (
-                    <ScheduleListCards schedules={schedules.data} onDelete={confirmDelete} onShare={setShareSchedule} />
+                    <ScheduleListCards
+                        schedules={schedules.data}
+                        onDelete={confirmDelete}
+                        onShare={(schedule) => openShare([schedule])}
+                        {...cardSelectionProps}
+                    />
                 ) : (
-                    <ScheduleTable table={table} />
+                    <ScheduleSelectionProvider
+                        rowSelection={rowSelection}
+                        setRowSelected={setRowSelected}
+                        setAllOnPageSelected={setAllOnPageSelected}
+                        scheduleIdsOnPage={scheduleIdsOnPage}
+                    >
+                        <ScheduleTable table={table} />
+                    </ScheduleSelectionProvider>
                 )
             ) : (
-                <ScheduleGridCards schedules={schedules.data} onDelete={confirmDelete} onShare={setShareSchedule} />
+                <ScheduleGridCards
+                    schedules={schedules.data}
+                    onDelete={confirmDelete}
+                    onShare={(schedule) => openShare([schedule])}
+                    {...cardSelectionProps}
+                />
             )}
 
             {!isEmpty && schedules.links?.length > 0 && (
