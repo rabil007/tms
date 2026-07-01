@@ -25,7 +25,10 @@ type CountryFormProps = {
     title: string;
     description?: string;
     cancelHref: string;
-    onChange: <K extends keyof CountryFormData>(key: K, value: CountryFormData[K]) => void;
+    onChange: <K extends keyof CountryFormData>(
+        key: K,
+        value: CountryFormData[K],
+    ) => void;
     onSubmit: (e: React.FormEvent) => void;
 };
 
@@ -44,9 +47,13 @@ export function CountryForm({
         <form onSubmit={onSubmit} className="mx-auto w-full max-w-2xl">
             {/* Page title */}
             <div className="mb-6">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                    {title}
+                </h2>
                 {description && (
-                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{description}</p>
+                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                        {description}
+                    </p>
                 )}
             </div>
 
@@ -81,8 +88,16 @@ export function CountryForm({
                             <Input
                                 id="iso2"
                                 value={data.iso2}
-                                onChange={(e) => onChange('iso2', e.target.value.toUpperCase())}
-                                className={cn(formInputClassName(!!errors.iso2), 'font-mono uppercase tracking-widest')}
+                                onChange={(e) =>
+                                    onChange(
+                                        'iso2',
+                                        e.target.value.toUpperCase(),
+                                    )
+                                }
+                                className={cn(
+                                    formInputClassName(!!errors.iso2),
+                                    'font-mono tracking-widest uppercase',
+                                )}
                                 placeholder="US"
                                 maxLength={2}
                                 autoComplete="off"
@@ -101,8 +116,13 @@ export function CountryForm({
                             <Input
                                 id="dial_code"
                                 value={data.dial_code}
-                                onChange={(e) => onChange('dial_code', e.target.value)}
-                                className={cn(formInputClassName(!!errors.dial_code), 'font-mono tracking-wide')}
+                                onChange={(e) =>
+                                    onChange('dial_code', e.target.value)
+                                }
+                                className={cn(
+                                    formInputClassName(!!errors.dial_code),
+                                    'font-mono tracking-wide',
+                                )}
                                 placeholder="+1"
                                 inputMode="tel"
                                 autoComplete="tel-country-code"
@@ -113,7 +133,9 @@ export function CountryForm({
                 </div>
 
                 <FormActions cancelHref={cancelHref} className="mt-8">
-                    <FormSubmitButton processing={processing}>{submitLabel}</FormSubmitButton>
+                    <FormSubmitButton processing={processing}>
+                        {submitLabel}
+                    </FormSubmitButton>
                 </FormActions>
             </FormCard>
         </form>

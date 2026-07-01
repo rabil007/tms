@@ -48,7 +48,10 @@ function RoleSlugBadge({ slug }: { slug: string }) {
     const isSystem = slug === 'admin' || slug === 'user';
 
     return (
-        <Badge variant={isSystem ? 'default' : 'secondary'} className="font-mono text-[11px]">
+        <Badge
+            variant={isSystem ? 'default' : 'secondary'}
+            className="font-mono text-[11px]"
+        >
             {slug}
         </Badge>
     );
@@ -60,10 +63,14 @@ export function RoleListCards({ roles, onDelete }: RoleCardsProps) {
             {roles.map((role) => (
                 <GlassCard
                     key={role.id}
-                    className="group cursor-pointer p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
+                    className="group cursor-pointer p-4 transition-all hover:border-primary/25 hover:bg-card/60 active:scale-[0.99]"
                     onClick={() => router.get(ROLE_ROUTES.show(role.id))}
-                    onMouseEnter={() => router.prefetch(ROLE_ROUTES.show(role.id))}
-                    onTouchStart={() => router.prefetch(ROLE_ROUTES.show(role.id))}
+                    onMouseEnter={() =>
+                        router.prefetch(ROLE_ROUTES.show(role.id))
+                    }
+                    onTouchStart={() =>
+                        router.prefetch(ROLE_ROUTES.show(role.id))
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(ROLE_ROUTES.show(role.id));
@@ -75,7 +82,9 @@ export function RoleListCards({ roles, onDelete }: RoleCardsProps) {
                     <div className="flex items-center gap-3.5">
                         <RoleIcon name={role.name} />
                         <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold text-foreground">{role.name}</p>
+                            <p className="truncate font-semibold text-foreground">
+                                {role.name}
+                            </p>
                             <div className="mt-1">
                                 <RoleSlugBadge slug={role.slug} />
                             </div>
@@ -104,10 +113,14 @@ export function RoleGridCards({ roles, onDelete }: RoleCardsProps) {
             {roles.map((role) => (
                 <GlassCard
                     key={role.id}
-                    className="group flex cursor-pointer flex-col p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
+                    className="group flex cursor-pointer flex-col p-4 transition-all hover:border-primary/25 hover:bg-card/60 active:scale-[0.99]"
                     onClick={() => router.get(ROLE_ROUTES.show(role.id))}
-                    onMouseEnter={() => router.prefetch(ROLE_ROUTES.show(role.id))}
-                    onTouchStart={() => router.prefetch(ROLE_ROUTES.show(role.id))}
+                    onMouseEnter={() =>
+                        router.prefetch(ROLE_ROUTES.show(role.id))
+                    }
+                    onTouchStart={() =>
+                        router.prefetch(ROLE_ROUTES.show(role.id))
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(ROLE_ROUTES.show(role.id));
@@ -117,7 +130,9 @@ export function RoleGridCards({ roles, onDelete }: RoleCardsProps) {
                     tabIndex={0}
                 >
                     <RoleIcon name={role.name} />
-                    <p className="mt-3 line-clamp-2 font-semibold text-foreground">{role.name}</p>
+                    <p className="mt-3 line-clamp-2 font-semibold text-foreground">
+                        {role.name}
+                    </p>
                     <div className="mt-2">
                         <RoleSlugBadge slug={role.slug} />
                     </div>

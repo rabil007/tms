@@ -24,7 +24,9 @@ export function formatScheduleDate(value: string): string {
         return '—';
     }
 
-    const date = value.includes('T') ? new Date(value) : new Date(`${value}T00:00:00`);
+    const date = value.includes('T')
+        ? new Date(value)
+        : new Date(`${value}T00:00:00`);
 
     if (Number.isNaN(date.getTime())) {
         return value;
@@ -46,7 +48,12 @@ function parsePickUpTime(value: string): Date | null {
 
     if (timeMatch) {
         const date = new Date();
-        date.setHours(Number(timeMatch[1]), Number(timeMatch[2]), Number(timeMatch[3] ?? 0), 0);
+        date.setHours(
+            Number(timeMatch[1]),
+            Number(timeMatch[2]),
+            Number(timeMatch[3] ?? 0),
+            0,
+        );
 
         return date;
     }

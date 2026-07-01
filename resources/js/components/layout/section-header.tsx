@@ -21,7 +21,12 @@ export function SectionHeader({
     className,
 }: SectionHeaderProps) {
     return (
-        <div className={cn('flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
+        <div
+            className={cn(
+                'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
+                className,
+            )}
+        >
             <div className="flex items-center gap-3">
                 {Icon && (
                     <div
@@ -30,18 +35,29 @@ export function SectionHeader({
                             iconWrapperClassName,
                         )}
                     >
-                        <Icon className={cn('size-6 text-primary', iconClassName)} />
+                        <Icon
+                            className={cn('size-6 text-primary', iconClassName)}
+                        />
                     </div>
                 )}
 
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-foreground">{title}</h2>
-                    {subtitle && <p className="text-muted-foreground text-sm">{subtitle}</p>}
+                    <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                        {title}
+                    </h2>
+                    {subtitle && (
+                        <p className="text-sm text-muted-foreground">
+                            {subtitle}
+                        </p>
+                    )}
                 </div>
             </div>
 
-            {right && <div className="w-full shrink-0 sm:w-auto sm:self-center">{right}</div>}
+            {right && (
+                <div className="w-full shrink-0 sm:w-auto sm:self-center">
+                    {right}
+                </div>
+            )}
         </div>
     );
 }
-

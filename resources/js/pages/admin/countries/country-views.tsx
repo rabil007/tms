@@ -14,7 +14,12 @@ export const COUNTRY_ROUTES = {
     destroy: (id: number) => `/countries/${id}`,
 } as const;
 
-export type CountryRow = { id: number; name: string; iso2: string; dial_code: string };
+export type CountryRow = {
+    id: number;
+    name: string;
+    iso2: string;
+    dial_code: string;
+};
 
 type CountryTableProps = {
     table: Table<CountryRow>;
@@ -24,7 +29,9 @@ export function CountryTable({ table }: CountryTableProps) {
     return (
         <ResourceTable
             table={table}
-            onRowClick={(country) => router.get(COUNTRY_ROUTES.show(country.id))}
+            onRowClick={(country) =>
+                router.get(COUNTRY_ROUTES.show(country.id))
+            }
         />
     );
 }
@@ -40,10 +47,14 @@ export function CountryListCards({ countries, onDelete }: CountryCardsProps) {
             {countries.map((country) => (
                 <GlassCard
                     key={country.id}
-                    className="group cursor-pointer p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
+                    className="group cursor-pointer p-4 transition-all hover:border-primary/25 hover:bg-card/60 active:scale-[0.99]"
                     onClick={() => router.get(COUNTRY_ROUTES.show(country.id))}
-                    onMouseEnter={() => router.prefetch(COUNTRY_ROUTES.show(country.id))}
-                    onTouchStart={() => router.prefetch(COUNTRY_ROUTES.show(country.id))}
+                    onMouseEnter={() =>
+                        router.prefetch(COUNTRY_ROUTES.show(country.id))
+                    }
+                    onTouchStart={() =>
+                        router.prefetch(COUNTRY_ROUTES.show(country.id))
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(COUNTRY_ROUTES.show(country.id));
@@ -57,12 +68,20 @@ export function CountryListCards({ countries, onDelete }: CountryCardsProps) {
                             {country.iso2}
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold text-foreground">{country.name}</p>
+                            <p className="truncate font-semibold text-foreground">
+                                {country.name}
+                            </p>
                             <div className="mt-2 flex flex-wrap gap-1.5">
-                                <Badge variant="secondary" className="rounded-md font-mono text-[11px]">
+                                <Badge
+                                    variant="secondary"
+                                    className="rounded-md font-mono text-[11px]"
+                                >
                                     {country.iso2}
                                 </Badge>
-                                <Badge variant="outline" className="rounded-md font-mono text-[11px]">
+                                <Badge
+                                    variant="outline"
+                                    className="rounded-md font-mono text-[11px]"
+                                >
                                     {country.dial_code}
                                 </Badge>
                             </div>
@@ -91,10 +110,14 @@ export function CountryGridCards({ countries, onDelete }: CountryCardsProps) {
             {countries.map((country) => (
                 <GlassCard
                     key={country.id}
-                    className="group flex cursor-pointer flex-col p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
+                    className="group flex cursor-pointer flex-col p-4 transition-all hover:border-primary/25 hover:bg-card/60 active:scale-[0.99]"
                     onClick={() => router.get(COUNTRY_ROUTES.show(country.id))}
-                    onMouseEnter={() => router.prefetch(COUNTRY_ROUTES.show(country.id))}
-                    onTouchStart={() => router.prefetch(COUNTRY_ROUTES.show(country.id))}
+                    onMouseEnter={() =>
+                        router.prefetch(COUNTRY_ROUTES.show(country.id))
+                    }
+                    onTouchStart={() =>
+                        router.prefetch(COUNTRY_ROUTES.show(country.id))
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(COUNTRY_ROUTES.show(country.id));
@@ -106,12 +129,20 @@ export function CountryGridCards({ countries, onDelete }: CountryCardsProps) {
                     <div className="flex size-12 items-center justify-center rounded-2xl bg-linear-to-br from-blue-500/15 to-indigo-600/15 text-sm font-bold text-primary ring-1 ring-white/10">
                         {country.iso2}
                     </div>
-                    <p className="mt-3 line-clamp-2 font-semibold text-foreground">{country.name}</p>
+                    <p className="mt-3 line-clamp-2 font-semibold text-foreground">
+                        {country.name}
+                    </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                        <Badge variant="secondary" className="rounded-md font-mono text-[11px]">
+                        <Badge
+                            variant="secondary"
+                            className="rounded-md font-mono text-[11px]"
+                        >
                             {country.iso2}
                         </Badge>
-                        <Badge variant="outline" className="rounded-md font-mono text-[11px]">
+                        <Badge
+                            variant="outline"
+                            className="rounded-md font-mono text-[11px]"
+                        >
                             {country.dial_code}
                         </Badge>
                     </div>

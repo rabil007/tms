@@ -1,6 +1,10 @@
 import React from 'react';
 
-export type PaginationLink = { url: string | null; label: string; active: boolean };
+export type PaginationLink = {
+    url: string | null;
+    label: string;
+    active: boolean;
+};
 
 export type PaginationBarProps = {
     links: PaginationLink[];
@@ -9,16 +13,20 @@ export type PaginationBarProps = {
 };
 
 function isPrevNextLink(label: string): boolean {
-    const text = label.replace(/<[^>]*>/g, '').trim().toLowerCase();
+    const text = label
+        .replace(/<[^>]*>/g, '')
+        .trim()
+        .toLowerCase();
 
-    return text.includes('previous') || text.includes('next') || text.includes('«') || text.includes('»');
+    return (
+        text.includes('previous') ||
+        text.includes('next') ||
+        text.includes('«') ||
+        text.includes('»')
+    );
 }
 
-export function PaginationBar({
-    links,
-    onVisit,
-    left,
-}: PaginationBarProps) {
+export function PaginationBar({ links, onVisit, left }: PaginationBarProps) {
     const navLinks = links.filter((l) => isPrevNextLink(l.label));
 
     return (
@@ -33,11 +41,11 @@ export function PaginationBar({
                             disabled={!l.url || l.active}
                             onClick={() => l.url && onVisit(l.url)}
                             className={[
-                                'h-11 min-w-11 px-4 rounded-xl border text-[13px] font-semibold transition-colors touch-manipulation',
+                                'h-11 min-w-11 touch-manipulation rounded-xl border px-4 text-[13px] font-semibold transition-colors',
                                 l.active
                                     ? 'border-primary bg-primary text-primary-foreground'
-                                    : 'border-border/60 bg-muted/40 text-muted-foreground active:bg-muted hover:text-foreground hover:border-border',
-                                !l.url ? 'opacity-50 cursor-not-allowed' : '',
+                                    : 'border-border/60 bg-muted/40 text-muted-foreground hover:border-border hover:text-foreground active:bg-muted',
+                                !l.url ? 'cursor-not-allowed opacity-50' : '',
                             ].join(' ')}
                             dangerouslySetInnerHTML={{ __html: l.label }}
                         />
@@ -51,11 +59,11 @@ export function PaginationBar({
                             disabled={!l.url || l.active}
                             onClick={() => l.url && onVisit(l.url)}
                             className={[
-                                'h-11 min-w-11 px-4 rounded-xl border text-[13px] font-semibold transition-colors',
+                                'h-11 min-w-11 rounded-xl border px-4 text-[13px] font-semibold transition-colors',
                                 l.active
                                     ? 'border-primary bg-primary text-primary-foreground'
-                                    : 'border-border/60 bg-muted/40 text-muted-foreground hover:text-foreground hover:border-border',
-                                !l.url ? 'opacity-50 cursor-not-allowed' : '',
+                                    : 'border-border/60 bg-muted/40 text-muted-foreground hover:border-border hover:text-foreground',
+                                !l.url ? 'cursor-not-allowed opacity-50' : '',
                             ].join(' ')}
                             dangerouslySetInnerHTML={{ __html: l.label }}
                         />

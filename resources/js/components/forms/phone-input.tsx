@@ -24,8 +24,12 @@ export function parsePhoneNumber(
     full: string,
     countries: CountryPhoneOption[],
 ): { countryId: string; phone: string } {
-    const normalized = full.startsWith('+') ? full : `+${full.replace(/^\+/, '')}`;
-    const sorted = [...countries].sort((a, b) => b.dial_code.length - a.dial_code.length);
+    const normalized = full.startsWith('+')
+        ? full
+        : `+${full.replace(/^\+/, '')}`;
+    const sorted = [...countries].sort(
+        (a, b) => b.dial_code.length - a.dial_code.length,
+    );
 
     for (const country of sorted) {
         if (normalized.startsWith(country.dial_code)) {
@@ -59,11 +63,14 @@ export function PhoneInput({
     const [query, setQuery] = useState('');
     const ref = useRef<HTMLDivElement>(null);
 
-    const selected = countries.find((country) => String(country.id) === countryId);
+    const selected = countries.find(
+        (country) => String(country.id) === countryId,
+    );
     const hasError = !!(countryError || phoneError);
 
     const filtered = countries.filter((country) => {
-        const haystack = `${country.name} ${country.iso2} ${country.dial_code}`.toLowerCase();
+        const haystack =
+            `${country.name} ${country.iso2} ${country.dial_code}`.toLowerCase();
 
         return haystack.includes(query.toLowerCase());
     });
@@ -87,7 +94,8 @@ export function PhoneInput({
                 className={cn(
                     'flex h-12 w-full items-stretch overflow-hidden rounded-xl border border-border/60 bg-muted/40 shadow-xs transition-all',
                     'focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/20',
-                    hasError && 'border-destructive/60 focus-within:border-destructive/60 focus-within:ring-destructive/20',
+                    hasError &&
+                        'border-destructive/60 focus-within:border-destructive/60 focus-within:ring-destructive/20',
                 )}
             >
                 <button
@@ -96,8 +104,15 @@ export function PhoneInput({
                     className="flex shrink-0 items-center gap-1.5 border-r border-border/50 px-3 text-[13px] font-semibold text-foreground transition-colors hover:bg-muted/60"
                     aria-label="Select country code"
                 >
-                    <span className="font-mono tracking-wide">{selected?.dial_code ?? '+--'}</span>
-                    <ChevronDown className={cn('size-3.5 text-muted-foreground transition-transform', open && 'rotate-180')} />
+                    <span className="font-mono tracking-wide">
+                        {selected?.dial_code ?? '+--'}
+                    </span>
+                    <ChevronDown
+                        className={cn(
+                            'size-3.5 text-muted-foreground transition-transform',
+                            open && 'rotate-180',
+                        )}
+                    />
                 </button>
 
                 <input
@@ -106,7 +121,9 @@ export function PhoneInput({
                     type="tel"
                     inputMode="numeric"
                     value={phone}
-                    onChange={(event) => onPhoneChange(event.target.value.replace(/\D/g, ''))}
+                    onChange={(event) =>
+                        onPhoneChange(event.target.value.replace(/\D/g, ''))
+                    }
                     className="min-w-0 flex-1 bg-transparent px-4 font-mono text-base tracking-wide text-foreground outline-none placeholder:text-muted-foreground sm:text-[14px]"
                     placeholder="501234567"
                     autoComplete="tel-national"
@@ -141,7 +158,9 @@ export function PhoneInput({
                                     }}
                                     className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm transition-colors hover:bg-accent"
                                 >
-                                    <span className="truncate text-foreground">{country.name}</span>
+                                    <span className="truncate text-foreground">
+                                        {country.name}
+                                    </span>
                                     <span className="flex shrink-0 items-center gap-2">
                                         <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
                                             {country.iso2}
@@ -156,7 +175,9 @@ export function PhoneInput({
                                 </button>
                             ))
                         ) : (
-                            <div className="px-3 py-6 text-center text-sm text-muted-foreground">No countries found</div>
+                            <div className="px-3 py-6 text-center text-sm text-muted-foreground">
+                                No countries found
+                            </div>
                         )}
                     </div>
                 </div>

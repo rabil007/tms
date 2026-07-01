@@ -76,10 +76,14 @@ export function UserListCards({ users, onDelete }: UserCardsProps) {
             {users.map((user) => (
                 <GlassCard
                     key={user.id}
-                    className="group cursor-pointer p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
+                    className="group cursor-pointer p-4 transition-all hover:border-primary/25 hover:bg-card/60 active:scale-[0.99]"
                     onClick={() => router.get(USER_ROUTES.show(user.id))}
-                    onMouseEnter={() => router.prefetch(USER_ROUTES.show(user.id))}
-                    onTouchStart={() => router.prefetch(USER_ROUTES.show(user.id))}
+                    onMouseEnter={() =>
+                        router.prefetch(USER_ROUTES.show(user.id))
+                    }
+                    onTouchStart={() =>
+                        router.prefetch(USER_ROUTES.show(user.id))
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(USER_ROUTES.show(user.id));
@@ -91,8 +95,12 @@ export function UserListCards({ users, onDelete }: UserCardsProps) {
                     <div className="flex items-center gap-3.5">
                         <UserAvatar name={user.name} />
                         <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold text-foreground">{user.name}</p>
-                            <p className="truncate text-[13px] text-muted-foreground">{user.email}</p>
+                            <p className="truncate font-semibold text-foreground">
+                                {user.name}
+                            </p>
+                            <p className="truncate text-[13px] text-muted-foreground">
+                                {user.email}
+                            </p>
                             <div className="mt-1.5">
                                 <UserRoleBadge role={user.role} />
                             </div>
@@ -121,10 +129,14 @@ export function UserGridCards({ users, onDelete }: UserCardsProps) {
             {users.map((user) => (
                 <GlassCard
                     key={user.id}
-                    className="group flex cursor-pointer flex-col p-4 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
+                    className="group flex cursor-pointer flex-col p-4 transition-all hover:border-primary/25 hover:bg-card/60 active:scale-[0.99]"
                     onClick={() => router.get(USER_ROUTES.show(user.id))}
-                    onMouseEnter={() => router.prefetch(USER_ROUTES.show(user.id))}
-                    onTouchStart={() => router.prefetch(USER_ROUTES.show(user.id))}
+                    onMouseEnter={() =>
+                        router.prefetch(USER_ROUTES.show(user.id))
+                    }
+                    onTouchStart={() =>
+                        router.prefetch(USER_ROUTES.show(user.id))
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(USER_ROUTES.show(user.id));
@@ -134,8 +146,12 @@ export function UserGridCards({ users, onDelete }: UserCardsProps) {
                     tabIndex={0}
                 >
                     <UserAvatar name={user.name} />
-                    <p className="mt-3 line-clamp-2 font-semibold text-foreground">{user.name}</p>
-                    <p className="mt-1 truncate text-[12px] text-muted-foreground">{user.email}</p>
+                    <p className="mt-3 line-clamp-2 font-semibold text-foreground">
+                        {user.name}
+                    </p>
+                    <p className="mt-1 truncate text-[12px] text-muted-foreground">
+                        {user.email}
+                    </p>
                     <div className="mt-2">
                         <UserRoleBadge role={user.role} />
                     </div>

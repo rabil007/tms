@@ -1,8 +1,16 @@
 import { Head, usePage } from '@inertiajs/react';
-import { CalendarClock, FolderKanban, Globe, LayoutDashboard, Settings, Shield, Users } from 'lucide-react';
+import {
+    CalendarClock,
+    FolderKanban,
+    Globe,
+    LayoutDashboard,
+    Settings,
+    Shield,
+    Users,
+} from 'lucide-react';
 import { AppOnboardingTips } from '@/components/app-onboarding-tips';
-import { DashboardGrid  } from '@/components/dashboard-grid';
-import type {DashboardModule} from '@/components/dashboard-grid';
+import { DashboardGrid } from '@/components/dashboard-grid';
+import type { DashboardModule } from '@/components/dashboard-grid';
 import type { Auth } from '@/types';
 
 type PageProps = {
@@ -78,10 +86,10 @@ export default function Dashboard() {
                 <div className="w-full max-w-5xl">
                     <AppOnboardingTips />
                     <DashboardGrid
-                    modules={modules}
-                    iconSize="lg"
-                    storageKey={storageKey}
-                />
+                        modules={modules}
+                        iconSize="lg"
+                        storageKey={storageKey}
+                    />
                 </div>
             </div>
         </>

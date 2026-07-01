@@ -7,19 +7,21 @@ const PUSH_ROUTES = {
     destroy: '/push-subscriptions',
 } as const;
 
-export type PushSupportStatus = 'supported' | 'requires_https' | 'requires_pwa' | 'unsupported';
+export type PushSupportStatus =
+    'supported' | 'requires_https' | 'requires_pwa' | 'unsupported';
 
 function isIosDevice(): boolean {
     return (
-        /iPad|iPhone|iPod/.test(navigator.userAgent)
-        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
     );
 }
 
 function isStandalonePwa(): boolean {
     return (
-        window.matchMedia('(display-mode: standalone)').matches
-        || (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as Navigator & { standalone?: boolean })
+            .standalone === true
     );
 }
 
@@ -36,7 +38,11 @@ export function getPushSupportStatus(): PushSupportStatus {
         return 'requires_pwa';
     }
 
-    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+    if (
+        !('serviceWorker' in navigator) ||
+        !('PushManager' in window) ||
+        !('Notification' in window)
+    ) {
         return 'unsupported';
     }
 
@@ -44,13 +50,15 @@ export function getPushSupportStatus(): PushSupportStatus {
 }
 
 function resolvePushError(caught: unknown): string {
-    const message = (caught instanceof Error ? caught.message : String(caught)).toLowerCase();
+    const message = (
+        caught instanceof Error ? caught.message : String(caught)
+    ).toLowerCase();
 
     if (
-        message.includes('ssl')
-        || message.includes('certificate')
-        || message.includes('securityerror')
-        || message.includes('failed to register')
+        message.includes('ssl') ||
+        message.includes('certificate') ||
+        message.includes('securityerror') ||
+        message.includes('failed to register')
     ) {
         return 'Push requires a trusted HTTPS certificate. Run `herd secure tms`, trust the Herd root CA in macOS Keychain Access, then reload this page.';
     }
@@ -60,7 +68,9 @@ function resolvePushError(caught: unknown): string {
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
     const rawData = window.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
 
@@ -104,7 +114,8 @@ export function usePushNotifications(
             try {
                 const registration = await getServiceWorkerRegistration();
                 await navigator.serviceWorker.ready;
-                const subscription = await registration.pushManager.getSubscription();
+                const subscription =
+                    await registration.pushManager.getSubscription();
 
                 if (!cancelled) {
                     setEnabled(subscription !== null);
@@ -139,7 +150,9 @@ export function usePushNotifications(
         const resolvedStatus = status ?? getPushSupportStatus();
 
         if (resolvedStatus === 'requires_https') {
-            setError('Open this site over HTTPS to enable browser notifications.');
+            setError(
+                'Open this site over HTTPS to enable browser notifications.',
+            );
 
             return false;
         }
@@ -167,7 +180,9 @@ export function usePushNotifications(
 
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as BufferSource,
+                applicationServerKey: urlBase64ToUint8Array(
+                    vapidPublicKey,
+                ) as BufferSource,
             });
 
             const json = subscription.toJSON();
@@ -186,7 +201,10 @@ export function usePushNotifications(
                     {
                         preserveScroll: true,
                         onSuccess: () => resolve(),
-                        onError: () => reject(new Error('Failed to save push subscription.')),
+                        onError: () =>
+                            reject(
+                                new Error('Failed to save push subscription.'),
+                            ),
                     },
                 );
             });
@@ -215,7 +233,8 @@ export function usePushNotifications(
         setError(null);
 
         try {
-            const registration = await navigator.serviceWorker.getRegistration('/');
+            const registration =
+                await navigator.serviceWorker.getRegistration('/');
 
             if (!registration) {
                 setEnabled(false);
@@ -223,21 +242,24 @@ export function usePushNotifications(
                 return true;
             }
 
-            const subscription = await registration.pushManager.getSubscription();
+            const subscription =
+                await registration.pushManager.getSubscription();
 
             if (subscription) {
                 const endpoint = subscription.endpoint;
 
                 await new Promise<void>((resolve, reject) => {
-                    router.delete(
-                        PUSH_ROUTES.destroy,
-                        {
-                            data: { endpoint },
-                            preserveScroll: true,
-                            onSuccess: () => resolve(),
-                            onError: () => reject(new Error('Failed to remove push subscription.')),
-                        },
-                    );
+                    router.delete(PUSH_ROUTES.destroy, {
+                        data: { endpoint },
+                        preserveScroll: true,
+                        onSuccess: () => resolve(),
+                        onError: () =>
+                            reject(
+                                new Error(
+                                    'Failed to remove push subscription.',
+                                ),
+                            ),
+                    });
                 });
 
                 await subscription.unsubscribe();

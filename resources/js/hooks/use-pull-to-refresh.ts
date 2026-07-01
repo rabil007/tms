@@ -10,7 +10,10 @@ type UsePullToRefreshOptions = {
     enabled?: boolean;
 };
 
-export function usePullToRefresh({ only, enabled = true }: UsePullToRefreshOptions) {
+export function usePullToRefresh({
+    only,
+    enabled = true,
+}: UsePullToRefreshOptions) {
     const isMobile = useIsMobile();
     const [pullDistance, setPullDistance] = React.useState(0);
     const [refreshing, setRefreshing] = React.useState(false);
@@ -40,7 +43,10 @@ export function usePullToRefresh({ only, enabled = true }: UsePullToRefreshOptio
             }
 
             const currentY = event.touches[0]?.clientY ?? startYRef.current;
-            const distance = Math.max(0, Math.min(PULL_THRESHOLD * 1.5, currentY - startYRef.current));
+            const distance = Math.max(
+                0,
+                Math.min(PULL_THRESHOLD * 1.5, currentY - startYRef.current),
+            );
 
             if (distance > 0 && window.scrollY === 0) {
                 setPullDistance(distance);

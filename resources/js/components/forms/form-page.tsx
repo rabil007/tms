@@ -9,9 +9,10 @@ import { cn } from '@/lib/utils';
 
 export function formInputClassName(hasError = false) {
     return cn(
-        'h-12 w-full rounded-xl border-border/60 bg-muted/40 text-base px-4 transition-all [color-scheme:light] dark:[color-scheme:dark] sm:text-[14px]',
+        'h-12 w-full rounded-xl border-border/60 bg-muted/40 px-4 text-base [color-scheme:light] transition-all sm:text-[14px] dark:[color-scheme:dark]',
         'focus:border-primary/60 focus:ring-2 focus:ring-primary/20',
-        hasError && 'border-destructive/60 focus:border-destructive/60 focus:ring-destructive/20',
+        hasError &&
+            'border-destructive/60 focus:border-destructive/60 focus:ring-destructive/20',
     );
 }
 
@@ -28,9 +29,13 @@ export function FormPageHeader({
 }) {
     return (
         <div className="mb-5 sm:mb-6">
-            <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">{title}</h2>
+            <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                {title}
+            </h2>
             {description && (
-                <p className="mt-1.5 max-w-2xl text-[14px] leading-relaxed text-muted-foreground">{description}</p>
+                <p className="mt-1.5 max-w-2xl text-[14px] leading-relaxed text-muted-foreground">
+                    {description}
+                </p>
             )}
         </div>
     );
@@ -43,7 +48,11 @@ export function FormPage({
     children: React.ReactNode;
     className?: string;
 }) {
-    return <div className={cn('mx-auto w-full max-w-xl', className)}>{children}</div>;
+    return (
+        <div className={cn('mx-auto w-full max-w-xl', className)}>
+            {children}
+        </div>
+    );
 }
 
 export function FormCard({
@@ -82,7 +91,9 @@ export function FormField({
             </Label>
             {children}
             {hint && !error ? (
-                <p className="text-[12px] leading-relaxed text-muted-foreground">{hint}</p>
+                <p className="text-[12px] leading-relaxed text-muted-foreground">
+                    {hint}
+                </p>
             ) : null}
             <InputError message={error} />
         </div>

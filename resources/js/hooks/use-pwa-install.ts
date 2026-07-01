@@ -1,5 +1,9 @@
 import React from 'react';
-import { isIosDevice, isStandalonePwa, PWA_INSTALL_DISMISSED_KEY } from '@/lib/pwa';
+import {
+    isIosDevice,
+    isStandalonePwa,
+    PWA_INSTALL_DISMISSED_KEY,
+} from '@/lib/pwa';
 
 type BeforeInstallPromptEvent = Event & {
     prompt: () => Promise<void>;
@@ -19,7 +23,10 @@ function readDismissed(): boolean {
     return localStorage.getItem(PWA_INSTALL_DISMISSED_KEY) === '1';
 }
 
-function getInitialPwaInstall(): { platform: PwaInstallPlatform; canInstall: boolean } {
+function getInitialPwaInstall(): {
+    platform: PwaInstallPlatform;
+    canInstall: boolean;
+} {
     if (typeof window === 'undefined' || isStandalonePwa() || readDismissed()) {
         return { platform: null, canInstall: false };
     }
@@ -38,7 +45,9 @@ export function usePwaInstall(): UsePwaInstallReturn {
     const [canInstall, setCanInstall] = React.useState(
         () => getInitialPwaInstall().canInstall,
     );
-    const deferredPromptRef = React.useRef<BeforeInstallPromptEvent | null>(null);
+    const deferredPromptRef = React.useRef<BeforeInstallPromptEvent | null>(
+        null,
+    );
 
     React.useEffect(() => {
         if (isStandalonePwa() || readDismissed() || isIosDevice()) {
@@ -52,10 +61,16 @@ export function usePwaInstall(): UsePwaInstallReturn {
             setCanInstall(true);
         };
 
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.addEventListener(
+            'beforeinstallprompt',
+            handleBeforeInstallPrompt,
+        );
 
         return () => {
-            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            window.removeEventListener(
+                'beforeinstallprompt',
+                handleBeforeInstallPrompt,
+            );
         };
     }, []);
 

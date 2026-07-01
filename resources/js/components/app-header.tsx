@@ -57,7 +57,9 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                             <DropdownMenuContent
                                 className="w-56"
                                 align="end"
-                                onCloseAutoFocus={(event) => event.preventDefault()}
+                                onCloseAutoFocus={(event) =>
+                                    event.preventDefault()
+                                }
                             >
                                 {auth.user && (
                                     <UserMenuContent user={auth.user} />

@@ -49,7 +49,8 @@ export function AppOnboardingTips() {
             key: 'install',
             icon: Smartphone,
             title: 'Install on your home screen',
-            description: 'Open in full screen like a native app for faster access.',
+            description:
+                'Open in full screen like a native app for faster access.',
         });
     }
 
@@ -58,7 +59,8 @@ export function AppOnboardingTips() {
             key: 'push',
             icon: BellRing,
             title: 'Enable push notifications',
-            description: 'Get schedule alerts even when the app is in the background.',
+            description:
+                'Get schedule alerts even when the app is in the background.',
             href: '/settings/notifications',
         });
     }
@@ -81,15 +83,26 @@ export function AppOnboardingTips() {
     return (
         <div className="mb-6 space-y-3">
             {tips.map((tip) => (
-                <GlassCard key={tip.key} level="inner" className="flex items-start gap-3 px-4 py-3.5">
+                <GlassCard
+                    key={tip.key}
+                    level="inner"
+                    className="flex items-start gap-3 px-4 py-3.5"
+                >
                     <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                         <tip.icon className="size-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-foreground">{tip.title}</p>
-                        <p className="mt-0.5 text-[13px] leading-snug text-muted-foreground">{tip.description}</p>
+                        <p className="text-sm font-semibold text-foreground">
+                            {tip.title}
+                        </p>
+                        <p className="mt-0.5 text-[13px] leading-snug text-muted-foreground">
+                            {tip.description}
+                        </p>
                         {tip.href && (
-                            <Link href={tip.href} className="mt-2 inline-flex text-[13px] font-medium text-primary hover:underline">
+                            <Link
+                                href={tip.href}
+                                className="mt-2 inline-flex text-[13px] font-medium text-primary hover:underline"
+                            >
                                 Open notification settings
                             </Link>
                         )}

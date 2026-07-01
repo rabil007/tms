@@ -23,15 +23,19 @@ import {
     COUNTRY_ROUTES,
     CountryGridCards,
     CountryListCards,
-    CountryTable
-    
+    CountryTable,
 } from '@/pages/admin/countries/country-views';
-import type {CountryRow} from '@/pages/admin/countries/country-views';
+import type { CountryRow } from '@/pages/admin/countries/country-views';
 
 type Paged<T> = {
     data: T[];
     links: { url: string | null; label: string; active: boolean }[];
-    meta: { current_page: number; last_page: number; per_page: number; total: number };
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 };
 
 export default function CountriesIndex({
@@ -39,20 +43,30 @@ export default function CountriesIndex({
     filters,
 }: {
     countries: Paged<CountryRow>;
-    filters: { q?: string; sort?: string; dir?: 'asc' | 'desc'; per_page?: number };
+    filters: {
+        q?: string;
+        sort?: string;
+        dir?: 'asc' | 'desc';
+        per_page?: number;
+    };
 }) {
     const isMobile = useIsMobile();
-    const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'countries:index:view' });
-
-    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } = useIndexQueryParams({
-        href: COUNTRY_ROUTES.index,
-        filters,
-        defaultPerPage: 15,
-        defaultSort: 'name',
-        allowedSorts: ['name', 'iso2', 'dial_code'],
+    const { viewMode, setViewMode } = useIndexViewMode({
+        storageKey: 'countries:index:view',
     });
 
-    const slOffset = ((countries?.meta?.current_page ?? 1) - 1) * (countries?.meta?.per_page ?? 15);
+    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } =
+        useIndexQueryParams({
+            href: COUNTRY_ROUTES.index,
+            filters,
+            defaultPerPage: 15,
+            defaultSort: 'name',
+            allowedSorts: ['name', 'iso2', 'dial_code'],
+        });
+
+    const slOffset =
+        ((countries?.meta?.current_page ?? 1) - 1) *
+        (countries?.meta?.per_page ?? 15);
     const total = countries?.meta?.total ?? 0;
     const hasSearch = q.length > 0;
     const isEmpty = countries.data.length === 0;
@@ -72,7 +86,9 @@ export default function CountriesIndex({
                 return;
             }
 
-            router.delete(COUNTRY_ROUTES.destroy(country.id), { preserveScroll: true });
+            router.delete(COUNTRY_ROUTES.destroy(country.id), {
+                preserveScroll: true,
+            });
         },
         [requestConfirm],
     );
@@ -81,32 +97,55 @@ export default function CountriesIndex({
         () => [
             {
                 id: 'slno',
-                header: () => <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">#</span>,
+                header: () => (
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        #
+                    </span>
+                ),
                 cell: ({ row }) => (
-                    <span className="text-[13px] tabular-nums text-muted-foreground">{slOffset + row.index + 1}</span>
+                    <span className="text-[13px] text-muted-foreground tabular-nums">
+                        {slOffset + row.index + 1}
+                    </span>
                 ),
             },
             {
                 accessorKey: 'name',
                 header: () => (
-                    <SortableHeader label="Name" column="name" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Name"
+                        column="name"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
                     <div className="flex items-center gap-3">
                         <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-blue-500/15 to-indigo-600/15 text-[11px] font-bold text-primary ring-1 ring-white/10">
                             {row.original.iso2}
                         </div>
-                        <span className="font-medium text-foreground">{row.original.name}</span>
+                        <span className="font-medium text-foreground">
+                            {row.original.name}
+                        </span>
                     </div>
                 ),
             },
             {
                 accessorKey: 'iso2',
                 header: () => (
-                    <SortableHeader label="ISO2" column="iso2" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="ISO2"
+                        column="iso2"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
-                    <Badge variant="secondary" className="rounded-md font-mono text-[11px]">
+                    <Badge
+                        variant="secondary"
+                        className="rounded-md font-mono text-[11px]"
+                    >
                         {row.original.iso2}
                     </Badge>
                 ),
@@ -114,10 +153,19 @@ export default function CountriesIndex({
             {
                 accessorKey: 'dial_code',
                 header: () => (
-                    <SortableHeader label="Dial Code" column="dial_code" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Dial Code"
+                        column="dial_code"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
-                    <Badge variant="outline" className="rounded-md font-mono text-[11px]">
+                    <Badge
+                        variant="outline"
+                        className="rounded-md font-mono text-[11px]"
+                    >
                         {row.original.dial_code}
                     </Badge>
                 ),
@@ -125,7 +173,7 @@ export default function CountriesIndex({
             {
                 id: 'actions',
                 header: () => (
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                         Actions
                     </span>
                 ),
@@ -156,85 +204,116 @@ export default function CountriesIndex({
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
             <PullToRefresh only={['countries']}>
-            <ConfirmDialog />
-            <Head title="Countries" />
+                <ConfirmDialog />
+                <Head title="Countries" />
 
-            <SectionHeader
-                title="Countries"
-                subtitle="Manage country names, ISO codes, and international dial prefixes."
-                icon={Globe}
-                iconWrapperClassName="bg-linear-to-br from-blue-500/15 to-indigo-600/15"
-                iconClassName="text-blue-500"
-                right={
-                    <Button asChild className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto">
-                        <Link href={COUNTRY_ROUTES.create} prefetch>
-                            <Plus className="size-4" />
-                            New Country
-                        </Link>
-                    </Button>
-                }
-                className="mb-6 sm:mb-8"
-            />
-
-            <div className="mb-6 grid grid-cols-2 gap-3">
-                <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{total}</p>
-                </GlassCard>
-                <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Showing</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">
-                        {countries.data.length}
-                    </p>
-                </GlassCard>
-            </div>
-
-            <IndexToolbar
-                search={q}
-                onSearchChange={setQ}
-                searchPlaceholder="Search name, ISO2, dial code…"
-                hasSearch={hasSearch}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-            />
-
-            {isEmpty ? (
-                <EmptyState
+                <SectionHeader
+                    title="Countries"
+                    subtitle="Manage country names, ISO codes, and international dial prefixes."
                     icon={Globe}
-                    title={hasSearch ? 'No matches found' : 'No countries yet'}
-                    description={
-                        hasSearch
-                            ? 'Try adjusting your search or clear the filter to see all countries.'
-                            : 'Add your first country to start managing names, ISO codes, and dial prefixes.'
+                    iconWrapperClassName="bg-linear-to-br from-blue-500/15 to-indigo-600/15"
+                    iconClassName="text-blue-500"
+                    right={
+                        <Button
+                            asChild
+                            className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto"
+                        >
+                            <Link href={COUNTRY_ROUTES.create} prefetch>
+                                <Plus className="size-4" />
+                                New Country
+                            </Link>
+                        </Button>
                     }
-                    action={
-                        !hasSearch ? (
-                            <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
-                                <Link href={COUNTRY_ROUTES.create} prefetch>
-                                    <Plus className="size-4" />
-                                    Add Country
-                                </Link>
-                            </Button>
-                        ) : undefined
-                    }
+                    className="mb-6 sm:mb-8"
                 />
-            ) : viewMode === 'list' ? (
-                isMobile ? (
-                    <CountryListCards countries={countries.data} onDelete={confirmDelete} />
-                ) : (
-                    <CountryTable table={table} />
-                )
-            ) : (
-                <CountryGridCards countries={countries.data} onDelete={confirmDelete} />
-            )}
 
-            {!isEmpty && countries.links?.length > 0 && (
-                <PaginationBar
-                    links={countries.links}
-                    onVisit={(url) => router.get(url, {}, { preserveScroll: true, preserveState: true })}
-                    left={<RowsPerPageSelect value={perPage} onChange={setPerPage} />}
+                <div className="mb-6 grid grid-cols-2 gap-3">
+                    <GlassCard level="inner" className="px-4 py-3.5">
+                        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                            Total
+                        </p>
+                        <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                            {total}
+                        </p>
+                    </GlassCard>
+                    <GlassCard level="inner" className="px-4 py-3.5">
+                        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                            Showing
+                        </p>
+                        <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                            {countries.data.length}
+                        </p>
+                    </GlassCard>
+                </div>
+
+                <IndexToolbar
+                    search={q}
+                    onSearchChange={setQ}
+                    searchPlaceholder="Search name, ISO2, dial code…"
+                    hasSearch={hasSearch}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
                 />
-            )}
+
+                {isEmpty ? (
+                    <EmptyState
+                        icon={Globe}
+                        title={
+                            hasSearch ? 'No matches found' : 'No countries yet'
+                        }
+                        description={
+                            hasSearch
+                                ? 'Try adjusting your search or clear the filter to see all countries.'
+                                : 'Add your first country to start managing names, ISO codes, and dial prefixes.'
+                        }
+                        action={
+                            !hasSearch ? (
+                                <Button
+                                    asChild
+                                    className="rounded-full px-6 shadow-lg shadow-primary/20"
+                                >
+                                    <Link href={COUNTRY_ROUTES.create} prefetch>
+                                        <Plus className="size-4" />
+                                        Add Country
+                                    </Link>
+                                </Button>
+                            ) : undefined
+                        }
+                    />
+                ) : viewMode === 'list' ? (
+                    isMobile ? (
+                        <CountryListCards
+                            countries={countries.data}
+                            onDelete={confirmDelete}
+                        />
+                    ) : (
+                        <CountryTable table={table} />
+                    )
+                ) : (
+                    <CountryGridCards
+                        countries={countries.data}
+                        onDelete={confirmDelete}
+                    />
+                )}
+
+                {!isEmpty && countries.links?.length > 0 && (
+                    <PaginationBar
+                        links={countries.links}
+                        onVisit={(url) =>
+                            router.get(
+                                url,
+                                {},
+                                { preserveScroll: true, preserveState: true },
+                            )
+                        }
+                        left={
+                            <RowsPerPageSelect
+                                value={perPage}
+                                onChange={setPerPage}
+                            />
+                        }
+                    />
+                )}
             </PullToRefresh>
         </ModulePageLayout>
     );

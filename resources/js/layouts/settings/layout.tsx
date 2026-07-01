@@ -53,13 +53,15 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
     const { auth } = usePage<{ auth: Auth }>().props;
     const isAdmin = auth.user.role?.slug === 'admin';
-    const settingsNavItems = isAdmin ? [...baseSettingsNavItems, applicationNavItem] : baseSettingsNavItems;
+    const settingsNavItems = isAdmin
+        ? [...baseSettingsNavItems, applicationNavItem]
+        : baseSettingsNavItems;
 
     return (
-        <div className="px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:py-6">
+        <div className="px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-6">
             <Link
                 href={dashboard()}
-                className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 py-2 text-[13px] font-semibold text-muted-foreground transition-colors active:bg-muted/60 hover:bg-muted/50 hover:text-foreground"
+                className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 py-2 text-[13px] font-semibold text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground active:bg-muted/60"
             >
                 <ArrowLeft className="size-4" />
                 Dashboard
@@ -71,7 +73,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
             />
 
             <nav
-                className="mb-6 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+                className="mb-6 flex [scrollbar-width:none] gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] lg:hidden [&::-webkit-scrollbar]:hidden"
                 aria-label="Settings"
             >
                 {settingsNavItems.map((item, index) => (
@@ -83,7 +85,8 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                         className={cn(
                             'h-11 shrink-0 rounded-full px-4 text-[13px] font-semibold',
                             {
-                                'bg-muted text-foreground': isCurrentOrParentUrl(item.href),
+                                'bg-muted text-foreground':
+                                    isCurrentOrParentUrl(item.href),
                             },
                         )}
                     >

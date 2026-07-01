@@ -38,11 +38,17 @@ export function IndexToolbar({
                 </div>
                 <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
                     {hasSearch && (
-                        <Badge variant="outline" className="rounded-full px-3 py-1">
+                        <Badge
+                            variant="outline"
+                            className="rounded-full px-3 py-1"
+                        >
                             Filtered
                         </Badge>
                     )}
-                    <ViewModeToggle value={viewMode} onChange={onViewModeChange} />
+                    <ViewModeToggle
+                        value={viewMode}
+                        onChange={onViewModeChange}
+                    />
                 </div>
             </div>
         </GlassCard>

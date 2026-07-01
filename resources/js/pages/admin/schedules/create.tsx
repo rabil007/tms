@@ -1,9 +1,9 @@
 import { Head, useForm } from '@inertiajs/react';
 import React from 'react';
-import { defaultCountryId  } from '@/components/forms/phone-input';
-import type {CountryPhoneOption} from '@/components/forms/phone-input';
+import { defaultCountryId } from '@/components/forms/phone-input';
+import type { CountryPhoneOption } from '@/components/forms/phone-input';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
-import type { ProjectOption} from '@/pages/admin/schedules/schedule-form';
+import type { ProjectOption } from '@/pages/admin/schedules/schedule-form';
 import { ScheduleForm } from '@/pages/admin/schedules/schedule-form';
 
 const ROUTES = {

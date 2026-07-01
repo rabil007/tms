@@ -5,7 +5,10 @@ type AppLogoImageProps = {
     alt?: string;
 };
 
-export default function AppLogoImage({ className, alt = 'Overseas' }: AppLogoImageProps) {
+export default function AppLogoImage({
+    className,
+    alt = 'Overseas',
+}: AppLogoImageProps) {
     return (
         <img
             src="/logo.png"

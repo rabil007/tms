@@ -9,13 +9,16 @@ type ScheduleSelectionContextValue = {
     scheduleIdsOnPage: number[];
 };
 
-const ScheduleSelectionContext = React.createContext<ScheduleSelectionContextValue | null>(null);
+const ScheduleSelectionContext =
+    React.createContext<ScheduleSelectionContextValue | null>(null);
 
 function useScheduleSelection(): ScheduleSelectionContextValue {
     const value = React.useContext(ScheduleSelectionContext);
 
     if (!value) {
-        throw new Error('useScheduleSelection must be used within ScheduleSelectionProvider');
+        throw new Error(
+            'useScheduleSelection must be used within ScheduleSelectionProvider',
+        );
     }
 
     return value;
@@ -38,15 +41,23 @@ export function ScheduleSelectionProvider({
         [rowSelection, setRowSelected, setAllOnPageSelected, scheduleIdsOnPage],
     );
 
-    return <ScheduleSelectionContext.Provider value={value}>{children}</ScheduleSelectionContext.Provider>;
+    return (
+        <ScheduleSelectionContext.Provider value={value}>
+            {children}
+        </ScheduleSelectionContext.Provider>
+    );
 }
 
 export function ScheduleSelectAllCheckbox() {
-    const { rowSelection, setAllOnPageSelected, scheduleIdsOnPage } = useScheduleSelection();
+    const { rowSelection, setAllOnPageSelected, scheduleIdsOnPage } =
+        useScheduleSelection();
 
     const allSelected =
-        scheduleIdsOnPage.length > 0 && scheduleIdsOnPage.every((id) => rowSelection[String(id)]);
-    const someSelected = scheduleIdsOnPage.some((id) => rowSelection[String(id)]) && !allSelected;
+        scheduleIdsOnPage.length > 0 &&
+        scheduleIdsOnPage.every((id) => rowSelection[String(id)]);
+    const someSelected =
+        scheduleIdsOnPage.some((id) => rowSelection[String(id)]) &&
+        !allSelected;
     const checked = allSelected ? true : someSelected ? 'indeterminate' : false;
 
     return (
@@ -59,7 +70,13 @@ export function ScheduleSelectAllCheckbox() {
     );
 }
 
-export function ScheduleSelectRowCheckbox({ id, label }: { id: number; label: string }) {
+export function ScheduleSelectRowCheckbox({
+    id,
+    label,
+}: {
+    id: number;
+    label: string;
+}) {
     const { rowSelection, setRowSelected } = useScheduleSelection();
     const checked = !!rowSelection[String(id)];
 

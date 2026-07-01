@@ -9,7 +9,11 @@ export type ViewModeToggleProps = {
     className?: string;
 };
 
-export function ViewModeToggle({ value, onChange, className }: ViewModeToggleProps) {
+export function ViewModeToggle({
+    value,
+    onChange,
+    className,
+}: ViewModeToggleProps) {
     return (
         <ToggleGroup
             type="single"
@@ -21,13 +25,24 @@ export function ViewModeToggle({ value, onChange, className }: ViewModeTogglePro
                     onChange(next);
                 }
             }}
-            className={cn('shrink-0 rounded-xl border-border/50 bg-background/50', className)}
+            className={cn(
+                'shrink-0 rounded-xl border-border/50 bg-background/50',
+                className,
+            )}
             aria-label="View mode"
         >
-            <ToggleGroupItem value="list" aria-label="List view" className="h-10 w-10 px-0">
+            <ToggleGroupItem
+                value="list"
+                aria-label="List view"
+                className="h-10 w-10 px-0"
+            >
                 <List className="size-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem value="grid" aria-label="Grid view" className="h-10 w-10 px-0">
+            <ToggleGroupItem
+                value="grid"
+                aria-label="Grid view"
+                className="h-10 w-10 px-0"
+            >
                 <LayoutGrid className="size-4" />
             </ToggleGroupItem>
         </ToggleGroup>

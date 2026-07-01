@@ -232,9 +232,10 @@ test('schedules index includes total and today counts', function () {
 
     $response->assertInertia(fn ($page) => $page
         ->component('admin/schedules/index')
-        ->where('totalCount', 2)
-        ->where('todayCount', 1)
-        ->where('todayDate', today()->toDateString()));
+        ->where('todayDate', today()->toDateString())
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->where('totalCount', 2)
+            ->where('todayCount', 1)));
 });
 
 test('schedules index can filter to today only', function () {
@@ -254,8 +255,9 @@ test('schedules index can filter to today only', function () {
         ->component('admin/schedules/index')
         ->has('schedules.data', 1)
         ->where('schedules.data.0.id', $todaySchedule->id)
-        ->where('totalCount', 2)
-        ->where('todayCount', 1));
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->where('totalCount', 2)
+            ->where('todayCount', 1)));
 });
 
 test('schedules index can filter by date range', function () {

@@ -11,7 +11,9 @@ export function AppShell({ children }: Props) {
             <div className="pointer-events-none fixed inset-0 z-0">
                 <AppWallpaper />
             </div>
-            <div className="relative z-10 flex min-h-dvh w-full flex-col">{children}</div>
+            <div className="relative z-10 flex min-h-dvh w-full flex-col">
+                {children}
+            </div>
         </div>
     );
 }

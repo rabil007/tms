@@ -6,11 +6,8 @@ import {
     FormSubmitButton,
     formInputClassName,
 } from '@/components/forms/form-page';
-import type {
-    CountryPhoneOption} from '@/components/forms/phone-input';
-import {
-    PhoneInput,
-} from '@/components/forms/phone-input';
+import type { CountryPhoneOption } from '@/components/forms/phone-input';
+import { PhoneInput } from '@/components/forms/phone-input';
 import { Input } from '@/components/ui/input';
 import { SearchSelect } from '@/components/ui/search-select';
 import { cn } from '@/lib/utils';
@@ -29,7 +26,9 @@ export type ScheduleFormData = {
     remarks: string;
 };
 
-type ScheduleFormErrors = Partial<Record<keyof ScheduleFormData | 'crew_contact', string>>;
+type ScheduleFormErrors = Partial<
+    Record<keyof ScheduleFormData | 'crew_contact', string>
+>;
 
 type ScheduleFormProps = {
     data: ScheduleFormData;
@@ -41,7 +40,10 @@ type ScheduleFormProps = {
     cancelHref: string;
     projects: ProjectOption[];
     countries: CountryPhoneOption[];
-    onChange: <K extends keyof ScheduleFormData>(key: K, value: ScheduleFormData[K]) => void;
+    onChange: <K extends keyof ScheduleFormData>(
+        key: K,
+        value: ScheduleFormData[K],
+    ) => void;
     onSubmit: (e: React.FormEvent) => void;
 };
 
@@ -66,9 +68,13 @@ export function ScheduleForm({
     return (
         <form onSubmit={onSubmit} className="mx-auto w-full max-w-3xl">
             <div className="mb-6">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                    {title}
+                </h2>
                 {description && (
-                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{description}</p>
+                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                        {description}
+                    </p>
                 )}
             </div>
 
@@ -84,8 +90,12 @@ export function ScheduleForm({
                             <Input
                                 id="crew_name"
                                 value={data.crew_name}
-                                onChange={(e) => onChange('crew_name', e.target.value)}
-                                className={formInputClassName(!!errors.crew_name)}
+                                onChange={(e) =>
+                                    onChange('crew_name', e.target.value)
+                                }
+                                className={formInputClassName(
+                                    !!errors.crew_name,
+                                )}
                                 placeholder="John Smith"
                                 autoComplete="name"
                                 aria-invalid={!!errors.crew_name}
@@ -97,16 +107,26 @@ export function ScheduleForm({
                             id="crew_phone"
                             label="Crew contact"
                             hint="Choose country code and enter the number"
-                            error={errors.crew_phone ?? errors.crew_contact ?? errors.country_id}
+                            error={
+                                errors.crew_phone ??
+                                errors.crew_contact ??
+                                errors.country_id
+                            }
                         >
                             <PhoneInput
                                 countries={countries}
                                 countryId={data.country_id}
                                 phone={data.crew_phone}
-                                onCountryChange={(val) => onChange('country_id', val)}
-                                onPhoneChange={(val) => onChange('crew_phone', val)}
+                                onCountryChange={(val) =>
+                                    onChange('country_id', val)
+                                }
+                                onPhoneChange={(val) =>
+                                    onChange('crew_phone', val)
+                                }
                                 countryError={errors.country_id}
-                                phoneError={errors.crew_phone ?? errors.crew_contact}
+                                phoneError={
+                                    errors.crew_phone ?? errors.crew_contact
+                                }
                             />
                         </FormField>
                     </div>
@@ -121,8 +141,12 @@ export function ScheduleForm({
                                 id="scheduled_date"
                                 type="date"
                                 value={data.scheduled_date}
-                                onChange={(e) => onChange('scheduled_date', e.target.value)}
-                                className={formInputClassName(!!errors.scheduled_date)}
+                                onChange={(e) =>
+                                    onChange('scheduled_date', e.target.value)
+                                }
+                                className={formInputClassName(
+                                    !!errors.scheduled_date,
+                                )}
                                 aria-invalid={!!errors.scheduled_date}
                             />
                         </FormField>
@@ -136,8 +160,12 @@ export function ScheduleForm({
                                 id="pick_up_time"
                                 type="time"
                                 value={data.pick_up_time}
-                                onChange={(e) => onChange('pick_up_time', e.target.value)}
-                                className={formInputClassName(!!errors.pick_up_time)}
+                                onChange={(e) =>
+                                    onChange('pick_up_time', e.target.value)
+                                }
+                                className={formInputClassName(
+                                    !!errors.pick_up_time,
+                                )}
                                 aria-invalid={!!errors.pick_up_time}
                             />
                         </FormField>
@@ -168,8 +196,12 @@ export function ScheduleForm({
                             <Input
                                 id="pick_up_location"
                                 value={data.pick_up_location}
-                                onChange={(e) => onChange('pick_up_location', e.target.value)}
-                                className={formInputClassName(!!errors.pick_up_location)}
+                                onChange={(e) =>
+                                    onChange('pick_up_location', e.target.value)
+                                }
+                                className={formInputClassName(
+                                    !!errors.pick_up_location,
+                                )}
                                 placeholder="Airport Terminal 1"
                                 aria-invalid={!!errors.pick_up_location}
                             />
@@ -183,8 +215,15 @@ export function ScheduleForm({
                             <Input
                                 id="drop_off_location"
                                 value={data.drop_off_location}
-                                onChange={(e) => onChange('drop_off_location', e.target.value)}
-                                className={formInputClassName(!!errors.drop_off_location)}
+                                onChange={(e) =>
+                                    onChange(
+                                        'drop_off_location',
+                                        e.target.value,
+                                    )
+                                }
+                                className={formInputClassName(
+                                    !!errors.drop_off_location,
+                                )}
                                 placeholder="Hotel Marina"
                                 aria-invalid={!!errors.drop_off_location}
                             />
@@ -200,7 +239,9 @@ export function ScheduleForm({
                         <textarea
                             id="remarks"
                             value={data.remarks}
-                            onChange={(e) => onChange('remarks', e.target.value)}
+                            onChange={(e) =>
+                                onChange('remarks', e.target.value)
+                            }
                             rows={3}
                             className={cn(
                                 formInputClassName(!!errors.remarks),
@@ -213,7 +254,9 @@ export function ScheduleForm({
                 </div>
 
                 <FormActions cancelHref={cancelHref} className="mt-8">
-                    <FormSubmitButton processing={processing}>{submitLabel}</FormSubmitButton>
+                    <FormSubmitButton processing={processing}>
+                        {submitLabel}
+                    </FormSubmitButton>
                 </FormActions>
             </FormCard>
         </form>

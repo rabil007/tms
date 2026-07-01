@@ -9,7 +9,13 @@ export type SortableHeaderProps = {
     onSort: (column: string) => void;
 };
 
-export function SortableHeader({ label, column, sort, dir, onSort }: SortableHeaderProps) {
+export function SortableHeader({
+    label,
+    column,
+    sort,
+    dir,
+    onSort,
+}: SortableHeaderProps) {
     const isActive = sort === column;
 
     return (
@@ -17,8 +23,10 @@ export function SortableHeader({ label, column, sort, dir, onSort }: SortableHea
             type="button"
             onClick={() => onSort(column)}
             className={cn(
-                'inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider transition-colors',
-                isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+                'inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase transition-colors',
+                isActive
+                    ? 'text-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
             )}
         >
             {label}

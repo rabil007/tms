@@ -25,15 +25,19 @@ import {
     UserListCards,
     UserRoleBadge,
     UserTable,
-    Users
-    
+    Users,
 } from '@/pages/admin/users/user-views';
-import type {UserRow} from '@/pages/admin/users/user-views';
+import type { UserRow } from '@/pages/admin/users/user-views';
 
 type Paged<T> = {
     data: T[];
     links: { url: string | null; label: string; active: boolean }[];
-    meta?: { current_page: number; last_page: number; per_page: number; total: number };
+    meta?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
     total?: number;
 };
 
@@ -42,21 +46,30 @@ export default function UsersIndex({
     filters,
 }: {
     users: Paged<UserRow>;
-    filters: { q?: string; sort?: string; dir?: 'asc' | 'desc'; per_page?: number };
+    filters: {
+        q?: string;
+        sort?: string;
+        dir?: 'asc' | 'desc';
+        per_page?: number;
+    };
     counts?: { total: number; admins: number; users: number };
 }) {
     const isMobile = useIsMobile();
-    const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'users:index:view' });
-
-    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } = useIndexQueryParams({
-        href: USER_ROUTES.index,
-        filters,
-        defaultPerPage: 15,
-        defaultSort: 'name',
-        allowedSorts: ['name', 'email'],
+    const { viewMode, setViewMode } = useIndexViewMode({
+        storageKey: 'users:index:view',
     });
 
-    const slOffset = ((users?.meta?.current_page ?? 1) - 1) * (users?.meta?.per_page ?? 15);
+    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } =
+        useIndexQueryParams({
+            href: USER_ROUTES.index,
+            filters,
+            defaultPerPage: 15,
+            defaultSort: 'name',
+            allowedSorts: ['name', 'email'],
+        });
+
+    const slOffset =
+        ((users?.meta?.current_page ?? 1) - 1) * (users?.meta?.per_page ?? 15);
     const hasSearch = q.length > 0;
     const isEmpty = users.data.length === 0;
 
@@ -75,7 +88,9 @@ export default function UsersIndex({
                 return;
             }
 
-            router.delete(USER_ROUTES.destroy(user.id), { preserveScroll: true });
+            router.delete(USER_ROUTES.destroy(user.id), {
+                preserveScroll: true,
+            });
         },
         [requestConfirm],
     );
@@ -84,15 +99,27 @@ export default function UsersIndex({
         () => [
             {
                 id: 'slno',
-                header: () => <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">#</span>,
+                header: () => (
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        #
+                    </span>
+                ),
                 cell: ({ row }) => (
-                    <span className="text-[13px] tabular-nums text-muted-foreground">{slOffset + row.index + 1}</span>
+                    <span className="text-[13px] text-muted-foreground tabular-nums">
+                        {slOffset + row.index + 1}
+                    </span>
                 ),
             },
             {
                 accessorKey: 'name',
                 header: () => (
-                    <SortableHeader label="Name" column="name" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Name"
+                        column="name"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
                     <div className="flex items-center gap-3">
@@ -104,30 +131,42 @@ export default function UsersIndex({
                                 .slice(0, 2)
                                 .toUpperCase()}
                         </div>
-                        <span className="font-medium text-foreground">{row.original.name}</span>
+                        <span className="font-medium text-foreground">
+                            {row.original.name}
+                        </span>
                     </div>
                 ),
             },
             {
                 accessorKey: 'email',
                 header: () => (
-                    <SortableHeader label="Email" column="email" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Email"
+                        column="email"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
-                    <span className="text-[14px] text-muted-foreground">{row.original.email}</span>
+                    <span className="text-[14px] text-muted-foreground">
+                        {row.original.email}
+                    </span>
                 ),
             },
             {
                 id: 'role',
                 header: () => (
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Role</span>
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        Role
+                    </span>
                 ),
                 cell: ({ row }) => <UserRoleBadge role={row.original.role} />,
             },
             {
                 id: 'actions',
                 header: () => (
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                         Actions
                     </span>
                 ),
@@ -158,97 +197,143 @@ export default function UsersIndex({
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
             <PullToRefresh only={['users', 'counts']}>
-            <ConfirmDialog />
-            <Head title="Users" />
+                <ConfirmDialog />
+                <Head title="Users" />
 
-            <SectionHeader
-                title="Users"
-                subtitle="Manage user accounts and roles."
-                icon={Users}
-                iconWrapperClassName="bg-linear-to-br from-cyan-500/15 to-blue-600/15"
-                iconClassName="text-cyan-500"
-                right={
-                    <Button asChild className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto">
-                        <Link href={USER_ROUTES.create} prefetch>
-                            <Plus className="size-4" />
-                            New User
-                        </Link>
-                    </Button>
-                }
-                className="mb-6 sm:mb-8"
-            />
-
-            <Deferred data="counts" fallback={<StatCardsSkeleton count={3} columns="grid-cols-1 sm:grid-cols-3" className="mb-6" />}>
-                <UserStatCards />
-            </Deferred>
-
-            <IndexToolbar
-                search={q}
-                onSearchChange={setQ}
-                searchPlaceholder="Search name, email, or role…"
-                hasSearch={hasSearch}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-            />
-
-            {isEmpty ? (
-                <EmptyState
+                <SectionHeader
+                    title="Users"
+                    subtitle="Manage user accounts and roles."
                     icon={Users}
-                    title={hasSearch ? 'No matches found' : 'No users yet'}
-                    description={
-                        hasSearch
-                            ? 'Try adjusting your search or clear the filter to see all users.'
-                            : 'Add your first user to get started.'
+                    iconWrapperClassName="bg-linear-to-br from-cyan-500/15 to-blue-600/15"
+                    iconClassName="text-cyan-500"
+                    right={
+                        <Button
+                            asChild
+                            className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto"
+                        >
+                            <Link href={USER_ROUTES.create} prefetch>
+                                <Plus className="size-4" />
+                                New User
+                            </Link>
+                        </Button>
                     }
-                    action={
-                        !hasSearch ? (
-                            <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
-                                <Link href={USER_ROUTES.create} prefetch>
-                                    <Plus className="size-4" />
-                                    Add User
-                                </Link>
-                            </Button>
-                        ) : undefined
-                    }
+                    className="mb-6 sm:mb-8"
                 />
-            ) : viewMode === 'list' ? (
-                isMobile ? (
-                    <UserListCards users={users.data} onDelete={confirmDelete} />
-                ) : (
-                    <UserTable table={table} />
-                )
-            ) : (
-                <UserGridCards users={users.data} onDelete={confirmDelete} />
-            )}
 
-            {!isEmpty && users.links?.length > 0 && (
-                <PaginationBar
-                    links={users.links}
-                    onVisit={(url) => router.get(url, {}, { preserveScroll: true, preserveState: true })}
-                    left={<RowsPerPageSelect value={perPage} onChange={setPerPage} />}
+                <Deferred
+                    data="counts"
+                    fallback={
+                        <StatCardsSkeleton
+                            count={3}
+                            columns="grid-cols-1 sm:grid-cols-3"
+                            className="mb-6"
+                        />
+                    }
+                >
+                    <UserStatCards />
+                </Deferred>
+
+                <IndexToolbar
+                    search={q}
+                    onSearchChange={setQ}
+                    searchPlaceholder="Search name, email, or role…"
+                    hasSearch={hasSearch}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
                 />
-            )}
+
+                {isEmpty ? (
+                    <EmptyState
+                        icon={Users}
+                        title={hasSearch ? 'No matches found' : 'No users yet'}
+                        description={
+                            hasSearch
+                                ? 'Try adjusting your search or clear the filter to see all users.'
+                                : 'Add your first user to get started.'
+                        }
+                        action={
+                            !hasSearch ? (
+                                <Button
+                                    asChild
+                                    className="rounded-full px-6 shadow-lg shadow-primary/20"
+                                >
+                                    <Link href={USER_ROUTES.create} prefetch>
+                                        <Plus className="size-4" />
+                                        Add User
+                                    </Link>
+                                </Button>
+                            ) : undefined
+                        }
+                    />
+                ) : viewMode === 'list' ? (
+                    isMobile ? (
+                        <UserListCards
+                            users={users.data}
+                            onDelete={confirmDelete}
+                        />
+                    ) : (
+                        <UserTable table={table} />
+                    )
+                ) : (
+                    <UserGridCards
+                        users={users.data}
+                        onDelete={confirmDelete}
+                    />
+                )}
+
+                {!isEmpty && users.links?.length > 0 && (
+                    <PaginationBar
+                        links={users.links}
+                        onVisit={(url) =>
+                            router.get(
+                                url,
+                                {},
+                                { preserveScroll: true, preserveState: true },
+                            )
+                        }
+                        left={
+                            <RowsPerPageSelect
+                                value={perPage}
+                                onChange={setPerPage}
+                            />
+                        }
+                    />
+                )}
             </PullToRefresh>
         </ModulePageLayout>
     );
 }
 
 function UserStatCards() {
-    const { counts } = usePage<{ counts: { total: number; admins: number; users: number } }>().props;
+    const { counts } = usePage<{
+        counts: { total: number; admins: number; users: number };
+    }>().props;
 
     return (
         <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <GlassCard level="inner" className="px-4 py-3.5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.total}</p>
+                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                    Total
+                </p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                    {counts.total}
+                </p>
             </GlassCard>
             <GlassCard level="inner" className="px-4 py-3.5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Admins</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.admins}</p>
+                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                    Admins
+                </p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                    {counts.admins}
+                </p>
             </GlassCard>
             <GlassCard level="inner" className="px-4 py-3.5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Users</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{counts.users}</p>
+                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                    Users
+                </p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                    {counts.users}
+                </p>
             </GlassCard>
         </div>
     );

@@ -23,7 +23,9 @@ export type UseIndexViewModeOptions = {
 
 export function useIndexViewMode({ storageKey }: UseIndexViewModeOptions) {
     const isMobile = useIsMobile();
-    const [preference, setPreference] = React.useState<ViewMode | null>(() => readStoredPreference(storageKey));
+    const [preference, setPreference] = React.useState<ViewMode | null>(() =>
+        readStoredPreference(storageKey),
+    );
 
     const viewMode: ViewMode = preference ?? (isMobile ? 'grid' : 'list');
 

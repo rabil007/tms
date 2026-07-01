@@ -25,7 +25,7 @@ export function ModulePageLayout({
                     {backHref && (
                         <Link
                             href={backHref}
-                            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 py-2 text-[13px] font-semibold text-muted-foreground transition-colors active:bg-muted/60 hover:bg-muted/50 hover:text-foreground"
+                            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 py-2 text-[13px] font-semibold text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground active:bg-muted/60"
                         >
                             <ArrowLeft className="size-4" />
                             <span>{backLabel}</span>
@@ -39,7 +39,9 @@ export function ModulePageLayout({
                 </div>
             )}
 
-            <div className="pb-[max(0.5rem,env(safe-area-inset-bottom))]">{children}</div>
+            <div className="pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+                {children}
+            </div>
         </div>
     );
 }

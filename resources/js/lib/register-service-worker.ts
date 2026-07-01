@@ -1,5 +1,9 @@
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !window.isSecureContext) {
+    if (
+        typeof window === 'undefined' ||
+        !('serviceWorker' in navigator) ||
+        !window.isSecureContext
+    ) {
         return null;
     }
 

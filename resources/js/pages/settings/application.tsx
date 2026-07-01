@@ -7,7 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit as editApplication } from '@/routes/application';
 
-export default function ApplicationSettings({ applicationName }: { applicationName: string }) {
+export default function ApplicationSettings({
+    applicationName,
+}: {
+    applicationName: string;
+}) {
     return (
         <>
             <Head title="Application settings" />
@@ -31,7 +35,9 @@ export default function ApplicationSettings({ applicationName }: { applicationNa
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="application-name">Application name</Label>
+                                <Label htmlFor="application-name">
+                                    Application name
+                                </Label>
                                 <Input
                                     id="application-name"
                                     name="name"
@@ -44,7 +50,11 @@ export default function ApplicationSettings({ applicationName }: { applicationNa
                                 <InputError message={errors.name} />
                             </div>
 
-                            <Button type="submit" disabled={processing} className="rounded-xl">
+                            <Button
+                                type="submit"
+                                disabled={processing}
+                                className="rounded-xl"
+                            >
                                 Save
                             </Button>
                         </>

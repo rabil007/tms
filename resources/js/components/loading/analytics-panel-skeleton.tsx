@@ -3,7 +3,12 @@ import { cn } from '@/lib/utils';
 
 export function AnalyticsPanelSkeleton({ className }: { className?: string }) {
     return (
-        <div className={cn('rounded-2xl border border-border/50 bg-card/40 p-5', className)}>
+        <div
+            className={cn(
+                'rounded-2xl border border-border/50 bg-card/40 p-5',
+                className,
+            )}
+        >
             <Skeleton className="h-4 w-32" />
             <div className="mt-6 flex h-40 items-end gap-2">
                 {Array.from({ length: 7 }).map((_, index) => (

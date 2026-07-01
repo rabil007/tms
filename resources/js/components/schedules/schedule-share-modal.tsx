@@ -16,10 +16,9 @@ import {
     copySchedulesShareMessage,
     formatSchedulesShareMessage,
     openSchedulesEmailShare,
-    openSchedulesWhatsAppShare
-    
+    openSchedulesWhatsAppShare,
 } from '@/pages/admin/schedules/schedule-share';
-import type {ScheduleShareData} from '@/pages/admin/schedules/schedule-share';
+import type { ScheduleShareData } from '@/pages/admin/schedules/schedule-share';
 
 type ScheduleShareModalProps = {
     schedules: ScheduleShareData[];
@@ -43,15 +42,21 @@ function shareDescription(schedules: ScheduleShareData[]): string {
     const dates = schedules.map((schedule) => schedule.scheduled_date).sort();
     const firstDate = formatScheduleDate(dates[0]);
     const lastDate = formatScheduleDate(dates[dates.length - 1]);
-    const dateSpan = firstDate === lastDate ? firstDate : `${firstDate} – ${lastDate}`;
+    const dateSpan =
+        firstDate === lastDate ? firstDate : `${firstDate} – ${lastDate}`;
 
     return `${schedules.length} schedules · ${dateSpan}`;
 }
 
-export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleShareModalProps) {
+export function ScheduleShareModal({
+    schedules,
+    open,
+    onOpenChange,
+}: ScheduleShareModalProps) {
     const [emailStep, setEmailStep] = React.useState(false);
     const [recipient, setRecipient] = React.useState('');
-    const preview = schedules.length > 0 ? formatSchedulesShareMessage(schedules) : '';
+    const preview =
+        schedules.length > 0 ? formatSchedulesShareMessage(schedules) : '';
     const isMultiple = schedules.length > 1;
 
     const handleOpenChange = (nextOpen: boolean) => {
@@ -84,7 +89,9 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
         const opened = openSchedulesWhatsAppShare(schedules);
 
         if (!opened) {
-            toast.error('Message is too long for WhatsApp. Try sharing fewer schedules or use Copy instead.');
+            toast.error(
+                'Message is too long for WhatsApp. Try sharing fewer schedules or use Copy instead.',
+            );
 
             return;
         }
@@ -120,13 +127,19 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
             <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-lg">
                 <DialogHeader className="border-b border-border/40 px-5 py-4 text-left">
                     <DialogTitle>
-                        {emailStep ? 'Send by email' : isMultiple ? `Share ${schedules.length} schedules` : 'Share schedule'}
+                        {emailStep
+                            ? 'Send by email'
+                            : isMultiple
+                              ? `Share ${schedules.length} schedules`
+                              : 'Share schedule'}
                     </DialogTitle>
-                    <DialogDescription>{shareDescription(schedules)}</DialogDescription>
+                    <DialogDescription>
+                        {shareDescription(schedules)}
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="px-5 py-4">
-                    <label className="mb-2 block text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <label className="mb-2 block text-[12px] font-semibold tracking-wider text-muted-foreground uppercase">
                         Preview
                     </label>
                     <textarea
@@ -140,7 +153,10 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
                 {emailStep ? (
                     <div className="space-y-4 border-t border-border/40 px-5 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="share-email-recipient" className="text-[12px] font-semibold text-muted-foreground">
+                            <Label
+                                htmlFor="share-email-recipient"
+                                className="text-[12px] font-semibold text-muted-foreground"
+                            >
                                 Send to
                             </Label>
                             <Input
@@ -150,7 +166,9 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
                                 autoComplete="email"
                                 placeholder="name@example.com"
                                 value={recipient}
-                                onChange={(event) => setRecipient(event.target.value)}
+                                onChange={(event) =>
+                                    setRecipient(event.target.value)
+                                }
                                 className="h-11 rounded-xl border-border/40 bg-background/50"
                                 onKeyDown={(event) => {
                                     if (event.key === 'Enter') {
@@ -171,7 +189,11 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
                                 <ArrowLeft className="size-4" />
                                 Back
                             </Button>
-                            <Button type="button" className="h-11 rounded-xl sm:flex-1" onClick={handleSendEmail}>
+                            <Button
+                                type="button"
+                                className="h-11 rounded-xl sm:flex-1"
+                                onClick={handleSendEmail}
+                            >
                                 <Mail className="size-4" />
                                 Open in email app
                             </Button>
@@ -179,7 +201,12 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 gap-2 border-t border-border/40 px-5 py-4 sm:grid-cols-3">
-                        <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => void handleCopy()}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="h-11 rounded-xl"
+                            onClick={() => void handleCopy()}
+                        >
                             <Copy className="size-4" />
                             Copy
                         </Button>
@@ -192,7 +219,12 @@ export function ScheduleShareModal({ schedules, open, onOpenChange }: ScheduleSh
                             <MessageCircle className="size-4" />
                             WhatsApp
                         </Button>
-                        <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => setEmailStep(true)}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="h-11 rounded-xl"
+                            onClick={() => setEmailStep(true)}
+                        >
                             <Mail className="size-4" />
                             Email
                         </Button>

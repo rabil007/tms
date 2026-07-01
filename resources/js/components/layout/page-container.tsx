@@ -7,12 +7,16 @@ export type PageContainerProps = {
     className?: string;
 };
 
-export function PageContainer({ children, variant = 'default', className }: PageContainerProps) {
+export function PageContainer({
+    children,
+    variant = 'default',
+    className,
+}: PageContainerProps) {
     return (
         <div
             className={cn(
                 'mx-auto w-full px-4 sm:px-6 md:px-10',
-                'pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]',
+                'pr-[max(1rem,env(safe-area-inset-right))] pl-[max(1rem,env(safe-area-inset-left))]',
                 variant === 'narrow' && 'max-w-4xl',
                 variant === 'wide' && 'max-w-7xl',
                 variant === 'default' && 'max-w-6xl',
@@ -23,4 +27,3 @@ export function PageContainer({ children, variant = 'default', className }: Page
         </div>
     );
 }
-

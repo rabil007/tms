@@ -19,11 +19,20 @@ export function BulkActionBar({ count, onClear, onShare }: BulkActionBarProps) {
                 {count} selected
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
-                <Button type="button" variant="outline" className="h-10 rounded-xl" onClick={onClear}>
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="h-10 rounded-xl"
+                    onClick={onClear}
+                >
                     <X className="size-4" />
                     Clear
                 </Button>
-                <Button type="button" className="h-10 rounded-xl" onClick={onShare}>
+                <Button
+                    type="button"
+                    className="h-10 rounded-xl"
+                    onClick={onShare}
+                >
                     <Share2 className="size-4" />
                     Share {count > 1 ? `(${count})` : ''}
                 </Button>

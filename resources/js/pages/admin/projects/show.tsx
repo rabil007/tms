@@ -17,8 +17,12 @@ type DetailRowProps = { label: string; value: string };
 function DetailRow({ label, value }: DetailRowProps) {
     return (
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <dt className="shrink-0 text-[13px] font-semibold text-muted-foreground">{label}</dt>
-            <dd className="text-[15px] font-medium text-foreground sm:text-right">{value}</dd>
+            <dt className="shrink-0 text-[13px] font-semibold text-muted-foreground">
+                {label}
+            </dt>
+            <dd className="text-[15px] font-medium text-foreground sm:text-right">
+                {value}
+            </dd>
         </div>
     );
 }
@@ -30,14 +34,21 @@ export default function ProjectsShow({ project }: { project: Project }) {
 
             <div className="mx-auto w-full max-w-2xl">
                 <div className="mb-6">
-                    <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{project.title}</h2>
-                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">Project details.</p>
+                    <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                        {project.title}
+                    </h2>
+                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                        Project details.
+                    </p>
                 </div>
 
                 <GlassCard>
                     <dl className="divide-y divide-border/40 px-5 py-1 sm:px-8">
                         <div className="py-4">
-                            <DetailRow label="Project title" value={project.title} />
+                            <DetailRow
+                                label="Project title"
+                                value={project.title}
+                            />
                         </div>
                     </dl>
                 </GlassCard>
@@ -50,7 +61,10 @@ export default function ProjectsShow({ project }: { project: Project }) {
                     >
                         <Link href={ROUTES.index}>Back to list</Link>
                     </Button>
-                    <Button asChild className="h-12 w-full rounded-xl px-8 text-[14px] font-semibold shadow-lg shadow-primary/20 sm:w-auto">
+                    <Button
+                        asChild
+                        className="h-12 w-full rounded-xl px-8 text-[14px] font-semibold shadow-lg shadow-primary/20 sm:w-auto"
+                    >
                         <Link href={ROUTES.edit(project.id)}>
                             <Pencil className="size-4" />
                             Edit Project

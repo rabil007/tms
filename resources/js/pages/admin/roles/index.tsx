@@ -24,15 +24,19 @@ import {
     RoleListCards,
     RoleSlugBadge,
     RoleTable,
-    Shield
-    
+    Shield,
 } from '@/pages/admin/roles/role-views';
-import type {RoleRow} from '@/pages/admin/roles/role-views';
+import type { RoleRow } from '@/pages/admin/roles/role-views';
 
 type Paged<T> = {
     data: T[];
     links: { url: string | null; label: string; active: boolean }[];
-    meta: { current_page: number; last_page: number; per_page: number; total: number };
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 };
 
 export default function RolesIndex({
@@ -40,20 +44,29 @@ export default function RolesIndex({
     filters,
 }: {
     roles: Paged<RoleRow>;
-    filters: { q?: string; sort?: string; dir?: 'asc' | 'desc'; per_page?: number };
+    filters: {
+        q?: string;
+        sort?: string;
+        dir?: 'asc' | 'desc';
+        per_page?: number;
+    };
 }) {
     const isMobile = useIsMobile();
-    const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'roles:index:view' });
-
-    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } = useIndexQueryParams({
-        href: ROLE_ROUTES.index,
-        filters,
-        defaultPerPage: 15,
-        defaultSort: 'name',
-        allowedSorts: ['name', 'slug'],
+    const { viewMode, setViewMode } = useIndexViewMode({
+        storageKey: 'roles:index:view',
     });
 
-    const slOffset = ((roles?.meta?.current_page ?? 1) - 1) * (roles?.meta?.per_page ?? 15);
+    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } =
+        useIndexQueryParams({
+            href: ROLE_ROUTES.index,
+            filters,
+            defaultPerPage: 15,
+            defaultSort: 'name',
+            allowedSorts: ['name', 'slug'],
+        });
+
+    const slOffset =
+        ((roles?.meta?.current_page ?? 1) - 1) * (roles?.meta?.per_page ?? 15);
     const total = roles?.meta?.total ?? 0;
     const hasSearch = q.length > 0;
     const isEmpty = roles.data.length === 0;
@@ -73,7 +86,9 @@ export default function RolesIndex({
                 return;
             }
 
-            router.delete(ROLE_ROUTES.destroy(role.id), { preserveScroll: true });
+            router.delete(ROLE_ROUTES.destroy(role.id), {
+                preserveScroll: true,
+            });
         },
         [requestConfirm],
     );
@@ -82,36 +97,56 @@ export default function RolesIndex({
         () => [
             {
                 id: 'slno',
-                header: () => <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">#</span>,
+                header: () => (
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        #
+                    </span>
+                ),
                 cell: ({ row }) => (
-                    <span className="text-[13px] tabular-nums text-muted-foreground">{slOffset + row.index + 1}</span>
+                    <span className="text-[13px] text-muted-foreground tabular-nums">
+                        {slOffset + row.index + 1}
+                    </span>
                 ),
             },
             {
                 accessorKey: 'name',
                 header: () => (
-                    <SortableHeader label="Name" column="name" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Name"
+                        column="name"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
                     <div className="flex items-center gap-3">
                         <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-rose-500/15 to-pink-600/15 text-[11px] font-bold text-primary ring-1 ring-white/10">
                             {row.original.name.slice(0, 2).toUpperCase()}
                         </div>
-                        <span className="font-medium text-foreground">{row.original.name}</span>
+                        <span className="font-medium text-foreground">
+                            {row.original.name}
+                        </span>
                     </div>
                 ),
             },
             {
                 accessorKey: 'slug',
                 header: () => (
-                    <SortableHeader label="Slug" column="slug" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Slug"
+                        column="slug"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => <RoleSlugBadge slug={row.original.slug} />,
             },
             {
                 id: 'actions',
                 header: () => (
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                         Actions
                     </span>
                 ),
@@ -142,85 +177,114 @@ export default function RolesIndex({
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
             <PullToRefresh only={['roles']}>
-            <ConfirmDialog />
-            <Head title="Roles" />
+                <ConfirmDialog />
+                <Head title="Roles" />
 
-            <SectionHeader
-                title="Roles"
-                subtitle="Manage user roles and permissions."
-                icon={Shield}
-                iconWrapperClassName="bg-linear-to-br from-rose-500/15 to-pink-600/15"
-                iconClassName="text-rose-500"
-                right={
-                    <Button asChild className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto">
-                        <Link href={ROLE_ROUTES.create} prefetch>
-                            <Plus className="size-4" />
-                            New Role
-                        </Link>
-                    </Button>
-                }
-                className="mb-6 sm:mb-8"
-            />
-
-            <div className="mb-6 grid grid-cols-2 gap-3">
-                <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{total}</p>
-                </GlassCard>
-                <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Showing</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">
-                        {roles.data.length}
-                    </p>
-                </GlassCard>
-            </div>
-
-            <IndexToolbar
-                search={q}
-                onSearchChange={setQ}
-                searchPlaceholder="Search role name or slug…"
-                hasSearch={hasSearch}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-            />
-
-            {isEmpty ? (
-                <EmptyState
+                <SectionHeader
+                    title="Roles"
+                    subtitle="Manage user roles and permissions."
                     icon={Shield}
-                    title={hasSearch ? 'No matches found' : 'No roles yet'}
-                    description={
-                        hasSearch
-                            ? 'Try adjusting your search or clear the filter to see all roles.'
-                            : 'Add your first role to get started.'
+                    iconWrapperClassName="bg-linear-to-br from-rose-500/15 to-pink-600/15"
+                    iconClassName="text-rose-500"
+                    right={
+                        <Button
+                            asChild
+                            className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto"
+                        >
+                            <Link href={ROLE_ROUTES.create} prefetch>
+                                <Plus className="size-4" />
+                                New Role
+                            </Link>
+                        </Button>
                     }
-                    action={
-                        !hasSearch ? (
-                            <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
-                                <Link href={ROLE_ROUTES.create} prefetch>
-                                    <Plus className="size-4" />
-                                    Add Role
-                                </Link>
-                            </Button>
-                        ) : undefined
-                    }
+                    className="mb-6 sm:mb-8"
                 />
-            ) : viewMode === 'list' ? (
-                isMobile ? (
-                    <RoleListCards roles={roles.data} onDelete={confirmDelete} />
-                ) : (
-                    <RoleTable table={table} />
-                )
-            ) : (
-                <RoleGridCards roles={roles.data} onDelete={confirmDelete} />
-            )}
 
-            {!isEmpty && roles.links?.length > 0 && (
-                <PaginationBar
-                    links={roles.links}
-                    onVisit={(url) => router.get(url, {}, { preserveScroll: true, preserveState: true })}
-                    left={<RowsPerPageSelect value={perPage} onChange={setPerPage} />}
+                <div className="mb-6 grid grid-cols-2 gap-3">
+                    <GlassCard level="inner" className="px-4 py-3.5">
+                        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                            Total
+                        </p>
+                        <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                            {total}
+                        </p>
+                    </GlassCard>
+                    <GlassCard level="inner" className="px-4 py-3.5">
+                        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                            Showing
+                        </p>
+                        <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                            {roles.data.length}
+                        </p>
+                    </GlassCard>
+                </div>
+
+                <IndexToolbar
+                    search={q}
+                    onSearchChange={setQ}
+                    searchPlaceholder="Search role name or slug…"
+                    hasSearch={hasSearch}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
                 />
-            )}
+
+                {isEmpty ? (
+                    <EmptyState
+                        icon={Shield}
+                        title={hasSearch ? 'No matches found' : 'No roles yet'}
+                        description={
+                            hasSearch
+                                ? 'Try adjusting your search or clear the filter to see all roles.'
+                                : 'Add your first role to get started.'
+                        }
+                        action={
+                            !hasSearch ? (
+                                <Button
+                                    asChild
+                                    className="rounded-full px-6 shadow-lg shadow-primary/20"
+                                >
+                                    <Link href={ROLE_ROUTES.create} prefetch>
+                                        <Plus className="size-4" />
+                                        Add Role
+                                    </Link>
+                                </Button>
+                            ) : undefined
+                        }
+                    />
+                ) : viewMode === 'list' ? (
+                    isMobile ? (
+                        <RoleListCards
+                            roles={roles.data}
+                            onDelete={confirmDelete}
+                        />
+                    ) : (
+                        <RoleTable table={table} />
+                    )
+                ) : (
+                    <RoleGridCards
+                        roles={roles.data}
+                        onDelete={confirmDelete}
+                    />
+                )}
+
+                {!isEmpty && roles.links?.length > 0 && (
+                    <PaginationBar
+                        links={roles.links}
+                        onVisit={(url) =>
+                            router.get(
+                                url,
+                                {},
+                                { preserveScroll: true, preserveState: true },
+                            )
+                        }
+                        left={
+                            <RowsPerPageSelect
+                                value={perPage}
+                                onChange={setPerPage}
+                            />
+                        }
+                    />
+                )}
             </PullToRefresh>
         </ModulePageLayout>
     );

@@ -46,10 +46,15 @@ function readDir(filters: IndexFilters | undefined): 'asc' | 'desc' {
     return filters?.dir === 'desc' ? 'desc' : 'asc';
 }
 
-function readPerPage(filters: IndexFilters | undefined, defaultPerPage: number): number {
+function readPerPage(
+    filters: IndexFilters | undefined,
+    defaultPerPage: number,
+): number {
     const perPage = filters?.per_page;
 
-    return typeof perPage === 'number' && perPage > 0 ? perPage : defaultPerPage;
+    return typeof perPage === 'number' && perPage > 0
+        ? perPage
+        : defaultPerPage;
 }
 
 export function useIndexQueryParams({
@@ -64,9 +69,15 @@ export function useIndexQueryParams({
     const filters = isIndexFilters(rawFilters) ? rawFilters : undefined;
 
     const [q, setQ] = React.useState(() => readString(filters?.q) ?? '');
-    const [perPage, setPerPage] = React.useState(() => readPerPage(filters, defaultPerPage));
-    const [sort, setSort] = React.useState(() => readSort(filters, defaultSort, allowedSorts));
-    const [dir, setDir] = React.useState<'asc' | 'desc'>(() => readDir(filters));
+    const [perPage, setPerPage] = React.useState(() =>
+        readPerPage(filters, defaultPerPage),
+    );
+    const [sort, setSort] = React.useState(() =>
+        readSort(filters, defaultSort, allowedSorts),
+    );
+    const [dir, setDir] = React.useState<'asc' | 'desc'>(() =>
+        readDir(filters),
+    );
     const prevQRef = React.useRef(q);
     const didInitRef = React.useRef(false);
 
@@ -95,9 +106,15 @@ export function useIndexQueryParams({
 
     const url = React.useMemo(() => toUrl(href), [href]);
 
-    const extrasKey = React.useMemo(() => JSON.stringify(extras ?? {}), [extras]);
+    const extrasKey = React.useMemo(
+        () => JSON.stringify(extras ?? {}),
+        [extras],
+    );
     const normalizedExtras = React.useMemo(() => {
-        const parsed = JSON.parse(extrasKey) as Record<string, string | number | undefined>;
+        const parsed = JSON.parse(extrasKey) as Record<
+            string,
+            string | number | undefined
+        >;
 
         return parsed;
     }, [extrasKey]);
@@ -127,13 +144,21 @@ export function useIndexQueryParams({
         prevQRef.current = q;
 
         if (!shouldDebounce || debounceMs <= 0) {
-            router.get(url, params, { preserveScroll: true, preserveState: true, replace: true });
+            router.get(url, params, {
+                preserveScroll: true,
+                preserveState: true,
+                replace: true,
+            });
 
             return;
         }
 
         const t = setTimeout(() => {
-            router.get(url, params, { preserveScroll: true, preserveState: true, replace: true });
+            router.get(url, params, {
+                preserveScroll: true,
+                preserveState: true,
+                replace: true,
+            });
         }, debounceMs);
 
         return () => clearTimeout(t);
@@ -145,7 +170,8 @@ export function useIndexQueryParams({
                 return;
             }
 
-            const nextDir = sort === nextSort ? (dir === 'asc' ? 'desc' : 'asc') : 'asc';
+            const nextDir =
+                sort === nextSort ? (dir === 'asc' ? 'desc' : 'asc') : 'asc';
 
             setSort(nextSort);
             setDir(nextDir);

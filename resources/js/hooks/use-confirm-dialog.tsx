@@ -20,7 +20,9 @@ export type ConfirmOptions = {
 export function useConfirmDialog() {
     const [open, setOpen] = React.useState(false);
     const [options, setOptions] = React.useState<ConfirmOptions | null>(null);
-    const pendingRef = React.useRef<{ resolve: (v: boolean) => void } | null>(null);
+    const pendingRef = React.useRef<{ resolve: (v: boolean) => void } | null>(
+        null,
+    );
 
     const finish = React.useCallback((result: boolean) => {
         const p = pendingRef.current;
@@ -57,7 +59,9 @@ export function useConfirmDialog() {
                     <DialogHeader>
                         <DialogTitle>{options.title}</DialogTitle>
                         {options.description ? (
-                            <DialogDescription>{options.description}</DialogDescription>
+                            <DialogDescription>
+                                {options.description}
+                            </DialogDescription>
                         ) : null}
                     </DialogHeader>
                     <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -71,7 +75,11 @@ export function useConfirmDialog() {
                         </Button>
                         <Button
                             type="button"
-                            variant={options.variant === 'destructive' ? 'destructive' : 'default'}
+                            variant={
+                                options.variant === 'destructive'
+                                    ? 'destructive'
+                                    : 'default'
+                            }
                             className="h-11 w-full rounded-xl sm:w-auto"
                             onClick={() => finish(true)}
                         >

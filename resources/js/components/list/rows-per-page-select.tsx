@@ -21,7 +21,7 @@ export function RowsPerPageSelect({
             <select
                 value={value}
                 onChange={(e) => onChange(Number(e.target.value))}
-                className="flex h-11 min-w-[4.5rem] rounded-xl border border-border/60 bg-muted/40 px-3 text-base font-semibold text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:h-10 sm:text-[13px]"
+                className="flex h-11 min-w-[4.5rem] rounded-xl border border-border/60 bg-muted/40 px-3 text-base font-semibold text-foreground transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none sm:h-10 sm:text-[13px]"
             >
                 {options.map((opt) => (
                     <option key={opt} value={opt}>
@@ -32,4 +32,3 @@ export function RowsPerPageSelect({
         </div>
     );
 }
-

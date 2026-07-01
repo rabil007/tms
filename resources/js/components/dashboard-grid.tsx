@@ -1,7 +1,11 @@
 import { Link } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
 import React from 'react';
-import { APP_LAUNCH_COMPLETE_EVENT, hasAppLaunchedThisSession, prefersReducedMotion } from '@/lib/pwa';
+import {
+    APP_LAUNCH_COMPLETE_EVENT,
+    hasAppLaunchedThisSession,
+    prefersReducedMotion,
+} from '@/lib/pwa';
 import { cn } from '@/lib/utils';
 
 export type DashboardModule = {
@@ -23,7 +27,10 @@ export type DashboardGridProps = {
 const LONG_PRESS_MS = 420;
 const DRAG_START_THRESHOLD = 10;
 
-export function glassColor(gradientClass: string): { bg: string; icon: string } {
+export function glassColor(gradientClass: string): {
+    bg: string;
+    icon: string;
+} {
     const map: Record<string, { bg: string; icon: string }> = {
         'from-blue-600 to-indigo-700': {
             bg: 'color-mix(in oklch, var(--chart-3), transparent 82%)',
@@ -86,10 +93,15 @@ export function glassColor(gradientClass: string): { bg: string; icon: string } 
 const PINNED_TAIL_ORDER = ['projects', 'countries', 'settings'] as const;
 const PINNED_TAIL_SET = new Set<string>(PINNED_TAIL_ORDER);
 
-function enforceModuleOrder(base: DashboardModule[], order: string[] | null): DashboardModule[] {
+function enforceModuleOrder(
+    base: DashboardModule[],
+    order: string[] | null,
+): DashboardModule[] {
     const map = new Map(base.map((m) => [m.id, m] as const));
     const pinnedSet = PINNED_TAIL_SET;
-    const pinned = PINNED_TAIL_ORDER.filter((id) => map.has(id)).map((id) => map.get(id)!);
+    const pinned = PINNED_TAIL_ORDER.filter((id) => map.has(id)).map((id) =>
+        map.get(id)!,
+    );
     const unpinnedBase = base.filter((m) => !pinnedSet.has(m.id));
 
     if (!order || !Array.isArray(order) || order.length === 0) {
@@ -98,13 +110,17 @@ function enforceModuleOrder(base: DashboardModule[], order: string[] | null): Da
 
     const unpinnedIds = order.filter((id) => !pinnedSet.has(id) && map.has(id));
     const orderedUnpinned = unpinnedIds.map((id) => map.get(id)!);
-    const leftoverUnpinned = unpinnedBase.filter((m) => !unpinnedIds.includes(m.id));
+    const leftoverUnpinned = unpinnedBase.filter(
+        (m) => !unpinnedIds.includes(m.id),
+    );
 
     return [...orderedUnpinned, ...leftoverUnpinned, ...pinned];
 }
 
 function findModuleIdAtPoint(x: number, y: number): string | null {
-    const element = document.elementFromPoint(x, y)?.closest('[data-dashboard-module]');
+    const element = document
+        .elementFromPoint(x, y)
+        ?.closest('[data-dashboard-module]');
 
     return element?.getAttribute('data-dashboard-module') ?? null;
 }
@@ -115,7 +131,8 @@ export function DashboardGrid({
     storageKey,
     className,
 }: DashboardGridProps) {
-    const [modules, setModules] = React.useState<DashboardModule[]>(baseModules);
+    const [modules, setModules] =
+        React.useState<DashboardModule[]>(baseModules);
     const [draggingId, setDraggingId] = React.useState<string | null>(null);
     const [isReordering, setIsReordering] = React.useState(false);
     const [animateTiles, setAnimateTiles] = React.useState(() => {
@@ -142,10 +159,16 @@ export function DashboardGrid({
             setAnimateTiles(true);
         };
 
-        window.addEventListener(APP_LAUNCH_COMPLETE_EVENT, handleLaunchComplete);
+        window.addEventListener(
+            APP_LAUNCH_COMPLETE_EVENT,
+            handleLaunchComplete,
+        );
 
         return () => {
-            window.removeEventListener(APP_LAUNCH_COMPLETE_EVENT, handleLaunchComplete);
+            window.removeEventListener(
+                APP_LAUNCH_COMPLETE_EVENT,
+                handleLaunchComplete,
+            );
         };
     }, [animateTiles]);
 
@@ -164,7 +187,9 @@ export function DashboardGrid({
         try {
             const raw = window.localStorage.getItem(storageKey);
             const order = raw ? (JSON.parse(raw) as string[]) : null;
-            queueMicrotask(() => setModules(enforceModuleOrder(baseModules, order)));
+            queueMicrotask(() =>
+                setModules(enforceModuleOrder(baseModules, order)),
+            );
         } catch {
             queueMicrotask(() => setModules(baseModules));
         }
@@ -205,7 +230,10 @@ export function DashboardGrid({
                 const next = current.slice();
                 const [item] = next.splice(from, 1);
                 next.splice(to, 0, item);
-                const enforced = enforceModuleOrder(baseModules, next.map((m) => m.id));
+                const enforced = enforceModuleOrder(
+                    baseModules,
+                    next.map((m) => m.id),
+                );
                 persistOrder(enforced);
 
                 return enforced;
@@ -226,7 +254,9 @@ export function DashboardGrid({
 
         if (captureTargetRef.current && activePointerIdRef.current !== null) {
             try {
-                captureTargetRef.current.releasePointerCapture(activePointerIdRef.current);
+                captureTargetRef.current.releasePointerCapture(
+                    activePointerIdRef.current,
+                );
             } catch {
                 void 0;
             }
@@ -266,7 +296,11 @@ export function DashboardGrid({
         (clientX: number, clientY: number, activeId: string) => {
             const overId = findModuleIdAtPoint(clientX, clientY);
 
-            if (!overId || overId === activeId || overId === lastOverIdRef.current) {
+            if (
+                !overId ||
+                overId === activeId ||
+                overId === lastOverIdRef.current
+            ) {
                 return;
             }
 
@@ -302,14 +336,20 @@ export function DashboardGrid({
             const deltaX = event.clientX - pointerStartRef.current.x;
             const deltaY = event.clientY - pointerStartRef.current.y;
             const passedThreshold =
-                Math.abs(deltaX) > DRAG_START_THRESHOLD || Math.abs(deltaY) > DRAG_START_THRESHOLD;
+                Math.abs(deltaX) > DRAG_START_THRESHOLD ||
+                Math.abs(deltaY) > DRAG_START_THRESHOLD;
 
             if (!draggingId) {
                 if (longPressTimerRef.current && passedThreshold) {
                     clearLongPressTimer();
                 }
 
-                if (event.pointerType === 'mouse' && passedThreshold && storageKey && !PINNED_TAIL_SET.has(moduleId)) {
+                if (
+                    event.pointerType === 'mouse' &&
+                    passedThreshold &&
+                    storageKey &&
+                    !PINNED_TAIL_SET.has(moduleId)
+                ) {
                     beginDrag(moduleId, event.currentTarget, event.pointerId);
                 }
 
@@ -321,7 +361,13 @@ export function DashboardGrid({
                 updateDropTarget(event.clientX, event.clientY, draggingId);
             }
         },
-        [beginDrag, clearLongPressTimer, draggingId, storageKey, updateDropTarget],
+        [
+            beginDrag,
+            clearLongPressTimer,
+            draggingId,
+            storageKey,
+            updateDropTarget,
+        ],
     );
 
     const handlePointerUp = React.useCallback(() => {
@@ -336,11 +382,14 @@ export function DashboardGrid({
         }
     }, [endDrag]);
 
-    const handleClick = React.useCallback((event: React.MouseEvent) => {
-        if (didDragRef.current || isReordering) {
-            event.preventDefault();
-        }
-    }, [isReordering]);
+    const handleClick = React.useCallback(
+        (event: React.MouseEvent) => {
+            if (didDragRef.current || isReordering) {
+                event.preventDefault();
+            }
+        },
+        [isReordering],
+    );
 
     const tileSizeClass =
         iconSize === 'sm'
@@ -389,27 +438,33 @@ export function DashboardGrid({
                             onClick={handleClick}
                             onPointerDown={
                                 isDraggable
-                                    ? (event) => handlePointerDown(module.id, event)
+                                    ? (event) =>
+                                          handlePointerDown(module.id, event)
                                     : undefined
                             }
                             onPointerMove={
                                 isDraggable
-                                    ? (event) => handlePointerMove(module.id, event)
+                                    ? (event) =>
+                                          handlePointerMove(module.id, event)
                                     : undefined
                             }
-                            onPointerUp={isDraggable ? handlePointerUp : undefined}
-                            onPointerCancel={isDraggable ? handlePointerUp : undefined}
+                            onPointerUp={
+                                isDraggable ? handlePointerUp : undefined
+                            }
+                            onPointerCancel={
+                                isDraggable ? handlePointerUp : undefined
+                            }
                             className={cn(
                                 'group flex min-w-[88px] touch-manipulation flex-col items-center gap-2.5 outline-none sm:gap-3',
                                 !animateTiles && 'opacity-0',
-                                animateTiles
-                                    && !prefersReducedMotion()
-                                    && 'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-300 motion-safe:fill-mode-backwards',
-                                isReordering
-                                    && isDraggable
-                                    && !isDragging
-                                    && !prefersReducedMotion()
-                                    && 'motion-safe:animate-[tile-wiggle_0.28s_ease-in-out_infinite]',
+                                animateTiles &&
+                                    !prefersReducedMotion() &&
+                                    'motion-safe:animate-in motion-safe:duration-300 motion-safe:fill-mode-backwards motion-safe:fade-in motion-safe:slide-in-from-bottom-4',
+                                isReordering &&
+                                    isDraggable &&
+                                    !isDragging &&
+                                    !prefersReducedMotion() &&
+                                    'motion-safe:animate-[tile-wiggle_0.28s_ease-in-out_infinite]',
                                 isDragging && 'z-50 scale-105 opacity-95',
                             )}
                             style={
@@ -426,18 +481,25 @@ export function DashboardGrid({
                                         tileSizeClass,
                                         'rounded-3xl',
                                         'transition-all duration-200 ease-out',
-                                        !isReordering && 'group-hover:-translate-y-0.5 group-hover:scale-[1.10]',
-                                        !isReordering && 'group-hover:shadow-2xl',
-                                        !isReordering && 'group-active:scale-95',
+                                        !isReordering &&
+                                            'group-hover:-translate-y-0.5 group-hover:scale-[1.10]',
+                                        !isReordering &&
+                                            'group-hover:shadow-2xl',
+                                        !isReordering &&
+                                            'group-active:scale-95',
                                         'group-focus-visible:ring-4 group-focus-visible:ring-ring/30',
-                                        isDragging && 'shadow-2xl ring-2 ring-primary/40',
+                                        isDragging &&
+                                            'shadow-2xl ring-2 ring-primary/40',
                                     )}
                                     style={{
                                         background: glassColor(module.color).bg,
-                                        backdropFilter: 'blur(20px) saturate(1.4)',
-                                        WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
+                                        backdropFilter:
+                                            'blur(20px) saturate(1.4)',
+                                        WebkitBackdropFilter:
+                                            'blur(20px) saturate(1.4)',
                                         border: '1px solid rgba(255,255,255,0.18)',
-                                        boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                                        boxShadow:
+                                            '0 8px 32px rgba(0,0,0,0.25)',
                                     }}
                                 >
                                     <span
@@ -452,19 +514,24 @@ export function DashboardGrid({
                                     <span className="pointer-events-none absolute -inset-px z-3 rounded-3xl border border-white/0 transition-all duration-200 group-hover:border-white/30" />
 
                                     <module.icon
-                                        className={cn('relative z-2 stroke-[1.4]', iconClass)}
+                                        className={cn(
+                                            'relative z-2 stroke-[1.4]',
+                                            iconClass,
+                                        )}
                                         style={{
-                                            color: glassColor(module.color).icon,
+                                            color: glassColor(module.color)
+                                                .icon,
                                             filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))',
                                         }}
                                     />
                                 </div>
 
-                                {module.badge != null && Number(module.badge) > 0 && (
-                                    <span className="absolute -top-1.5 -right-1.5 z-10 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-background bg-destructive px-1.5 text-[11px] font-black text-destructive-foreground shadow-lg">
-                                        {Number(module.badge)}
-                                    </span>
-                                )}
+                                {module.badge != null &&
+                                    Number(module.badge) > 0 && (
+                                        <span className="absolute -top-1.5 -right-1.5 z-10 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-background bg-destructive px-1.5 text-[11px] font-black text-destructive-foreground shadow-lg">
+                                            {Number(module.badge)}
+                                        </span>
+                                    )}
                             </div>
 
                             <span className="text-center text-[12px] font-semibold tracking-wide text-muted-foreground transition-colors group-hover:text-foreground sm:text-[13px]">

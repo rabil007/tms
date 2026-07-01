@@ -9,10 +9,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
     formatPickUpTime,
     formatScheduleDate,
-    SCHEDULE_ROUTES
-    
+    SCHEDULE_ROUTES,
 } from '@/pages/admin/schedules/schedule-format';
-import type {ScheduleRow} from '@/pages/admin/schedules/schedule-format';
+import type { ScheduleRow } from '@/pages/admin/schedules/schedule-format';
 
 export {
     formatPickUpTime,
@@ -30,7 +29,9 @@ export function ScheduleTable({ table }: ScheduleTableProps) {
     return (
         <ResourceTable
             table={table}
-            onRowClick={(schedule) => router.get(SCHEDULE_ROUTES.show(schedule.id))}
+            onRowClick={(schedule) =>
+                router.get(SCHEDULE_ROUTES.show(schedule.id))
+            }
         />
     );
 }
@@ -93,16 +94,28 @@ function ScheduleCardCheckbox({
     );
 }
 
-export function ScheduleListCards({ schedules, onDelete, onShare, rowSelection, onToggleSelect }: ScheduleCardsProps) {
+export function ScheduleListCards({
+    schedules,
+    onDelete,
+    onShare,
+    rowSelection,
+    onToggleSelect,
+}: ScheduleCardsProps) {
     return (
         <div className="space-y-3">
             {schedules.map((schedule) => (
                 <GlassCard
                     key={schedule.id}
-                    className="group relative cursor-pointer p-4 pt-10 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
-                    onClick={() => router.get(SCHEDULE_ROUTES.show(schedule.id))}
-                    onMouseEnter={() => router.prefetch(SCHEDULE_ROUTES.show(schedule.id))}
-                    onTouchStart={() => router.prefetch(SCHEDULE_ROUTES.show(schedule.id))}
+                    className="group relative cursor-pointer p-4 pt-10 transition-all hover:border-primary/25 hover:bg-card/60 active:scale-[0.99]"
+                    onClick={() =>
+                        router.get(SCHEDULE_ROUTES.show(schedule.id))
+                    }
+                    onMouseEnter={() =>
+                        router.prefetch(SCHEDULE_ROUTES.show(schedule.id))
+                    }
+                    onTouchStart={() =>
+                        router.prefetch(SCHEDULE_ROUTES.show(schedule.id))
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(SCHEDULE_ROUTES.show(schedule.id));
@@ -119,17 +132,26 @@ export function ScheduleListCards({ schedules, onDelete, onShare, rowSelection, 
                     <div className="flex items-center gap-3.5">
                         <ScheduleIcon />
                         <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold text-foreground">{schedule.crew_name}</p>
+                            <p className="truncate font-semibold text-foreground">
+                                {schedule.crew_name}
+                            </p>
                             <p className="mt-1 text-[13px] text-muted-foreground">
-                                {formatScheduleDate(schedule.scheduled_date)} · {formatPickUpTime(schedule.pick_up_time)}
+                                {formatScheduleDate(schedule.scheduled_date)} ·{' '}
+                                {formatPickUpTime(schedule.pick_up_time)}
                             </p>
                             <div className="mt-2 flex flex-wrap gap-1.5">
                                 {schedule.project?.title && (
-                                    <Badge variant="secondary" className="rounded-md text-[11px]">
+                                    <Badge
+                                        variant="secondary"
+                                        className="rounded-md text-[11px]"
+                                    >
                                         {schedule.project.title}
                                     </Badge>
                                 )}
-                                <Badge variant="outline" className="max-w-full truncate rounded-md text-[11px]">
+                                <Badge
+                                    variant="outline"
+                                    className="max-w-full truncate rounded-md text-[11px]"
+                                >
                                     {schedule.pick_up_location}
                                 </Badge>
                             </div>
@@ -137,7 +159,13 @@ export function ScheduleListCards({ schedules, onDelete, onShare, rowSelection, 
                         <ChevronRight className="size-5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-muted-foreground" />
                     </div>
                     <div className="mt-4 flex justify-end border-t border-border/30 pt-3">
-                        <RowActions {...scheduleRowActionsProps(schedule, onDelete(schedule), onShare)} />
+                        <RowActions
+                            {...scheduleRowActionsProps(
+                                schedule,
+                                onDelete(schedule),
+                                onShare,
+                            )}
+                        />
                     </div>
                 </GlassCard>
             ))}
@@ -145,16 +173,28 @@ export function ScheduleListCards({ schedules, onDelete, onShare, rowSelection, 
     );
 }
 
-export function ScheduleGridCards({ schedules, onDelete, onShare, rowSelection, onToggleSelect }: ScheduleCardsProps) {
+export function ScheduleGridCards({
+    schedules,
+    onDelete,
+    onShare,
+    rowSelection,
+    onToggleSelect,
+}: ScheduleCardsProps) {
     return (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {schedules.map((schedule) => (
                 <GlassCard
                     key={schedule.id}
-                    className="group relative flex cursor-pointer flex-col p-4 pt-10 transition-all active:scale-[0.99] hover:border-primary/25 hover:bg-card/60"
-                    onClick={() => router.get(SCHEDULE_ROUTES.show(schedule.id))}
-                    onMouseEnter={() => router.prefetch(SCHEDULE_ROUTES.show(schedule.id))}
-                    onTouchStart={() => router.prefetch(SCHEDULE_ROUTES.show(schedule.id))}
+                    className="group relative flex cursor-pointer flex-col p-4 pt-10 transition-all hover:border-primary/25 hover:bg-card/60 active:scale-[0.99]"
+                    onClick={() =>
+                        router.get(SCHEDULE_ROUTES.show(schedule.id))
+                    }
+                    onMouseEnter={() =>
+                        router.prefetch(SCHEDULE_ROUTES.show(schedule.id))
+                    }
+                    onTouchStart={() =>
+                        router.prefetch(SCHEDULE_ROUTES.show(schedule.id))
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             router.get(SCHEDULE_ROUTES.show(schedule.id));
@@ -169,20 +209,33 @@ export function ScheduleGridCards({ schedules, onDelete, onShare, rowSelection, 
                         onToggleSelect={onToggleSelect}
                     />
                     <ScheduleIcon />
-                    <p className="mt-3 line-clamp-1 font-semibold text-foreground">{schedule.crew_name}</p>
+                    <p className="mt-3 line-clamp-1 font-semibold text-foreground">
+                        {schedule.crew_name}
+                    </p>
                     <p className="mt-1 text-[13px] text-muted-foreground">
-                        {formatScheduleDate(schedule.scheduled_date)} · {formatPickUpTime(schedule.pick_up_time)}
+                        {formatScheduleDate(schedule.scheduled_date)} ·{' '}
+                        {formatPickUpTime(schedule.pick_up_time)}
                     </p>
                     {schedule.project?.title && (
-                        <Badge variant="secondary" className="mt-2 w-fit rounded-md text-[11px]">
+                        <Badge
+                            variant="secondary"
+                            className="mt-2 w-fit rounded-md text-[11px]"
+                        >
                             {schedule.project.title}
                         </Badge>
                     )}
                     <p className="mt-2 line-clamp-2 text-[12px] text-muted-foreground">
-                        {schedule.pick_up_location} → {schedule.drop_off_location}
+                        {schedule.pick_up_location} →{' '}
+                        {schedule.drop_off_location}
                     </p>
                     <div className="mt-auto flex justify-end border-t border-border/30 pt-3">
-                        <RowActions {...scheduleRowActionsProps(schedule, onDelete(schedule), onShare)} />
+                        <RowActions
+                            {...scheduleRowActionsProps(
+                                schedule,
+                                onDelete(schedule),
+                                onShare,
+                            )}
+                        />
                     </div>
                 </GlassCard>
             ))}

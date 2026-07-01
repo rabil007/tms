@@ -29,32 +29,39 @@ import { useIndexQueryParams } from '@/hooks/use-index-query-params';
 import { useIndexViewMode } from '@/hooks/use-index-view-mode';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import {
-    ScheduleIndexFilters
-    
-} from '@/pages/admin/schedules/schedule-index-filters';
-import type {ProjectFilterOption} from '@/pages/admin/schedules/schedule-index-filters';
+import { ScheduleIndexFilters } from '@/pages/admin/schedules/schedule-index-filters';
+import type { ProjectFilterOption } from '@/pages/admin/schedules/schedule-index-filters';
 import {
     formatPickUpTime,
     formatScheduleDate,
     SCHEDULE_ROUTES,
     ScheduleGridCards,
     ScheduleListCards,
-    ScheduleTable
-    
+    ScheduleTable,
 } from '@/pages/admin/schedules/schedule-views';
-import type {ScheduleRow} from '@/pages/admin/schedules/schedule-views';
+import type { ScheduleRow } from '@/pages/admin/schedules/schedule-views';
 
 type Paged<T> = {
     data: T[];
     links: { url: string | null; label: string; active: boolean }[];
-    meta?: { current_page: number; last_page: number; per_page: number; total: number };
+    meta?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
     total?: number;
     current_page?: number;
     per_page?: number;
 };
 
-const ALLOWED_SORTS = ['crew_name', 'scheduled_date', 'pick_up_time', 'pick_up_location', 'drop_off_location'];
+const ALLOWED_SORTS = [
+    'crew_name',
+    'scheduled_date',
+    'pick_up_time',
+    'pick_up_location',
+    'drop_off_location',
+];
 
 type ScheduleFilters = {
     q?: string;
@@ -79,9 +86,15 @@ export default function SchedulesIndex({
     todayDate: string;
 }) {
     const isMobile = useIsMobile();
-    const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'schedules:index:view' });
-    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
-    const [shareSchedules, setShareSchedules] = React.useState<ScheduleRow[] | null>(null);
+    const { viewMode, setViewMode } = useIndexViewMode({
+        storageKey: 'schedules:index:view',
+    });
+    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
+        {},
+    );
+    const [shareSchedules, setShareSchedules] = React.useState<
+        ScheduleRow[] | null
+    >(null);
 
     const [indexFilters, setIndexFilters] = React.useState({
         projectId: filters.project_id ? String(filters.project_id) : '',
@@ -97,30 +110,51 @@ export default function SchedulesIndex({
         });
     }, [filters.project_id, filters.date_from, filters.date_to]);
 
-    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } = useIndexQueryParams({
-        href: SCHEDULE_ROUTES.index,
-        filters,
-        defaultPerPage: 15,
-        defaultSort: 'scheduled_date',
-        allowedSorts: ALLOWED_SORTS,
-        extras: {
-            project_id: indexFilters.projectId ? Number(indexFilters.projectId) : undefined,
-            date_from: indexFilters.dateFrom || undefined,
-            date_to: indexFilters.dateTo || undefined,
-        },
-    });
+    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } =
+        useIndexQueryParams({
+            href: SCHEDULE_ROUTES.index,
+            filters,
+            defaultPerPage: 15,
+            defaultSort: 'scheduled_date',
+            allowedSorts: ALLOWED_SORTS,
+            extras: {
+                project_id: indexFilters.projectId
+                    ? Number(indexFilters.projectId)
+                    : undefined,
+                date_from: indexFilters.dateFrom || undefined,
+                date_to: indexFilters.dateTo || undefined,
+            },
+        });
 
-    const currentPage = schedules?.meta?.current_page ?? schedules?.current_page ?? 1;
+    const currentPage =
+        schedules?.meta?.current_page ?? schedules?.current_page ?? 1;
 
     React.useEffect(() => {
         setRowSelection({});
-    }, [currentPage, perPage, q, sort, dir, indexFilters.projectId, indexFilters.dateFrom, indexFilters.dateTo]);
+    }, [
+        currentPage,
+        perPage,
+        q,
+        sort,
+        dir,
+        indexFilters.projectId,
+        indexFilters.dateFrom,
+        indexFilters.dateTo,
+    ]);
 
-    const slOffset = (currentPage - 1) * (schedules?.meta?.per_page ?? schedules?.per_page ?? 15);
-    const isTodayFilterActive = indexFilters.dateFrom === todayDate && indexFilters.dateTo === todayDate;
+    const slOffset =
+        (currentPage - 1) *
+        (schedules?.meta?.per_page ?? schedules?.per_page ?? 15);
+    const isTodayFilterActive =
+        indexFilters.dateFrom === todayDate &&
+        indexFilters.dateTo === todayDate;
     const isTotalFilterActive = !isTodayFilterActive;
     const hasSearch = q.length > 0;
-    const hasActiveFilters = hasSearch || !!indexFilters.projectId || !!indexFilters.dateFrom || !!indexFilters.dateTo;
+    const hasActiveFilters =
+        hasSearch ||
+        !!indexFilters.projectId ||
+        !!indexFilters.dateFrom ||
+        !!indexFilters.dateTo;
     const isEmpty = schedules.data.length === 0;
 
     const toggleSelected = React.useCallback((id: number) => {
@@ -138,21 +172,24 @@ export default function SchedulesIndex({
         });
     }, []);
 
-    const setRowSelected = React.useCallback((id: number, selected: boolean) => {
-        const key = String(id);
+    const setRowSelected = React.useCallback(
+        (id: number, selected: boolean) => {
+            const key = String(id);
 
-        setRowSelection((current) => {
-            const next = { ...current };
+            setRowSelection((current) => {
+                const next = { ...current };
 
-            if (selected) {
-                next[key] = true;
-            } else {
-                delete next[key];
-            }
+                if (selected) {
+                    next[key] = true;
+                } else {
+                    delete next[key];
+                }
 
-            return next;
-        });
-    }, []);
+                return next;
+            });
+        },
+        [],
+    );
 
     const setAllOnPageSelected = React.useCallback(
         (selected: boolean) => {
@@ -198,12 +235,16 @@ export default function SchedulesIndex({
                 return;
             }
 
-            router.delete(SCHEDULE_ROUTES.destroy(schedule.id), { preserveScroll: true });
+            router.delete(SCHEDULE_ROUTES.destroy(schedule.id), {
+                preserveScroll: true,
+            });
         },
         [requestConfirm],
     );
 
-    const selectedOnPage = schedules.data.filter((schedule) => rowSelection[String(schedule.id)]);
+    const selectedOnPage = schedules.data.filter(
+        (schedule) => rowSelection[String(schedule.id)],
+    );
     const selectedCount = selectedOnPage.length;
 
     const scheduleIdsOnPage = React.useMemo(
@@ -217,46 +258,76 @@ export default function SchedulesIndex({
                 id: 'select',
                 header: () => <ScheduleSelectAllCheckbox />,
                 cell: ({ row }) => (
-                    <ScheduleSelectRowCheckbox id={row.original.id} label={row.original.crew_name} />
+                    <ScheduleSelectRowCheckbox
+                        id={row.original.id}
+                        label={row.original.crew_name}
+                    />
                 ),
             },
             {
                 id: 'slno',
-                header: () => <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">#</span>,
+                header: () => (
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        #
+                    </span>
+                ),
                 cell: ({ row }) => (
-                    <span className="text-[13px] tabular-nums text-muted-foreground">{slOffset + row.index + 1}</span>
+                    <span className="text-[13px] text-muted-foreground tabular-nums">
+                        {slOffset + row.index + 1}
+                    </span>
                 ),
             },
             {
                 accessorKey: 'crew_name',
                 header: () => (
-                    <SortableHeader label="Crew" column="crew_name" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Crew"
+                        column="crew_name"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
                     <div className="flex items-center gap-3">
                         <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-600/15 text-primary ring-1 ring-white/10">
                             <CalendarClock className="size-4" />
                         </div>
-                        <span className="font-medium text-foreground">{row.original.crew_name}</span>
+                        <span className="font-medium text-foreground">
+                            {row.original.crew_name}
+                        </span>
                     </div>
                 ),
             },
             {
                 accessorKey: 'scheduled_date',
                 header: () => (
-                    <SortableHeader label="Date" column="scheduled_date" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Date"
+                        column="scheduled_date"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
-                    <span className="text-[13px] text-foreground">{formatScheduleDate(row.original.scheduled_date)}</span>
+                    <span className="text-[13px] text-foreground">
+                        {formatScheduleDate(row.original.scheduled_date)}
+                    </span>
                 ),
             },
             {
                 id: 'project',
                 header: () => (
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Project</span>
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        Project
+                    </span>
                 ),
                 cell: ({ row }) => (
-                    <Badge variant="secondary" className="rounded-md text-[11px]">
+                    <Badge
+                        variant="secondary"
+                        className="rounded-md text-[11px]"
+                    >
                         {row.original.project?.title ?? '—'}
                     </Badge>
                 ),
@@ -264,34 +335,60 @@ export default function SchedulesIndex({
             {
                 accessorKey: 'pick_up_time',
                 header: () => (
-                    <SortableHeader label="Time" column="pick_up_time" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Time"
+                        column="pick_up_time"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
-                    <span className="text-[13px] text-foreground">{formatPickUpTime(row.original.pick_up_time)}</span>
+                    <span className="text-[13px] text-foreground">
+                        {formatPickUpTime(row.original.pick_up_time)}
+                    </span>
                 ),
             },
             {
                 accessorKey: 'pick_up_location',
                 header: () => (
-                    <SortableHeader label="Pick up" column="pick_up_location" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Pick up"
+                        column="pick_up_location"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
-                    <span className="max-w-[12rem] truncate text-[13px] text-foreground">{row.original.pick_up_location}</span>
+                    <span className="max-w-[12rem] truncate text-[13px] text-foreground">
+                        {row.original.pick_up_location}
+                    </span>
                 ),
             },
             {
                 accessorKey: 'drop_off_location',
                 header: () => (
-                    <SortableHeader label="Drop off" column="drop_off_location" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Drop off"
+                        column="drop_off_location"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
-                    <span className="max-w-[12rem] truncate text-[13px] text-foreground">{row.original.drop_off_location}</span>
+                    <span className="max-w-[12rem] truncate text-[13px] text-foreground">
+                        {row.original.drop_off_location}
+                    </span>
                 ),
             },
             {
                 id: 'actions',
                 header: () => (
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Actions</span>
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        Actions
+                    </span>
                 ),
                 cell: ({ row }) => (
                     <RowActions
@@ -303,14 +400,7 @@ export default function SchedulesIndex({
                 ),
             },
         ],
-        [
-            slOffset,
-            sort,
-            dir,
-            toggleSort,
-            confirmDelete,
-            openShare,
-        ],
+        [slOffset, sort, dir, toggleSort, confirmDelete, openShare],
     );
 
     const table = useReactTable({
@@ -329,128 +419,163 @@ export default function SchedulesIndex({
 
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
-            <PullToRefresh only={['schedules', 'totalCount', 'todayCount', 'projects']}>
-            <ConfirmDialog />
-            <ScheduleShareModal
-                schedules={shareSchedules ?? []}
-                open={shareSchedules !== null}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        setShareSchedules(null);
-                    }
-                }}
-            />
-            <Head title="Schedules" />
-
-            <SectionHeader
-                title="Schedules"
-                subtitle="Manage crew transport schedules with pick-up and drop-off details."
-                icon={CalendarClock}
-                iconWrapperClassName="bg-linear-to-br from-emerald-500/15 to-teal-600/15"
-                iconClassName="text-emerald-500"
-                right={
-                    <Button asChild className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto">
-                        <Link href={SCHEDULE_ROUTES.create} prefetch>
-                            <Plus className="size-4" />
-                            New Schedule
-                        </Link>
-                    </Button>
-                }
-                className="mb-6 sm:mb-8"
-            />
-
-            <Deferred data={['totalCount', 'todayCount']} fallback={<StatCardsSkeleton count={2} columns="grid-cols-2" className="mb-6" />}>
-                <ScheduleStatCards
-                    todayDate={todayDate}
-                    isTodayFilterActive={isTodayFilterActive}
-                    isTotalFilterActive={isTotalFilterActive}
-                    setIndexFilters={setIndexFilters}
-                />
-            </Deferred>
-
-            <IndexToolbar
-                search={q}
-                onSearchChange={setQ}
-                searchPlaceholder="Search crew, project, location…"
-                hasSearch={hasActiveFilters}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-            />
-
-            <Deferred
-                data="projects"
-                fallback={
-                    <div className="mb-4 rounded-2xl border border-border/50 bg-card/40 p-4">
-                        <Skeleton className="h-10 w-full" />
-                    </div>
-                }
+            <PullToRefresh
+                only={['schedules', 'totalCount', 'todayCount', 'projects']}
             >
-                <ScheduleFiltersSection
-                    indexFilters={indexFilters}
-                    setIndexFilters={setIndexFilters}
+                <ConfirmDialog />
+                <ScheduleShareModal
+                    schedules={shareSchedules ?? []}
+                    open={shareSchedules !== null}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setShareSchedules(null);
+                        }
+                    }}
                 />
-            </Deferred>
+                <Head title="Schedules" />
 
-            <BulkActionBar
-                count={selectedCount}
-                onClear={clearSelection}
-                onShare={() => openShare(selectedOnPage)}
-            />
-
-            {isEmpty ? (
-                <EmptyState
+                <SectionHeader
+                    title="Schedules"
+                    subtitle="Manage crew transport schedules with pick-up and drop-off details."
                     icon={CalendarClock}
-                    title={hasActiveFilters ? 'No matches found' : 'No schedules yet'}
-                    description={
-                        hasActiveFilters
-                            ? 'Try adjusting your search or filters to see more schedules.'
-                            : 'Create your first schedule to start managing crew transport.'
+                    iconWrapperClassName="bg-linear-to-br from-emerald-500/15 to-teal-600/15"
+                    iconClassName="text-emerald-500"
+                    right={
+                        <Button
+                            asChild
+                            className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto"
+                        >
+                            <Link href={SCHEDULE_ROUTES.create} prefetch>
+                                <Plus className="size-4" />
+                                New Schedule
+                            </Link>
+                        </Button>
                     }
-                    action={
-                        !hasActiveFilters ? (
-                            <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
-                                <Link href={SCHEDULE_ROUTES.create} prefetch>
-                                    <Plus className="size-4" />
-                                    Add Schedule
-                                </Link>
-                            </Button>
-                        ) : undefined
-                    }
+                    className="mb-6 sm:mb-8"
                 />
-            ) : viewMode === 'list' ? (
-                isMobile ? (
-                    <ScheduleListCards
+
+                <Deferred
+                    data={['totalCount', 'todayCount']}
+                    fallback={
+                        <StatCardsSkeleton
+                            count={2}
+                            columns="grid-cols-2"
+                            className="mb-6"
+                        />
+                    }
+                >
+                    <ScheduleStatCards
+                        todayDate={todayDate}
+                        isTodayFilterActive={isTodayFilterActive}
+                        isTotalFilterActive={isTotalFilterActive}
+                        setIndexFilters={setIndexFilters}
+                    />
+                </Deferred>
+
+                <IndexToolbar
+                    search={q}
+                    onSearchChange={setQ}
+                    searchPlaceholder="Search crew, project, location…"
+                    hasSearch={hasActiveFilters}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                />
+
+                <Deferred
+                    data="projects"
+                    fallback={
+                        <div className="mb-4 rounded-2xl border border-border/50 bg-card/40 p-4">
+                            <Skeleton className="h-10 w-full" />
+                        </div>
+                    }
+                >
+                    <ScheduleFiltersSection
+                        indexFilters={indexFilters}
+                        setIndexFilters={setIndexFilters}
+                    />
+                </Deferred>
+
+                <BulkActionBar
+                    count={selectedCount}
+                    onClear={clearSelection}
+                    onShare={() => openShare(selectedOnPage)}
+                />
+
+                {isEmpty ? (
+                    <EmptyState
+                        icon={CalendarClock}
+                        title={
+                            hasActiveFilters
+                                ? 'No matches found'
+                                : 'No schedules yet'
+                        }
+                        description={
+                            hasActiveFilters
+                                ? 'Try adjusting your search or filters to see more schedules.'
+                                : 'Create your first schedule to start managing crew transport.'
+                        }
+                        action={
+                            !hasActiveFilters ? (
+                                <Button
+                                    asChild
+                                    className="rounded-full px-6 shadow-lg shadow-primary/20"
+                                >
+                                    <Link
+                                        href={SCHEDULE_ROUTES.create}
+                                        prefetch
+                                    >
+                                        <Plus className="size-4" />
+                                        Add Schedule
+                                    </Link>
+                                </Button>
+                            ) : undefined
+                        }
+                    />
+                ) : viewMode === 'list' ? (
+                    isMobile ? (
+                        <ScheduleListCards
+                            schedules={schedules.data}
+                            onDelete={confirmDelete}
+                            onShare={(schedule) => openShare([schedule])}
+                            {...cardSelectionProps}
+                        />
+                    ) : (
+                        <ScheduleSelectionProvider
+                            rowSelection={rowSelection}
+                            setRowSelected={setRowSelected}
+                            setAllOnPageSelected={setAllOnPageSelected}
+                            scheduleIdsOnPage={scheduleIdsOnPage}
+                        >
+                            <ScheduleTable table={table} />
+                        </ScheduleSelectionProvider>
+                    )
+                ) : (
+                    <ScheduleGridCards
                         schedules={schedules.data}
                         onDelete={confirmDelete}
                         onShare={(schedule) => openShare([schedule])}
                         {...cardSelectionProps}
                     />
-                ) : (
-                    <ScheduleSelectionProvider
-                        rowSelection={rowSelection}
-                        setRowSelected={setRowSelected}
-                        setAllOnPageSelected={setAllOnPageSelected}
-                        scheduleIdsOnPage={scheduleIdsOnPage}
-                    >
-                        <ScheduleTable table={table} />
-                    </ScheduleSelectionProvider>
-                )
-            ) : (
-                <ScheduleGridCards
-                    schedules={schedules.data}
-                    onDelete={confirmDelete}
-                    onShare={(schedule) => openShare([schedule])}
-                    {...cardSelectionProps}
-                />
-            )}
+                )}
 
-            {!isEmpty && schedules.links?.length > 0 && (
-                <PaginationBar
-                    links={schedules.links}
-                    onVisit={(url) => router.get(url, {}, { preserveScroll: true, preserveState: true })}
-                    left={<RowsPerPageSelect value={perPage} onChange={setPerPage} />}
-                />
-            )}
+                {!isEmpty && schedules.links?.length > 0 && (
+                    <PaginationBar
+                        links={schedules.links}
+                        onVisit={(url) =>
+                            router.get(
+                                url,
+                                {},
+                                { preserveScroll: true, preserveState: true },
+                            )
+                        }
+                        left={
+                            <RowsPerPageSelect
+                                value={perPage}
+                                onChange={setPerPage}
+                            />
+                        }
+                    />
+                )}
             </PullToRefresh>
         </ModulePageLayout>
     );
@@ -471,7 +596,13 @@ function ScheduleStatCards({
     todayDate: string;
     isTodayFilterActive: boolean;
     isTotalFilterActive: boolean;
-    setIndexFilters: React.Dispatch<React.SetStateAction<{ projectId: string; dateFrom: string; dateTo: string }>>;
+    setIndexFilters: React.Dispatch<
+        React.SetStateAction<{
+            projectId: string;
+            dateFrom: string;
+            dateTo: string;
+        }>
+    >;
 }) {
     const { totalCount, todayCount } = usePage<SchedulePageProps>().props;
 
@@ -481,14 +612,24 @@ function ScheduleStatCards({
                 as="button"
                 type="button"
                 level="inner"
-                onClick={() => setIndexFilters((current) => ({ ...current, dateFrom: '', dateTo: '' }))}
+                onClick={() =>
+                    setIndexFilters((current) => ({
+                        ...current,
+                        dateFrom: '',
+                        dateTo: '',
+                    }))
+                }
                 className={cn(
                     'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
                     isTotalFilterActive && 'ring-2 ring-primary/40',
                 )}
             >
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{totalCount}</p>
+                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                    Total
+                </p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                    {totalCount}
+                </p>
             </GlassCard>
             <GlassCard
                 as="button"
@@ -506,8 +647,12 @@ function ScheduleStatCards({
                     isTodayFilterActive && 'ring-2 ring-emerald-500/50',
                 )}
             >
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Today</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{todayCount}</p>
+                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                    Today
+                </p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                    {todayCount}
+                </p>
             </GlassCard>
         </div>
     );
@@ -518,7 +663,13 @@ function ScheduleFiltersSection({
     setIndexFilters,
 }: {
     indexFilters: { projectId: string; dateFrom: string; dateTo: string };
-    setIndexFilters: React.Dispatch<React.SetStateAction<{ projectId: string; dateFrom: string; dateTo: string }>>;
+    setIndexFilters: React.Dispatch<
+        React.SetStateAction<{
+            projectId: string;
+            dateFrom: string;
+            dateTo: string;
+        }>
+    >;
 }) {
     const { projects } = usePage<SchedulePageProps>().props;
 
@@ -527,7 +678,9 @@ function ScheduleFiltersSection({
             projects={projects}
             value={indexFilters}
             onChange={setIndexFilters}
-            onClear={() => setIndexFilters({ projectId: '', dateFrom: '', dateTo: '' })}
+            onClear={() =>
+                setIndexFilters({ projectId: '', dateFrom: '', dateTo: '' })
+            }
         />
     );
 }

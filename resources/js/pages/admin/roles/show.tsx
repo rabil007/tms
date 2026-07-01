@@ -13,8 +13,12 @@ type DetailRowProps = { label: string; value: React.ReactNode };
 function DetailRow({ label, value }: DetailRowProps) {
     return (
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <dt className="shrink-0 text-[13px] font-semibold text-muted-foreground">{label}</dt>
-            <dd className="text-[15px] font-medium text-foreground sm:text-right">{value}</dd>
+            <dt className="shrink-0 text-[13px] font-semibold text-muted-foreground">
+                {label}
+            </dt>
+            <dd className="text-[15px] font-medium text-foreground sm:text-right">
+                {value}
+            </dd>
         </div>
     );
 }
@@ -26,8 +30,12 @@ export default function RolesShow({ role }: { role: Role }) {
 
             <div className="mx-auto w-full max-w-2xl">
                 <div className="mb-6">
-                    <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{role.name}</h2>
-                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">Role details.</p>
+                    <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                        {role.name}
+                    </h2>
+                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                        Role details.
+                    </p>
                 </div>
 
                 <GlassCard>
@@ -36,7 +44,10 @@ export default function RolesShow({ role }: { role: Role }) {
                             <DetailRow label="Role name" value={role.name} />
                         </div>
                         <div className="py-4">
-                            <DetailRow label="Slug" value={<RoleSlugBadge slug={role.slug} />} />
+                            <DetailRow
+                                label="Slug"
+                                value={<RoleSlugBadge slug={role.slug} />}
+                            />
                         </div>
                     </dl>
                 </GlassCard>
@@ -49,7 +60,10 @@ export default function RolesShow({ role }: { role: Role }) {
                     >
                         <Link href={ROLE_ROUTES.index}>Back to list</Link>
                     </Button>
-                    <Button asChild className="h-12 w-full rounded-xl px-8 text-[14px] font-semibold shadow-lg shadow-primary/20 sm:w-auto">
+                    <Button
+                        asChild
+                        className="h-12 w-full rounded-xl px-8 text-[14px] font-semibold shadow-lg shadow-primary/20 sm:w-auto"
+                    >
                         <Link href={ROLE_ROUTES.edit(role.id)}>
                             <Pencil className="size-4" />
                             Edit Role

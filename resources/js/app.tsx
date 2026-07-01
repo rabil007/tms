@@ -50,9 +50,14 @@ function readInitialAppName(): string {
     }
 
     try {
-        const page = JSON.parse(root.dataset.page) as { props?: { name?: unknown } };
+        const page = JSON.parse(root.dataset.page) as {
+            props?: { name?: unknown };
+        };
 
-        if (typeof page.props?.name === 'string' && page.props.name.length > 0) {
+        if (
+            typeof page.props?.name === 'string' &&
+            page.props.name.length > 0
+        ) {
             return page.props.name;
         }
     } catch {
@@ -83,7 +88,8 @@ router.on('navigate', (event) => {
 });
 
 createInertiaApp({
-    title: (title) => (title ? `${title} - ${resolvedAppName}` : resolvedAppName),
+    title: (title) =>
+        title ? `${title} - ${resolvedAppName}` : resolvedAppName,
     layout: (name) => {
         switch (true) {
             case name === 'welcome':

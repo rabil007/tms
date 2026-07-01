@@ -39,9 +39,10 @@ test('users index exposes role counts excluding the logged in admin', function (
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->where('counts.total', 3)
-        ->where('counts.admins', 1)
-        ->where('counts.users', 2));
+        ->loadDeferredProps(fn ($reload) => $reload
+            ->where('counts.total', 3)
+            ->where('counts.admins', 1)
+            ->where('counts.users', 2)));
 });
 
 test('admin users can visit users create page', function () {

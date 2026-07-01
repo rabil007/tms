@@ -1,9 +1,8 @@
 import {
     formatPickUpTime,
-    formatScheduleDate
-    
+    formatScheduleDate,
 } from '@/pages/admin/schedules/schedule-format';
-import type {ScheduleRow} from '@/pages/admin/schedules/schedule-format';
+import type { ScheduleRow } from '@/pages/admin/schedules/schedule-format';
 
 export type ScheduleShareData = Pick<
     ScheduleRow,
@@ -29,9 +28,14 @@ function label(text: string, markdown: boolean): string {
     return markdown ? `*${text}:*` : `${text}:`;
 }
 
-export function formatScheduleShareMessage(schedule: ScheduleShareData, options: FormatOptions = {}): string {
+export function formatScheduleShareMessage(
+    schedule: ScheduleShareData,
+    options: FormatOptions = {},
+): string {
     const markdown = options.markdown ?? false;
-    const heading = markdown ? '*Crew Transport Schedule*' : 'Crew Transport Schedule';
+    const heading = markdown
+        ? '*Crew Transport Schedule*'
+        : 'Crew Transport Schedule';
 
     const lines = [
         heading,
@@ -53,7 +57,10 @@ export function formatScheduleShareMessage(schedule: ScheduleShareData, options:
     return lines.join('\n');
 }
 
-export function formatSchedulesShareMessage(schedules: ScheduleShareData[], options: FormatOptions = {}): string {
+export function formatSchedulesShareMessage(
+    schedules: ScheduleShareData[],
+    options: FormatOptions = {},
+): string {
     if (schedules.length === 0) {
         return '';
     }
@@ -62,7 +69,9 @@ export function formatSchedulesShareMessage(schedules: ScheduleShareData[], opti
         return formatScheduleShareMessage(schedules[0], options);
     }
 
-    return schedules.map((schedule) => formatScheduleShareMessage(schedule, options)).join(SCHEDULE_SEPARATOR);
+    return schedules
+        .map((schedule) => formatScheduleShareMessage(schedule, options))
+        .join(SCHEDULE_SEPARATOR);
 }
 
 function formatEmailSubject(schedules: ScheduleShareData[]): string {
@@ -73,18 +82,24 @@ function formatEmailSubject(schedules: ScheduleShareData[]): string {
     return `Crew Transport Schedules (${schedules.length})`;
 }
 
-export function isWhatsAppShareTooLong(schedules: ScheduleShareData[]): boolean {
+export function isWhatsAppShareTooLong(
+    schedules: ScheduleShareData[],
+): boolean {
     const message = formatSchedulesShareMessage(schedules, { markdown: true });
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
     return url.length > WHATSAPP_URL_CHAR_LIMIT;
 }
 
-export async function copySchedulesShareMessage(schedules: ScheduleShareData[]): Promise<void> {
+export async function copySchedulesShareMessage(
+    schedules: ScheduleShareData[],
+): Promise<void> {
     await navigator.clipboard.writeText(formatSchedulesShareMessage(schedules));
 }
 
-export function openSchedulesWhatsAppShare(schedules: ScheduleShareData[]): boolean {
+export function openSchedulesWhatsAppShare(
+    schedules: ScheduleShareData[],
+): boolean {
     if (isWhatsAppShareTooLong(schedules)) {
         return false;
     }
@@ -97,14 +112,19 @@ export function openSchedulesWhatsAppShare(schedules: ScheduleShareData[]): bool
     return true;
 }
 
-export function openSchedulesEmailShare(schedules: ScheduleShareData[], to: string): void {
+export function openSchedulesEmailShare(
+    schedules: ScheduleShareData[],
+    to: string,
+): void {
     const subject = encodeURIComponent(formatEmailSubject(schedules));
     const body = encodeURIComponent(formatSchedulesShareMessage(schedules));
 
     window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
 }
 
-export async function copyScheduleShareMessage(schedule: ScheduleShareData): Promise<void> {
+export async function copyScheduleShareMessage(
+    schedule: ScheduleShareData,
+): Promise<void> {
     await copySchedulesShareMessage([schedule]);
 }
 
@@ -112,6 +132,9 @@ export function openScheduleWhatsAppShare(schedule: ScheduleShareData): void {
     openSchedulesWhatsAppShare([schedule]);
 }
 
-export function openScheduleEmailShare(schedule: ScheduleShareData, to: string): void {
+export function openScheduleEmailShare(
+    schedule: ScheduleShareData,
+    to: string,
+): void {
     openSchedulesEmailShare([schedule], to);
 }

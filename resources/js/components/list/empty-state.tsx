@@ -21,7 +21,12 @@ export function EmptyState({
     iconWrapperClassName,
 }: EmptyStateProps) {
     return (
-        <GlassCard className={cn('flex flex-col items-center justify-center px-6 py-16 text-center', className)}>
+        <GlassCard
+            className={cn(
+                'flex flex-col items-center justify-center px-6 py-16 text-center',
+                className,
+            )}
+        >
             <div
                 className={cn(
                     'flex size-16 items-center justify-center rounded-2xl bg-linear-to-br from-blue-500/15 to-indigo-600/15 ring-1 ring-white/10',
@@ -30,8 +35,12 @@ export function EmptyState({
             >
                 <Icon className="size-8 text-primary" />
             </div>
-            <h3 className="mt-5 text-lg font-semibold tracking-tight text-foreground">{title}</h3>
-            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">{description}</p>
+            <h3 className="mt-5 text-lg font-semibold tracking-tight text-foreground">
+                {title}
+            </h3>
+            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+                {description}
+            </p>
             {action ? <div className="mt-6">{action}</div> : null}
         </GlassCard>
     );

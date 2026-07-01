@@ -1,5 +1,5 @@
-import { flexRender  } from '@tanstack/react-table';
-import type {Table} from '@tanstack/react-table';
+import { flexRender } from '@tanstack/react-table';
+import type { Table } from '@tanstack/react-table';
 import { GlassCard } from '@/components/layout/glass-card';
 
 export type ResourceTableProps<T> = {
@@ -14,7 +14,10 @@ export function ResourceTable<T>({ table, onRowClick }: ResourceTableProps<T>) {
                 <table className="w-full min-w-max text-sm">
                     <thead>
                         {table.getHeaderGroups().map((hg) => (
-                            <tr key={hg.id} className="border-b border-border/40 bg-muted/20">
+                            <tr
+                                key={hg.id}
+                                className="border-b border-border/40 bg-muted/20"
+                            >
                                 {hg.headers.map((h) => (
                                     <th
                                         key={h.id}
@@ -22,7 +25,10 @@ export function ResourceTable<T>({ table, onRowClick }: ResourceTableProps<T>) {
                                     >
                                         {h.isPlaceholder
                                             ? null
-                                            : flexRender(h.column.columnDef.header, h.getContext())}
+                                            : flexRender(
+                                                  h.column.columnDef.header,
+                                                  h.getContext(),
+                                              )}
                                     </th>
                                 ))}
                             </tr>
@@ -40,7 +46,10 @@ export function ResourceTable<T>({ table, onRowClick }: ResourceTableProps<T>) {
                                         key={cell.id}
                                         className="px-4 py-3.5 align-middle whitespace-nowrap first:pl-5 last:pr-5 last:text-right"
                                     >
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext(),
+                                        )}
                                     </td>
                                 ))}
                             </tr>

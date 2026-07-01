@@ -22,15 +22,19 @@ import {
     PROJECT_ROUTES,
     ProjectGridCards,
     ProjectListCards,
-    ProjectTable
-    
+    ProjectTable,
 } from '@/pages/admin/projects/project-views';
-import type {ProjectRow} from '@/pages/admin/projects/project-views';
+import type { ProjectRow } from '@/pages/admin/projects/project-views';
 
 type Paged<T> = {
     data: T[];
     links: { url: string | null; label: string; active: boolean }[];
-    meta: { current_page: number; last_page: number; per_page: number; total: number };
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 };
 
 export default function ProjectsIndex({
@@ -38,20 +42,30 @@ export default function ProjectsIndex({
     filters,
 }: {
     projects: Paged<ProjectRow>;
-    filters: { q?: string; sort?: string; dir?: 'asc' | 'desc'; per_page?: number };
+    filters: {
+        q?: string;
+        sort?: string;
+        dir?: 'asc' | 'desc';
+        per_page?: number;
+    };
 }) {
     const isMobile = useIsMobile();
-    const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'projects:index:view' });
-
-    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } = useIndexQueryParams({
-        href: PROJECT_ROUTES.index,
-        filters,
-        defaultPerPage: 15,
-        defaultSort: 'title',
-        allowedSorts: ['title'],
+    const { viewMode, setViewMode } = useIndexViewMode({
+        storageKey: 'projects:index:view',
     });
 
-    const slOffset = ((projects?.meta?.current_page ?? 1) - 1) * (projects?.meta?.per_page ?? 15);
+    const { q, setQ, perPage, setPerPage, sort, dir, toggleSort } =
+        useIndexQueryParams({
+            href: PROJECT_ROUTES.index,
+            filters,
+            defaultPerPage: 15,
+            defaultSort: 'title',
+            allowedSorts: ['title'],
+        });
+
+    const slOffset =
+        ((projects?.meta?.current_page ?? 1) - 1) *
+        (projects?.meta?.per_page ?? 15);
     const total = projects?.meta?.total ?? 0;
     const hasSearch = q.length > 0;
     const isEmpty = projects.data.length === 0;
@@ -71,7 +85,9 @@ export default function ProjectsIndex({
                 return;
             }
 
-            router.delete(PROJECT_ROUTES.destroy(project.id), { preserveScroll: true });
+            router.delete(PROJECT_ROUTES.destroy(project.id), {
+                preserveScroll: true,
+            });
         },
         [requestConfirm],
     );
@@ -80,29 +96,43 @@ export default function ProjectsIndex({
         () => [
             {
                 id: 'slno',
-                header: () => <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">#</span>,
+                header: () => (
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        #
+                    </span>
+                ),
                 cell: ({ row }) => (
-                    <span className="text-[13px] tabular-nums text-muted-foreground">{slOffset + row.index + 1}</span>
+                    <span className="text-[13px] text-muted-foreground tabular-nums">
+                        {slOffset + row.index + 1}
+                    </span>
                 ),
             },
             {
                 accessorKey: 'title',
                 header: () => (
-                    <SortableHeader label="Title" column="title" sort={sort} dir={dir} onSort={toggleSort} />
+                    <SortableHeader
+                        label="Title"
+                        column="title"
+                        sort={sort}
+                        dir={dir}
+                        onSort={toggleSort}
+                    />
                 ),
                 cell: ({ row }) => (
                     <div className="flex items-center gap-3">
                         <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-violet-500/15 to-purple-600/15 text-[11px] font-bold text-primary ring-1 ring-white/10">
                             {row.original.title.slice(0, 2).toUpperCase()}
                         </div>
-                        <span className="font-medium text-foreground">{row.original.title}</span>
+                        <span className="font-medium text-foreground">
+                            {row.original.title}
+                        </span>
                     </div>
                 ),
             },
             {
                 id: 'actions',
                 header: () => (
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                         Actions
                     </span>
                 ),
@@ -133,85 +163,116 @@ export default function ProjectsIndex({
     return (
         <ModulePageLayout backHref="/dashboard" backLabel="Dashboard">
             <PullToRefresh only={['projects']}>
-            <ConfirmDialog />
-            <Head title="Projects" />
+                <ConfirmDialog />
+                <Head title="Projects" />
 
-            <SectionHeader
-                title="Projects"
-                subtitle="Manage project titles."
-                icon={FolderKanban}
-                iconWrapperClassName="bg-linear-to-br from-violet-500/15 to-purple-600/15"
-                iconClassName="text-violet-500"
-                right={
-                    <Button asChild className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto">
-                        <Link href={PROJECT_ROUTES.create} prefetch>
-                            <Plus className="size-4" />
-                            New Project
-                        </Link>
-                    </Button>
-                }
-                className="mb-6 sm:mb-8"
-            />
-
-            <div className="mb-6 grid grid-cols-2 gap-3">
-                <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{total}</p>
-                </GlassCard>
-                <GlassCard level="inner" className="px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Showing</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">
-                        {projects.data.length}
-                    </p>
-                </GlassCard>
-            </div>
-
-            <IndexToolbar
-                search={q}
-                onSearchChange={setQ}
-                searchPlaceholder="Search project title…"
-                hasSearch={hasSearch}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-            />
-
-            {isEmpty ? (
-                <EmptyState
+                <SectionHeader
+                    title="Projects"
+                    subtitle="Manage project titles."
                     icon={FolderKanban}
-                    title={hasSearch ? 'No matches found' : 'No projects yet'}
-                    description={
-                        hasSearch
-                            ? 'Try adjusting your search or clear the filter to see all projects.'
-                            : 'Add your first project to get started.'
+                    iconWrapperClassName="bg-linear-to-br from-violet-500/15 to-purple-600/15"
+                    iconClassName="text-violet-500"
+                    right={
+                        <Button
+                            asChild
+                            className="h-11 w-full rounded-full px-5 shadow-lg shadow-primary/20 sm:w-auto"
+                        >
+                            <Link href={PROJECT_ROUTES.create} prefetch>
+                                <Plus className="size-4" />
+                                New Project
+                            </Link>
+                        </Button>
                     }
-                    action={
-                        !hasSearch ? (
-                            <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
-                                <Link href={PROJECT_ROUTES.create} prefetch>
-                                    <Plus className="size-4" />
-                                    Add Project
-                                </Link>
-                            </Button>
-                        ) : undefined
-                    }
+                    className="mb-6 sm:mb-8"
                 />
-            ) : viewMode === 'list' ? (
-                isMobile ? (
-                    <ProjectListCards projects={projects.data} onDelete={confirmDelete} />
-                ) : (
-                    <ProjectTable table={table} />
-                )
-            ) : (
-                <ProjectGridCards projects={projects.data} onDelete={confirmDelete} />
-            )}
 
-            {!isEmpty && projects.links?.length > 0 && (
-                <PaginationBar
-                    links={projects.links}
-                    onVisit={(url) => router.get(url, {}, { preserveScroll: true, preserveState: true })}
-                    left={<RowsPerPageSelect value={perPage} onChange={setPerPage} />}
+                <div className="mb-6 grid grid-cols-2 gap-3">
+                    <GlassCard level="inner" className="px-4 py-3.5">
+                        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                            Total
+                        </p>
+                        <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                            {total}
+                        </p>
+                    </GlassCard>
+                    <GlassCard level="inner" className="px-4 py-3.5">
+                        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                            Showing
+                        </p>
+                        <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                            {projects.data.length}
+                        </p>
+                    </GlassCard>
+                </div>
+
+                <IndexToolbar
+                    search={q}
+                    onSearchChange={setQ}
+                    searchPlaceholder="Search project title…"
+                    hasSearch={hasSearch}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
                 />
-            )}
+
+                {isEmpty ? (
+                    <EmptyState
+                        icon={FolderKanban}
+                        title={
+                            hasSearch ? 'No matches found' : 'No projects yet'
+                        }
+                        description={
+                            hasSearch
+                                ? 'Try adjusting your search or clear the filter to see all projects.'
+                                : 'Add your first project to get started.'
+                        }
+                        action={
+                            !hasSearch ? (
+                                <Button
+                                    asChild
+                                    className="rounded-full px-6 shadow-lg shadow-primary/20"
+                                >
+                                    <Link href={PROJECT_ROUTES.create} prefetch>
+                                        <Plus className="size-4" />
+                                        Add Project
+                                    </Link>
+                                </Button>
+                            ) : undefined
+                        }
+                    />
+                ) : viewMode === 'list' ? (
+                    isMobile ? (
+                        <ProjectListCards
+                            projects={projects.data}
+                            onDelete={confirmDelete}
+                        />
+                    ) : (
+                        <ProjectTable table={table} />
+                    )
+                ) : (
+                    <ProjectGridCards
+                        projects={projects.data}
+                        onDelete={confirmDelete}
+                    />
+                )}
+
+                {!isEmpty && projects.links?.length > 0 && (
+                    <PaginationBar
+                        links={projects.links}
+                        onVisit={(url) =>
+                            router.get(
+                                url,
+                                {},
+                                { preserveScroll: true, preserveState: true },
+                            )
+                        }
+                        left={
+                            <RowsPerPageSelect
+                                value={perPage}
+                                onChange={setPerPage}
+                            />
+                        }
+                    />
+                )}
             </PullToRefresh>
         </ModulePageLayout>
     );

@@ -14,8 +14,17 @@ export default function NotificationsSettings({
     vapidPublicKey: string | null;
     pushEnabled: boolean;
 }) {
-    const { status, supported, ready, enabled, processing, error, setupError, enable, disable } =
-        usePushNotifications(vapidPublicKey, pushEnabled);
+    const {
+        status,
+        supported,
+        ready,
+        enabled,
+        processing,
+        error,
+        setupError,
+        enable,
+        disable,
+    } = usePushNotifications(vapidPublicKey, pushEnabled);
 
     const httpsUrl =
         typeof window !== 'undefined'
@@ -61,12 +70,17 @@ export default function NotificationsSettings({
 
                 <div className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
                     {!ready ? (
-                        <p className="text-sm text-muted-foreground">Checking browser support…</p>
+                        <p className="text-sm text-muted-foreground">
+                            Checking browser support…
+                        </p>
                     ) : status === 'requires_https' ? (
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-foreground">HTTPS required</p>
+                            <p className="text-sm font-medium text-foreground">
+                                HTTPS required
+                            </p>
                             <p className="text-sm text-muted-foreground">
-                                Browser push only works on a secure connection. You are currently on HTTP.
+                                Browser push only works on a secure connection.
+                                You are currently on HTTP.
                             </p>
                             {httpsUrl && (
                                 <a
@@ -79,25 +93,33 @@ export default function NotificationsSettings({
                         </div>
                     ) : status === 'requires_pwa' ? (
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-foreground">Add to Home Screen (iPhone/iPad)</p>
+                            <p className="text-sm font-medium text-foreground">
+                                Add to Home Screen (iPhone/iPad)
+                            </p>
                             <p className="text-sm text-muted-foreground">
-                                iOS only shows web push alerts for installed apps. In Safari, tap Share → Add to Home
-                                Screen, open the app from your home screen, then enable notifications here.
+                                iOS only shows web push alerts for installed
+                                apps. In Safari, tap Share → Add to Home Screen,
+                                open the app from your home screen, then enable
+                                notifications here.
                             </p>
                         </div>
                     ) : !supported ? (
                         <p className="text-sm text-muted-foreground">
-                            Push notifications are not supported in this browser.
+                            Push notifications are not supported in this
+                            browser.
                         </p>
                     ) : !vapidPublicKey ? (
                         <p className="text-sm text-muted-foreground">
-                            Push notifications are not configured yet. Add VAPID keys to the server environment.
+                            Push notifications are not configured yet. Add VAPID
+                            keys to the server environment.
                         </p>
                     ) : (
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p className="text-sm font-medium text-foreground">
-                                    {isPushEnabled ? 'Browser notifications enabled' : 'Browser notifications disabled'}
+                                    {isPushEnabled
+                                        ? 'Browser notifications enabled'
+                                        : 'Browser notifications disabled'}
                                 </p>
                                 <p className="mt-1 text-[13px] text-muted-foreground">
                                     {isPushEnabled
@@ -105,7 +127,9 @@ export default function NotificationsSettings({
                                         : 'Enable to get instant alerts outside the app.'}
                                 </p>
                                 {(setupError || error) && (
-                                    <p className="mt-2 text-[13px] text-destructive">{setupError ?? error}</p>
+                                    <p className="mt-2 text-[13px] text-destructive">
+                                        {setupError ?? error}
+                                    </p>
                                 )}
                             </div>
                             <Button
@@ -128,11 +152,16 @@ export default function NotificationsSettings({
                 <div className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <p className="text-sm font-medium text-foreground">Send test notification</p>
+                            <p className="text-sm font-medium text-foreground">
+                                Send test notification
+                            </p>
                             <p className="mt-1 text-[13px] text-muted-foreground">
                                 Sends a test alert to your bell
-                                {isPushEnabled ? ' and browser push on this device' : ''}. Use the same phone or
-                                computer where you enabled notifications.
+                                {isPushEnabled
+                                    ? ' and browser push on this device'
+                                    : ''}
+                                . Use the same phone or computer where you
+                                enabled notifications.
                             </p>
                         </div>
                         <Button

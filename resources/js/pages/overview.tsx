@@ -1,5 +1,10 @@
 import { Deferred, Head, Link, router, usePage } from '@inertiajs/react';
-import { Bell, CalendarClock, ChevronRight, LayoutDashboard } from 'lucide-react';
+import {
+    Bell,
+    CalendarClock,
+    ChevronRight,
+    LayoutDashboard,
+} from 'lucide-react';
 import type { ElementType } from 'react';
 import { GlassCard } from '@/components/layout/glass-card';
 import { ModulePageLayout } from '@/components/layout/module-page-layout';
@@ -11,10 +16,9 @@ import {
     MonthlyTrendPanel,
     ScheduleForecastPanel,
     TopPickUpLocationsPanel,
-    TopProjectsPanel
-    
+    TopProjectsPanel,
 } from '@/components/overview/analytics-panels';
-import type {OverviewAnalytics} from '@/components/overview/analytics-panels';
+import type { OverviewAnalytics } from '@/components/overview/analytics-panels';
 import { cn } from '@/lib/utils';
 import {
     formatPickUpTime,
@@ -64,25 +68,50 @@ const ROUTES = {
     schedulesIndex: '/schedules',
 } as const;
 
-function StatCard({ label, value, accent }: { label: string; value: number; accent?: string }) {
+function StatCard({
+    label,
+    value,
+    accent,
+}: {
+    label: string;
+    value: number;
+    accent?: string;
+}) {
     return (
         <GlassCard level="inner" className="px-4 py-3.5">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
-            <p className={cn('mt-1 text-2xl font-bold tabular-nums tracking-tight', accent ?? 'text-foreground')}>
+            <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                {label}
+            </p>
+            <p
+                className={cn(
+                    'mt-1 text-2xl font-bold tracking-tight tabular-nums',
+                    accent ?? 'text-foreground',
+                )}
+            >
                 {value}
             </p>
         </GlassCard>
     );
 }
 
-function FeedEmpty({ icon: Icon, title, description }: { icon: ElementType; title: string; description: string }) {
+function FeedEmpty({
+    icon: Icon,
+    title,
+    description,
+}: {
+    icon: ElementType;
+    title: string;
+    description: string;
+}) {
     return (
         <div className="flex h-full min-h-40 flex-col items-center justify-center px-6 py-10 text-center">
             <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/50">
                 <Icon className="size-5 text-muted-foreground" />
             </div>
             <p className="text-sm font-semibold text-foreground">{title}</p>
-            <p className="mt-1 max-w-xs text-[13px] text-muted-foreground">{description}</p>
+            <p className="mt-1 max-w-xs text-[13px] text-muted-foreground">
+                {description}
+            </p>
         </div>
     );
 }
@@ -104,7 +133,15 @@ export default function Overview() {
                 className="mb-6 sm:mb-8"
             />
 
-            <Deferred data="stats" fallback={<StatCardsSkeleton count={isAdmin ? 9 : 7} className="mb-6" />}>
+            <Deferred
+                data="stats"
+                fallback={
+                    <StatCardsSkeleton
+                        count={isAdmin ? 9 : 7}
+                        className="mb-6"
+                    />
+                }
+            >
                 <OverviewStats isAdmin={isAdmin} />
             </Deferred>
 
@@ -118,7 +155,11 @@ export default function Overview() {
                     fallback={
                         <GlassCard className="overflow-hidden">
                             <div className="border-b border-border/40 px-5 py-4">
-                                <SkeletonHeader title="Recent Schedules" icon={CalendarClock} iconClassName="text-emerald-500" />
+                                <SkeletonHeader
+                                    title="Recent Schedules"
+                                    icon={CalendarClock}
+                                    iconClassName="text-emerald-500"
+                                />
                             </div>
                             <FeedListSkeleton />
                         </GlassCard>
@@ -132,7 +173,11 @@ export default function Overview() {
                     fallback={
                         <GlassCard className="overflow-hidden">
                             <div className="border-b border-border/40 px-5 py-4">
-                                <SkeletonHeader title="Recent Activity" icon={Bell} iconClassName="text-primary" />
+                                <SkeletonHeader
+                                    title="Recent Activity"
+                                    icon={Bell}
+                                    iconClassName="text-primary"
+                                />
                             </div>
                             <FeedListSkeleton />
                         </GlassCard>
@@ -157,7 +202,9 @@ function SkeletonHeader({
     return (
         <div className="flex items-center gap-2.5">
             <Icon className={cn('size-4', iconClassName)} />
-            <h3 className="text-[15px] font-bold tracking-tight text-foreground">{title}</h3>
+            <h3 className="text-[15px] font-bold tracking-tight text-foreground">
+                {title}
+            </h3>
         </div>
     );
 }
@@ -188,7 +235,12 @@ function OverviewStats({ isAdmin }: { isAdmin: boolean }) {
     return (
         <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
             {statCards.map((card) => (
-                <StatCard key={card.label} label={card.label} value={card.value} accent={card.accent} />
+                <StatCard
+                    key={card.label}
+                    label={card.label}
+                    value={card.value}
+                    accent={card.accent}
+                />
             ))}
         </div>
     );
@@ -220,7 +272,9 @@ function RecentSchedulesFeed() {
             <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
                 <div className="flex items-center gap-2.5">
                     <CalendarClock className="size-4 text-emerald-500" />
-                    <h3 className="text-[15px] font-bold tracking-tight text-foreground">Recent Schedules</h3>
+                    <h3 className="text-[15px] font-bold tracking-tight text-foreground">
+                        Recent Schedules
+                    </h3>
                 </div>
                 <Link
                     href={ROUTES.schedulesIndex}
@@ -231,7 +285,12 @@ function RecentSchedulesFeed() {
                 </Link>
             </div>
 
-            <div className={cn('custom-scrollbar h-112 overflow-y-auto', recentSchedules.length === 0 && 'h-auto')}>
+            <div
+                className={cn(
+                    'custom-scrollbar h-112 overflow-y-auto',
+                    recentSchedules.length === 0 && 'h-auto',
+                )}
+            >
                 {recentSchedules.length === 0 ? (
                     <FeedEmpty
                         icon={CalendarClock}
@@ -252,11 +311,16 @@ function RecentSchedulesFeed() {
                                             {schedule.crew_name}
                                         </p>
                                         <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
-                                            {schedule.project?.title ?? 'No project'}
+                                            {schedule.project?.title ??
+                                                'No project'}
                                             {' · '}
-                                            {formatScheduleDate(schedule.scheduled_date)}
+                                            {formatScheduleDate(
+                                                schedule.scheduled_date,
+                                            )}
                                             {' · '}
-                                            {formatPickUpTime(schedule.pick_up_time)}
+                                            {formatPickUpTime(
+                                                schedule.pick_up_time,
+                                            )}
                                         </p>
                                     </div>
                                     <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
@@ -284,11 +348,18 @@ function RecentActivityFeed() {
             <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
                 <div className="flex items-center gap-2.5">
                     <Bell className="size-4 text-primary" />
-                    <h3 className="text-[15px] font-bold tracking-tight text-foreground">Recent Activity</h3>
+                    <h3 className="text-[15px] font-bold tracking-tight text-foreground">
+                        Recent Activity
+                    </h3>
                 </div>
             </div>
 
-            <div className={cn('custom-scrollbar h-112 overflow-y-auto', recentActivity.length === 0 && 'h-auto')}>
+            <div
+                className={cn(
+                    'custom-scrollbar h-112 overflow-y-auto',
+                    recentActivity.length === 0 && 'h-auto',
+                )}
+            >
                 {recentActivity.length === 0 ? (
                     <FeedEmpty
                         icon={Bell}
@@ -301,17 +372,23 @@ function RecentActivityFeed() {
                             <li key={activity.id}>
                                 <button
                                     type="button"
-                                    onClick={() => handleActivityClick(activity)}
+                                    onClick={() =>
+                                        handleActivityClick(activity)
+                                    }
                                     disabled={!activity.action_url}
                                     className={cn(
                                         'group flex w-full items-start gap-3 px-5 py-3.5 text-left transition-colors',
-                                        activity.action_url ? 'cursor-pointer hover:bg-muted/30' : 'cursor-default',
+                                        activity.action_url
+                                            ? 'cursor-pointer hover:bg-muted/30'
+                                            : 'cursor-default',
                                     )}
                                 >
                                     <div
                                         className={cn(
                                             'mt-1.5 size-2 shrink-0 rounded-full',
-                                            activity.read_at ? 'bg-muted-foreground/30' : 'bg-primary',
+                                            activity.read_at
+                                                ? 'bg-muted-foreground/30'
+                                                : 'bg-primary',
                                         )}
                                     />
                                     <div className="min-w-0 flex-1">

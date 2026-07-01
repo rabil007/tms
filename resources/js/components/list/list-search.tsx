@@ -9,7 +9,12 @@ export type ListSearchProps = {
     className?: string;
 };
 
-export function ListSearch({ value, onChange, placeholder, className }: ListSearchProps) {
+export function ListSearch({
+    value,
+    onChange,
+    placeholder,
+    className,
+}: ListSearchProps) {
     return (
         <Input
             value={value}

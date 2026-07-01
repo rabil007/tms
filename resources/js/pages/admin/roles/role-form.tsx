@@ -22,7 +22,10 @@ type RoleFormProps = {
     title: string;
     description?: string;
     cancelHref: string;
-    onChange: <K extends keyof RoleFormData>(key: K, value: RoleFormData[K]) => void;
+    onChange: <K extends keyof RoleFormData>(
+        key: K,
+        value: RoleFormData[K],
+    ) => void;
     onSubmit: (e: React.FormEvent) => void;
 };
 
@@ -40,9 +43,13 @@ export function RoleForm({
     return (
         <form onSubmit={onSubmit} className="mx-auto w-full max-w-2xl">
             <div className="mb-6">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                    {title}
+                </h2>
                 {description && (
-                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{description}</p>
+                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                        {description}
+                    </p>
                 )}
             </div>
 
@@ -66,7 +73,9 @@ export function RoleForm({
                 </FormField>
 
                 <FormActions cancelHref={cancelHref} className="mt-8">
-                    <FormSubmitButton processing={processing}>{submitLabel}</FormSubmitButton>
+                    <FormSubmitButton processing={processing}>
+                        {submitLabel}
+                    </FormSubmitButton>
                 </FormActions>
             </FormCard>
         </form>
