@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -27,7 +27,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ${{ steps.composer-cache.outputs.dir }}
@@ -55,14 +55,14 @@ jobs:
           echo '[82.198.227.207]:65002 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIyse96dUeLo4oKa76H8AfK4q4/RHbHMcxt+1GZRGaI9' >> ~/.ssh/known_hosts
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: package-lock.json
 
       - name: Cache Vite build
-        uses: actions/cache@v4
+        uses: actions/cache@v6.1.0
         with:
           path: |
             node_modules/.vite
