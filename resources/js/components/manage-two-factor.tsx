@@ -60,7 +60,7 @@ export default function ManageTwoFactor(props: Props) {
                     </p>
 
                     <div className="relative inline">
-                        <Form {...disable.form()}>
+                        <Form action={disable.delete()}>
                             {({ processing }) => (
                                 <Button
                                     variant="destructive"

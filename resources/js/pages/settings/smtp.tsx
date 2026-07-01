@@ -145,7 +145,7 @@ export default function SmtpSettings({
                         />
 
                         <Form
-                            {...MailSettingsController.update.form()}
+                            action={MailSettingsController.update.patch()}
                             options={{ preserveScroll: true }}
                             className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6"
                         >
