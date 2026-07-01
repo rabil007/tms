@@ -111,7 +111,7 @@
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
+    --muted-foreground: oklch(0.42 0 0);
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
@@ -142,6 +142,15 @@
     --dashboard-overlay: oklch(0.97 0 0);
     --dashboard-tile-border: oklch(0.9 0 0);
     --dashboard-tile-shadow: 0 4px 24px oklch(0 0 0 / 0.08);
+    --dashboard-tile-surface: color-mix(in oklch, var(--card) 88%, transparent);
+
+    --dashboard-icon-overview: oklch(0.42 0.02 260);
+    --dashboard-icon-schedules: oklch(0.48 0.14 160);
+    --dashboard-icon-users: oklch(0.5 0.14 230);
+    --dashboard-icon-roles: oklch(0.52 0.2 10);
+    --dashboard-icon-projects: oklch(0.48 0.18 300);
+    --dashboard-icon-countries: oklch(0.48 0.16 250);
+    --dashboard-icon-settings: oklch(0.4 0.02 260);
 
     --success: oklch(0.696 0.17 162.48);
     --success-foreground: oklch(0.985 0 0);
@@ -193,6 +202,15 @@
     --dashboard-overlay: oklch(0.129 0 0);
     --dashboard-tile-border: rgba(255, 255, 255, 0.18);
     --dashboard-tile-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    --dashboard-tile-surface: color-mix(in oklch, var(--card) 55%, transparent);
+
+    --dashboard-icon-overview: oklch(0.82 0.02 260);
+    --dashboard-icon-schedules: oklch(0.78 0.14 160);
+    --dashboard-icon-users: oklch(0.8 0.14 230);
+    --dashboard-icon-roles: oklch(0.78 0.2 10);
+    --dashboard-icon-projects: oklch(0.78 0.18 300);
+    --dashboard-icon-countries: oklch(0.8 0.16 250);
+    --dashboard-icon-settings: oklch(0.82 0.02 260);
 
     --success: oklch(0.696 0.17 162.48);
     --success-foreground: oklch(0.985 0 0);
@@ -217,6 +235,14 @@
     body {
         @apply bg-background text-foreground;
         min-height: 100dvh;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    h1,
+    h2,
+    h3 {
+        letter-spacing: -0.01em;
     }
 
     input,

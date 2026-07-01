@@ -169,7 +169,7 @@ export function NotificationBell() {
             className="relative size-11 rounded-full"
             aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
         >
-            <Bell className="size-5 text-foreground/80" />
+            <Bell className="size-5 stroke-2 text-foreground" />
             {unreadCount > 0 && (
                 <span className="absolute top-1 right-1 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-4 font-bold text-primary-foreground ring-2 ring-background">
                     {unreadCount > 9 ? '9+' : unreadCount}
@@ -192,7 +192,7 @@ export function NotificationBell() {
                         aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
                         onClick={() => handleOpenChange(true)}
                     >
-                        <Bell className="size-5 text-foreground/80" />
+                        <Bell className="size-5 stroke-2 text-foreground" />
                         {unreadCount > 0 && (
                             <span className="absolute top-1 right-1 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-4 font-bold text-primary-foreground ring-2 ring-background">
                                 {unreadCount > 9 ? '9+' : unreadCount}

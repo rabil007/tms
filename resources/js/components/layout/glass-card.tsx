@@ -21,8 +21,8 @@ export function GlassCard<T extends React.ElementType = 'div'>({
         <Tag
             className={cn(
                 level === 'inner'
-                    ? 'rounded-3xl border border-border/40 bg-background/40 shadow-sm backdrop-blur-md'
-                    : 'rounded-3xl border border-border/50 bg-card/40 shadow-lg backdrop-blur-xl',
+                    ? 'rounded-3xl border border-border/40 bg-card/85 shadow-sm backdrop-blur-md dark:bg-background/40'
+                    : 'rounded-3xl border border-border/50 bg-card/85 shadow-lg backdrop-blur-xl dark:bg-card/40',
                 className,
             )}
             {...rest}

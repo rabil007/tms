@@ -135,7 +135,7 @@ export function ScheduleListCards({
                             <p className="truncate font-semibold text-foreground">
                                 {schedule.crew_name}
                             </p>
-                            <p className="mt-1 text-[13px] text-muted-foreground">
+                            <p className="mt-1 text-[13px] text-foreground/70">
                                 {formatScheduleDate(schedule.scheduled_date)} ·{' '}
                                 {formatPickUpTime(schedule.pick_up_time)}
                             </p>
@@ -156,7 +156,7 @@ export function ScheduleListCards({
                                 </Badge>
                             </div>
                         </div>
-                        <ChevronRight className="size-5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-muted-foreground" />
+                        <ChevronRight className="size-5 shrink-0 text-foreground/35 transition-colors group-hover:text-foreground/60" />
                     </div>
                     <div className="mt-4 flex justify-end border-t border-border/30 pt-3">
                         <RowActions
@@ -212,7 +212,7 @@ export function ScheduleGridCards({
                     <p className="mt-3 line-clamp-1 font-semibold text-foreground">
                         {schedule.crew_name}
                     </p>
-                    <p className="mt-1 text-[13px] text-muted-foreground">
+                    <p className="mt-1 text-[13px] text-foreground/70">
                         {formatScheduleDate(schedule.scheduled_date)} ·{' '}
                         {formatPickUpTime(schedule.pick_up_time)}
                     </p>
@@ -224,7 +224,7 @@ export function ScheduleGridCards({
                             {schedule.project.title}
                         </Badge>
                     )}
-                    <p className="mt-2 line-clamp-2 text-[12px] text-muted-foreground">
+                    <p className="mt-2 line-clamp-2 text-[12px] text-foreground/70">
                         {schedule.pick_up_location} →{' '}
                         {schedule.drop_off_location}
                     </p>

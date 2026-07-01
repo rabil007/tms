@@ -131,7 +131,7 @@ export default function UsersIndex({
                                 .slice(0, 2)
                                 .toUpperCase()}
                         </div>
-                        <span className="font-medium text-foreground">
+                        <span className="font-semibold text-foreground/90">
                             {row.original.name}
                         </span>
                     </div>

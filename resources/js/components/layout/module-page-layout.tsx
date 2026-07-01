@@ -25,14 +25,14 @@ export function ModulePageLayout({
                     {backHref && (
                         <Link
                             href={backHref}
-                            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 py-2 text-[13px] font-semibold text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground active:bg-muted/60"
+                            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-2 py-2 text-[13px] font-semibold text-foreground/70 transition-colors hover:bg-muted/50 hover:text-foreground active:bg-muted/60"
                         >
                             <ArrowLeft className="size-4" />
                             <span>{backLabel}</span>
                         </Link>
                     )}
                     {title && (
-                        <h1 className="truncate text-[15px] font-bold tracking-tight text-foreground">
+                        <h1 className="truncate text-base font-bold tracking-tight text-foreground">
                             {title}
                         </h1>
                     )}

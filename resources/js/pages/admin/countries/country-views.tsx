@@ -86,7 +86,7 @@ export function CountryListCards({ countries, onDelete }: CountryCardsProps) {
                                 </Badge>
                             </div>
                         </div>
-                        <ChevronRight className="size-5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-muted-foreground" />
+                        <ChevronRight className="size-5 shrink-0 text-foreground/35 transition-colors group-hover:text-foreground/60" />
                     </div>
                     <div className="mt-4 flex justify-end border-t border-border/30 pt-3">
                         <RowActions

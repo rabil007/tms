@@ -23,61 +23,63 @@ export type DashboardGridProps = {
 const LONG_PRESS_MS = 400;
 const DRAG_THRESHOLD = 6;
 
-export function glassColor(gradientClass: string): { bg: string; icon: string } {
-    const map: Record<string, { bg: string; icon: string }> = {
-        'from-blue-600 to-indigo-700': {
-            bg: 'color-mix(in oklch, var(--chart-3), transparent 82%)',
-            icon: 'var(--chart-2)',
-        },
-        'from-amber-500 to-orange-600': {
-            bg: 'color-mix(in oklch, var(--status-pending), transparent 82%)',
-            icon: 'var(--status-pending)',
-        },
-        'from-emerald-500 to-teal-600': {
-            bg: 'color-mix(in oklch, var(--status-confirmed), transparent 82%)',
-            icon: 'var(--status-confirmed)',
-        },
-        'from-sky-500 to-indigo-600': {
-            bg: 'color-mix(in oklch, var(--chart-2), transparent 82%)',
-            icon: 'var(--chart-2)',
-        },
-        'from-slate-500 to-slate-700': {
-            bg: 'color-mix(in oklch, var(--muted-foreground), transparent 86%)',
-            icon: 'var(--muted-foreground)',
-        },
-        'from-slate-600 to-slate-700': {
-            bg: 'color-mix(in oklch, var(--muted-foreground), transparent 84%)',
-            icon: 'var(--muted-foreground)',
-        },
-        'from-orange-500 to-amber-600': {
-            bg: 'color-mix(in oklch, var(--status-pending), transparent 82%)',
-            icon: 'var(--status-pending)',
-        },
-        'from-fuchsia-600 to-pink-700': {
-            bg: 'color-mix(in oklch, var(--chart-4), transparent 82%)',
-            icon: 'var(--chart-4)',
-        },
-        'from-violet-600 to-purple-700': {
-            bg: 'color-mix(in oklch, var(--chart-1), transparent 82%)',
-            icon: 'var(--chart-1)',
-        },
-        'from-cyan-500 to-sky-600': {
-            bg: 'color-mix(in oklch, var(--chart-2), transparent 82%)',
-            icon: 'var(--chart-2)',
-        },
-        'from-blue-500 to-indigo-600': {
-            bg: 'color-mix(in oklch, var(--primary), transparent 80%)',
-            icon: 'var(--primary)',
-        },
-        'from-zinc-600 to-neutral-800': {
-            bg: 'color-mix(in oklch, var(--muted-foreground), transparent 86%)',
-            icon: 'var(--muted-foreground)',
-        },
+type ModuleIconStyle = { bg: string; icon: string };
+
+const MODULE_ICON_STYLES: Record<string, ModuleIconStyle> = {
+    home: {
+        bg: 'color-mix(in oklch, var(--dashboard-icon-overview), transparent 78%)',
+        icon: 'var(--dashboard-icon-overview)',
+    },
+    schedules: {
+        bg: 'color-mix(in oklch, var(--dashboard-icon-schedules), transparent 78%)',
+        icon: 'var(--dashboard-icon-schedules)',
+    },
+    users: {
+        bg: 'color-mix(in oklch, var(--dashboard-icon-users), transparent 78%)',
+        icon: 'var(--dashboard-icon-users)',
+    },
+    roles: {
+        bg: 'color-mix(in oklch, var(--dashboard-icon-roles), transparent 78%)',
+        icon: 'var(--dashboard-icon-roles)',
+    },
+    projects: {
+        bg: 'color-mix(in oklch, var(--dashboard-icon-projects), transparent 78%)',
+        icon: 'var(--dashboard-icon-projects)',
+    },
+    countries: {
+        bg: 'color-mix(in oklch, var(--dashboard-icon-countries), transparent 78%)',
+        icon: 'var(--dashboard-icon-countries)',
+    },
+    settings: {
+        bg: 'color-mix(in oklch, var(--dashboard-icon-settings), transparent 78%)',
+        icon: 'var(--dashboard-icon-settings)',
+    },
+};
+
+function getModuleIconStyle(moduleId: string): ModuleIconStyle {
+    return (
+        MODULE_ICON_STYLES[moduleId] ?? {
+            bg: 'var(--dashboard-tile-surface)',
+            icon: 'var(--foreground)',
+        }
+    );
+}
+
+/** @deprecated Use getModuleIconStyle(module.id) instead */
+export function glassColor(gradientClass: string): ModuleIconStyle {
+    const legacyMap: Record<string, ModuleIconStyle> = {
+        'from-slate-600 to-slate-700': MODULE_ICON_STYLES.home,
+        'from-emerald-500 to-teal-600': MODULE_ICON_STYLES.schedules,
+        'from-cyan-500 to-sky-600': MODULE_ICON_STYLES.users,
+        'from-rose-500 to-pink-600': MODULE_ICON_STYLES.roles,
+        'from-violet-500 to-purple-600': MODULE_ICON_STYLES.projects,
+        'from-blue-500 to-indigo-600': MODULE_ICON_STYLES.countries,
+        'from-zinc-600 to-neutral-800': MODULE_ICON_STYLES.settings,
     };
 
     return (
-        map[gradientClass] ?? {
-            bg: 'color-mix(in oklch, var(--foreground), transparent 90%)',
+        legacyMap[gradientClass] ?? {
+            bg: 'var(--dashboard-tile-surface)',
             icon: 'var(--foreground)',
         }
     );
@@ -345,7 +347,7 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
         iconSize === 'sm'
             ? 'size-7 sm:size-8'
             : iconSize === 'lg'
-              ? 'size-9 sm:size-10'
+              ? 'size-10 sm:size-11'
               : 'size-8 sm:size-9';
 
     const canReorder = Boolean(storageKey);
@@ -371,6 +373,7 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                     const isPinned = PINNED_TAIL_SET.has(module.id);
                     const isDragging = draggingId === module.id;
                     const isDraggable = canReorder && !isPinned;
+                    const iconStyle = getModuleIconStyle(module.id);
 
                     return (
                         <Link
@@ -414,13 +417,21 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                                         isDragging && 'shadow-2xl ring-2 ring-primary/40',
                                     )}
                                     style={{
-                                        background: glassColor(module.color).bg,
-                                        backdropFilter: 'blur(20px) saturate(1.4)',
-                                        WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
+                                        background: `${iconStyle.bg}, var(--dashboard-tile-surface)`,
+                                        backdropFilter: 'blur(16px) saturate(1.3)',
+                                        WebkitBackdropFilter: 'blur(16px) saturate(1.3)',
                                         border: '1px solid var(--dashboard-tile-border)',
                                         boxShadow: 'var(--dashboard-tile-shadow)',
                                     }}
                                 >
+                                    <span
+                                        className="pointer-events-none absolute left-0 top-0 z-1 h-[55%] w-[65%] dark:hidden"
+                                        style={{
+                                            background:
+                                                'linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.12) 60%, transparent 100%)',
+                                            borderRadius: '22px 22px 60% 0',
+                                        }}
+                                    />
                                     <span
                                         className="pointer-events-none absolute left-0 top-0 z-1 hidden h-[55%] w-[65%] dark:block"
                                         style={{
@@ -432,11 +443,11 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                                     <span className="pointer-events-none absolute -inset-px z-3 rounded-3xl border border-transparent transition-all duration-200 group-hover:border-border dark:group-hover:border-white/30" />
                                     <module.icon
                                         className={cn(
-                                            'relative z-2 stroke-[1.4] dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.3)]',
+                                            'relative z-2 stroke-2 drop-shadow-[0_1px_2px_oklch(0_0_0/0.12)] dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.3)]',
                                             iconClass,
                                         )}
                                         style={{
-                                            color: glassColor(module.color).icon,
+                                            color: iconStyle.icon,
                                         }}
                                     />
                                 </div>
@@ -448,7 +459,7 @@ export function DashboardGrid({ modules: baseModules, iconSize = 'lg', storageKe
                                 )}
                             </div>
 
-                            <span className="text-center text-[12px] font-semibold tracking-wide text-muted-foreground transition-colors group-hover:text-foreground sm:text-[13px]">
+                            <span className="text-center text-[12px] font-bold tracking-wide text-foreground/90 transition-colors group-hover:text-foreground sm:text-[13px]">
                                 {module.name}
                             </span>
                         </Link>

@@ -33,12 +33,12 @@ export function EmptyState({
                     iconWrapperClassName,
                 )}
             >
-                <Icon className="size-8 text-primary" />
+                <Icon className="size-8 stroke-2 text-primary" />
             </div>
-            <h3 className="mt-5 text-lg font-semibold tracking-tight text-foreground">
+            <h3 className="mt-5 text-lg font-bold tracking-tight text-foreground">
                 {title}
             </h3>
-            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+            <p className="mt-1.5 max-w-sm text-sm text-foreground/70">
                 {description}
             </p>
             {action ? <div className="mt-6">{action}</div> : null}

@@ -98,14 +98,14 @@ export function UserListCards({ users, onDelete }: UserCardsProps) {
                             <p className="truncate font-semibold text-foreground">
                                 {user.name}
                             </p>
-                            <p className="truncate text-[13px] text-muted-foreground">
+                            <p className="truncate text-[13px] text-foreground/70">
                                 {user.email}
                             </p>
                             <div className="mt-1.5">
                                 <UserRoleBadge role={user.role} />
                             </div>
                         </div>
-                        <ChevronRight className="size-5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-muted-foreground" />
+                        <ChevronRight className="size-5 shrink-0 text-foreground/35 transition-colors group-hover:text-foreground/60" />
                     </div>
                     <div className="mt-4 flex justify-end border-t border-border/30 pt-3">
                         <RowActions
@@ -149,7 +149,7 @@ export function UserGridCards({ users, onDelete }: UserCardsProps) {
                     <p className="mt-3 line-clamp-2 font-semibold text-foreground">
                         {user.name}
                     </p>
-                    <p className="mt-1 truncate text-[12px] text-muted-foreground">
+                    <p className="mt-1 truncate text-[12px] text-foreground/70">
                         {user.email}
                     </p>
                     <div className="mt-2">
