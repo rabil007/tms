@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\DeviceTestPushNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use NotificationChannels\WebPush\PushSubscription;
 
 class PushSubscriptionController extends Controller
 {
@@ -14,14 +17,21 @@ class PushSubscriptionController extends Controller
             'keys.auth' => ['required', 'string'],
             'keys.p256dh' => ['required', 'string'],
             'contentEncoding' => ['nullable', 'string', 'in:aesgcm,aes128gcm'],
+            'user_agent' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $request->user()->updatePushSubscription(
+        $subscription = $request->user()->updatePushSubscription(
             $validated['endpoint'],
             $validated['keys']['p256dh'],
             $validated['keys']['auth'],
             $validated['contentEncoding'] ?? 'aes128gcm',
         );
+
+        if (filled($validated['user_agent'] ?? null)) {
+            $subscription->forceFill([
+                'user_agent' => $validated['user_agent'],
+            ])->save();
+        }
 
         return back();
     }
@@ -33,6 +43,23 @@ class PushSubscriptionController extends Controller
         ]);
 
         $request->user()->deletePushSubscription($validated['endpoint']);
+
+        return back();
+    }
+
+    public function sendTest(Request $request, PushSubscription $pushSubscription): RedirectResponse
+    {
+        abort_unless(
+            $request->user()->ownsPushSubscription($pushSubscription),
+            404,
+        );
+
+        $request->user()->notify(new DeviceTestPushNotification($pushSubscription->id));
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => __('Test push sent to this device.'),
+        ]);
 
         return back();
     }

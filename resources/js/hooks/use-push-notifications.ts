@@ -96,6 +96,9 @@ export function usePushNotifications(
     initialEnabled = false,
 ) {
     const [enabled, setEnabled] = React.useState(initialEnabled);
+    const [currentEndpoint, setCurrentEndpoint] = React.useState<string | null>(
+        null,
+    );
     const [processing, setProcessing] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
     const [setupError, setSetupError] = React.useState<string | null>(null);
@@ -119,6 +122,7 @@ export function usePushNotifications(
 
                 if (!cancelled) {
                     setEnabled(subscription !== null);
+                    setCurrentEndpoint(subscription?.endpoint ?? null);
                     setSetupError(null);
                 }
             } catch (caught) {
@@ -197,6 +201,7 @@ export function usePushNotifications(
                         endpoint: json.endpoint,
                         keys: json.keys,
                         contentEncoding,
+                        user_agent: navigator.userAgent,
                     },
                     {
                         preserveScroll: true,
@@ -210,6 +215,7 @@ export function usePushNotifications(
             });
 
             setEnabled(true);
+            setCurrentEndpoint(subscription.endpoint);
             setSetupError(null);
 
             return true;
@@ -266,6 +272,7 @@ export function usePushNotifications(
             }
 
             setEnabled(false);
+            setCurrentEndpoint(null);
 
             return true;
         } catch (caught) {
@@ -282,6 +289,7 @@ export function usePushNotifications(
         supported: status === 'supported',
         ready: status !== null,
         enabled,
+        currentEndpoint,
         processing,
         error,
         setupError,

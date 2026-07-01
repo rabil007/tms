@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\DeviceTestPushNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -15,6 +16,7 @@ use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use NotificationChannels\WebPush\HasPushSubscriptions;
+use NotificationChannels\WebPush\WebPushChannel;
 
 /**
  * @property int $id
@@ -36,7 +38,9 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasPushSubscriptions, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, HasPushSubscriptions, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable {
+        Notifiable::routeNotificationFor as protected traitRouteNotificationFor;
+    }
 
     /**
      * @return BelongsTo<Role, $this>
@@ -49,6 +53,20 @@ class User extends Authenticatable implements PasskeyUser
     public function isAdmin(): bool
     {
         return $this->role?->slug === 'admin';
+    }
+
+    /**
+     * @return mixed
+     */
+    public function routeNotificationFor(string $driver, ?object $notification = null)
+    {
+        if ($driver === WebPushChannel::class && $notification instanceof DeviceTestPushNotification) {
+            return $this->pushSubscriptions()
+                ->whereKey($notification->pushSubscriptionId)
+                ->get();
+        }
+
+        return $this->traitRouteNotificationFor($driver, $notification);
     }
 
     /**

@@ -1,24 +1,29 @@
 import { Head, router } from '@inertiajs/react';
-import { BellRing } from 'lucide-react';
+import { BellRing, Smartphone } from 'lucide-react';
 import React from 'react';
 import Heading from '@/components/heading';
+import PushSubscriptionItem from '@/components/push-subscription-item';
 import { Button } from '@/components/ui/button';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
+import type { PushSubscriptionItem as PushSubscription } from '@/types/notifications';
 
 const TEST_NOTIFICATION_ROUTE = '/notifications/test';
 
 export default function NotificationsSettings({
     vapidPublicKey,
     pushEnabled,
+    pushSubscriptions,
 }: {
     vapidPublicKey: string | null;
     pushEnabled: boolean;
+    pushSubscriptions: PushSubscription[];
 }) {
     const {
         status,
         supported,
         ready,
         enabled,
+        currentEndpoint,
         processing,
         error,
         setupError,
@@ -149,6 +154,40 @@ export default function NotificationsSettings({
                     )}
                 </div>
 
+                <div className="space-y-4">
+                    <Heading
+                        variant="small"
+                        title="Linked devices"
+                        description="Browsers and devices registered to receive push alerts for your account."
+                    />
+
+                    <div className="overflow-hidden rounded-2xl border border-border/50 bg-card/40">
+                        {pushSubscriptions.length > 0 ? (
+                            pushSubscriptions.map((subscription) => (
+                                <PushSubscriptionItem
+                                    key={subscription.id}
+                                    subscription={subscription}
+                                    isCurrentDevice={
+                                        currentEndpoint !== null &&
+                                        subscription.endpoint === currentEndpoint
+                                    }
+                                />
+                            ))
+                        ) : (
+                            <div className="p-8 text-center">
+                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+                                    <Smartphone className="h-7 w-7 text-muted-foreground" />
+                                </div>
+                                <p className="font-medium">No linked devices yet</p>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Enable notifications on this browser to
+                                    register a device.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 <div className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -158,10 +197,10 @@ export default function NotificationsSettings({
                             <p className="mt-1 text-[13px] text-muted-foreground">
                                 Sends a test alert to your bell
                                 {isPushEnabled
-                                    ? ' and browser push on this device'
+                                    ? ' and browser push on all linked devices'
                                     : ''}
-                                . Use the same phone or computer where you
-                                enabled notifications.
+                                . Use per-device test buttons above to target a
+                                single device.
                             </p>
                         </div>
                         <Button

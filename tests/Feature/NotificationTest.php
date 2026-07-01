@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\MailSetting;
+use App\Notifications\DeviceTestPushNotification;
 use App\Notifications\SystemNotification;
 use App\Notifications\TestNotification;
+use Illuminate\Support\Facades\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
 
 test('guests do not receive shared notifications', function () {
@@ -109,4 +111,140 @@ test('test notification uses web push channel when user has a subscription', fun
     $notification = new TestNotification;
 
     expect($notification->via($user->fresh()))->toContain(WebPushChannel::class);
+});
+
+test('notification settings page lists push subscriptions', function () {
+    $user = adminUser();
+
+    $user->updatePushSubscription(
+        'https://fcm.googleapis.com/fcm/send/device-1',
+        'test-public-key',
+        'test-auth-token',
+        'aes128gcm',
+    );
+
+    $subscription = $user->fresh()->pushSubscriptions->first();
+    $subscription->forceFill([
+        'user_agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    ])->save();
+
+    $response = $this->actingAs($user)->get(route('notifications.edit'));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->has('pushSubscriptions', 1)
+        ->where('pushSubscriptions.0.id', $subscription->id)
+        ->where('pushSubscriptions.0.label', 'Chrome on macOS')
+        ->where('pushSubscriptions.0.provider', 'Chrome')
+        ->where('pushSubscriptions.0.content_encoding', 'aes128gcm'));
+});
+
+test('push subscription store saves user agent', function () {
+    $user = adminUser();
+
+    $response = $this->actingAs($user)->post(route('push-subscriptions.store'), [
+        'endpoint' => 'https://fcm.googleapis.com/fcm/send/device-2',
+        'keys' => [
+            'p256dh' => 'test-public-key',
+            'auth' => 'test-auth-token',
+        ],
+        'contentEncoding' => 'aes128gcm',
+        'user_agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    ]);
+
+    $response->assertRedirect();
+
+    $subscription = $user->fresh()->pushSubscriptions->first();
+
+    expect($subscription)->not->toBeNull();
+    expect($subscription->user_agent)->toContain('iPhone');
+});
+
+test('users cannot send device test push for another users subscription', function () {
+    $owner = adminUser();
+    $other = regularUser();
+
+    $owner->updatePushSubscription(
+        'https://fcm.googleapis.com/fcm/send/device-3',
+        'test-public-key',
+        'test-auth-token',
+        'aes128gcm',
+    );
+
+    $subscriptionId = $owner->fresh()->pushSubscriptions->first()->id;
+
+    $response = $this->actingAs($other)->post(route('push-subscriptions.test', $subscriptionId));
+
+    $response->assertNotFound();
+});
+
+test('device test push notification only uses web push channel', function () {
+    $user = adminUser();
+
+    $user->updatePushSubscription(
+        'https://fcm.googleapis.com/fcm/send/device-4',
+        'test-public-key',
+        'test-auth-token',
+        'aes128gcm',
+    );
+
+    $subscriptionId = $user->fresh()->pushSubscriptions->first()->id;
+    $notification = new DeviceTestPushNotification($subscriptionId);
+
+    expect($notification->via($user->fresh()))->toBe([WebPushChannel::class]);
+});
+
+test('device test push targets only the selected subscription', function () {
+    $user = adminUser();
+
+    $user->updatePushSubscription(
+        'https://fcm.googleapis.com/fcm/send/device-5',
+        'test-public-key-one',
+        'test-auth-token-one',
+        'aes128gcm',
+    );
+
+    $user->updatePushSubscription(
+        'https://fcm.googleapis.com/fcm/send/device-6',
+        'test-public-key-two',
+        'test-auth-token-two',
+        'aes128gcm',
+    );
+
+    $subscriptions = $user->fresh()->pushSubscriptions;
+    $target = $subscriptions->last();
+    $notification = new DeviceTestPushNotification($target->id);
+
+    $routed = $user->routeNotificationFor(WebPushChannel::class, $notification);
+
+    expect($routed)->toHaveCount(1);
+    expect($routed->first()->id)->toBe($target->id);
+});
+
+test('device test push does not create in app notification', function () {
+    Notification::fake();
+
+    $user = adminUser();
+
+    $user->updatePushSubscription(
+        'https://fcm.googleapis.com/fcm/send/device-7',
+        'test-public-key',
+        'test-auth-token',
+        'aes128gcm',
+    );
+
+    $subscriptionId = $user->fresh()->pushSubscriptions->first()->id;
+
+    $response = $this->actingAs($user)->post(route('push-subscriptions.test', $subscriptionId));
+
+    $response->assertRedirect();
+
+    Notification::assertSentTo(
+        $user,
+        DeviceTestPushNotification::class,
+        fn (DeviceTestPushNotification $notification): bool => $notification->pushSubscriptionId === $subscriptionId,
+    );
+
+    expect($user->fresh()->notifications)->toHaveCount(0);
 });

@@ -10,3 +10,13 @@ export type AppNotification = {
 export type SharedNotifications = {
     items: AppNotification[];
 };
+
+export type PushSubscriptionItem = {
+    id: number;
+    endpoint: string;
+    label: string;
+    provider: string;
+    content_encoding: string | null;
+    created_at_diff: string;
+    updated_at_diff: string;
+};
