@@ -624,7 +624,7 @@ export default function SchedulesIndex({
                     fallback={
                         <StatCardsSkeleton
                             count={3}
-                            columns="grid-cols-1 sm:grid-cols-3"
+                            columns="grid-cols-3"
                             className="mb-6"
                         />
                     }
@@ -784,7 +784,7 @@ function ScheduleStatCards({
         usePage<SchedulePageProps>().props;
 
     return (
-        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
             <GlassCard
                 as="button"
                 type="button"
@@ -798,14 +798,14 @@ function ScheduleStatCards({
                     })
                 }
                 className={cn(
-                    'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
+                    'w-full min-w-0 px-2.5 py-3 text-left transition-all hover:bg-background/60 sm:px-4 sm:py-3.5',
                     isTotalFilterActive && 'ring-2 ring-primary/40',
                 )}
             >
-                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase sm:text-[11px]">
                     Total
                 </p>
-                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                <p className="mt-0.5 text-xl font-bold tracking-tight text-foreground tabular-nums sm:mt-1 sm:text-2xl">
                     {totalCount}
                 </p>
             </GlassCard>
@@ -821,14 +821,14 @@ function ScheduleStatCards({
                     })
                 }
                 className={cn(
-                    'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
+                    'w-full min-w-0 px-2.5 py-3 text-left transition-all hover:bg-background/60 sm:px-4 sm:py-3.5',
                     isTodayFilterActive && 'ring-2 ring-emerald-500/50',
                 )}
             >
-                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase sm:text-[11px]">
                     Today
                 </p>
-                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                <p className="mt-0.5 text-xl font-bold tracking-tight text-foreground tabular-nums sm:mt-1 sm:text-2xl">
                     {todayCount}
                 </p>
             </GlassCard>
@@ -844,14 +844,14 @@ function ScheduleStatCards({
                     })
                 }
                 className={cn(
-                    'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
+                    'w-full min-w-0 px-2.5 py-3 text-left transition-all hover:bg-background/60 sm:px-4 sm:py-3.5',
                     isPendingFilterActive && 'ring-2 ring-amber-500/50',
                 )}
             >
-                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase sm:text-[11px]">
                     Pending
                 </p>
-                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                <p className="mt-0.5 text-xl font-bold tracking-tight text-foreground tabular-nums sm:mt-1 sm:text-2xl">
                     {pendingCount}
                 </p>
             </GlassCard>

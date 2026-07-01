@@ -225,7 +225,7 @@ export default function UsersIndex({
                     fallback={
                         <StatCardsSkeleton
                             count={3}
-                            columns="grid-cols-1 sm:grid-cols-3"
+                            columns="grid-cols-3"
                             className="mb-6"
                         />
                     }
@@ -310,28 +310,37 @@ function UserStatCards() {
     }>().props;
 
     return (
-        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <GlassCard level="inner" className="px-4 py-3.5">
-                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+        <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
+            <GlassCard
+                level="inner"
+                className="min-w-0 px-2.5 py-3 sm:px-4 sm:py-3.5"
+            >
+                <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase sm:text-[11px]">
                     Total
                 </p>
-                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                <p className="mt-0.5 text-xl font-bold tracking-tight text-foreground tabular-nums sm:mt-1 sm:text-2xl">
                     {counts.total}
                 </p>
             </GlassCard>
-            <GlassCard level="inner" className="px-4 py-3.5">
-                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+            <GlassCard
+                level="inner"
+                className="min-w-0 px-2.5 py-3 sm:px-4 sm:py-3.5"
+            >
+                <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase sm:text-[11px]">
                     Admins
                 </p>
-                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                <p className="mt-0.5 text-xl font-bold tracking-tight text-foreground tabular-nums sm:mt-1 sm:text-2xl">
                     {counts.admins}
                 </p>
             </GlassCard>
-            <GlassCard level="inner" className="px-4 py-3.5">
-                <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+            <GlassCard
+                level="inner"
+                className="min-w-0 px-2.5 py-3 sm:px-4 sm:py-3.5"
+            >
+                <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase sm:text-[11px]">
                     Users
                 </p>
-                <p className="mt-1 text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                <p className="mt-0.5 text-xl font-bold tracking-tight text-foreground tabular-nums sm:mt-1 sm:text-2xl">
                     {counts.users}
                 </p>
             </GlassCard>
