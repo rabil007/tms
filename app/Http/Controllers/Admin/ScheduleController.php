@@ -90,7 +90,9 @@ class ScheduleController extends Controller
             'schedules' => $schedules,
             'filters' => (object) $filters,
             'projects' => $this->projectOptions(),
+            'totalCount' => Schedule::query()->count(),
             'todayCount' => Schedule::query()->whereDate('scheduled_date', today())->count(),
+            'todayDate' => today()->toDateString(),
         ]);
     }
 

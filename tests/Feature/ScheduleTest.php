@@ -221,7 +221,7 @@ test('schedules index can filter by project', function () {
         ->where('schedules.data.0.id', $schedule->id));
 });
 
-test('schedules index includes today count', function () {
+test('schedules index includes total and today counts', function () {
     $user = User::factory()->create();
     Schedule::factory()->create(['scheduled_date' => today()->toDateString()]);
     Schedule::factory()->create(['scheduled_date' => today()->addDay()->toDateString()]);
@@ -232,6 +232,29 @@ test('schedules index includes today count', function () {
 
     $response->assertInertia(fn ($page) => $page
         ->component('admin/schedules/index')
+        ->where('totalCount', 2)
+        ->where('todayCount', 1)
+        ->where('todayDate', today()->toDateString()));
+});
+
+test('schedules index can filter to today only', function () {
+    $user = User::factory()->create();
+    $today = today()->toDateString();
+    $todaySchedule = Schedule::factory()->create(['scheduled_date' => $today]);
+    Schedule::factory()->create(['scheduled_date' => today()->addDay()->toDateString()]);
+
+    $response = $this->actingAs($user)->get(route('schedules.index', [
+        'date_from' => $today,
+        'date_to' => $today,
+    ]));
+
+    $response->assertOk();
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/schedules/index')
+        ->has('schedules.data', 1)
+        ->where('schedules.data.0.id', $todaySchedule->id)
+        ->where('totalCount', 2)
         ->where('todayCount', 1));
 });
 

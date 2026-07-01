@@ -18,6 +18,7 @@ import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import { useIndexQueryParams } from '@/hooks/use-index-query-params';
 import { useIndexViewMode } from '@/hooks/use-index-view-mode';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import {
     ScheduleIndexFilters
     
@@ -59,12 +60,16 @@ export default function SchedulesIndex({
     schedules,
     filters,
     projects,
+    totalCount,
     todayCount,
+    todayDate,
 }: {
     schedules: Paged<ScheduleRow>;
     filters: ScheduleFilters;
     projects: ProjectFilterOption[];
+    totalCount: number;
     todayCount: number;
+    todayDate: string;
 }) {
     const isMobile = useIsMobile();
     const { viewMode, setViewMode } = useIndexViewMode({ storageKey: 'schedules:index:view' });
@@ -97,7 +102,8 @@ export default function SchedulesIndex({
     });
 
     const slOffset = ((schedules?.meta?.current_page ?? schedules?.current_page ?? 1) - 1) * (schedules?.meta?.per_page ?? schedules?.per_page ?? 15);
-    const total = schedules?.meta?.total ?? schedules?.total ?? 0;
+    const isTodayFilterActive = indexFilters.dateFrom === todayDate && indexFilters.dateTo === todayDate;
+    const isTotalFilterActive = !isTodayFilterActive;
     const hasSearch = q.length > 0;
     const hasActiveFilters = hasSearch || !!indexFilters.projectId || !!indexFilters.dateFrom || !!indexFilters.dateTo;
     const isEmpty = schedules.data.length === 0;
@@ -244,11 +250,35 @@ export default function SchedulesIndex({
             />
 
             <div className="mb-6 grid grid-cols-2 gap-3">
-                <GlassCard level="inner" className="px-4 py-3.5">
+                <GlassCard
+                    as="button"
+                    type="button"
+                    level="inner"
+                    onClick={() => setIndexFilters((current) => ({ ...current, dateFrom: '', dateTo: '' }))}
+                    className={cn(
+                        'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
+                        isTotalFilterActive && 'ring-2 ring-primary/40',
+                    )}
+                >
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{total}</p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{totalCount}</p>
                 </GlassCard>
-                <GlassCard level="inner" className="px-4 py-3.5">
+                <GlassCard
+                    as="button"
+                    type="button"
+                    level="inner"
+                    onClick={() =>
+                        setIndexFilters((current) => ({
+                            ...current,
+                            dateFrom: todayDate,
+                            dateTo: todayDate,
+                        }))
+                    }
+                    className={cn(
+                        'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
+                        isTodayFilterActive && 'ring-2 ring-emerald-500/50',
+                    )}
+                >
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Today</p>
                     <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{todayCount}</p>
                 </GlassCard>
