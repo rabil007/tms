@@ -143,13 +143,22 @@ export function useIndexQueryParams({
         [reloadOnly],
     );
 
+    const lastVisitedParamsKeyRef = React.useRef<string | null>(null);
+
     React.useEffect(() => {
         if (!didInitRef.current) {
             didInitRef.current = true;
             prevQRef.current = q;
+            lastVisitedParamsKeyRef.current = paramsKey;
 
             return;
         }
+
+        if (lastVisitedParamsKeyRef.current === paramsKey) {
+            return;
+        }
+
+        lastVisitedParamsKeyRef.current = paramsKey;
 
         const shouldDebounce = prevQRef.current !== q;
         prevQRef.current = q;

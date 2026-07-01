@@ -79,6 +79,8 @@ type ScheduleFilters = {
     status?: string;
 };
 
+const SCHEDULE_INDEX_RELOAD_ONLY = ['schedules', 'filters'] as const;
+
 export default function SchedulesIndex({
     schedules,
     filters,
@@ -141,8 +143,58 @@ export default function SchedulesIndex({
                 date_to: indexFilters.dateTo || undefined,
                 status: statusFilter || undefined,
             },
-            reloadOnly: ['schedules', 'filters'],
+            reloadOnly: SCHEDULE_INDEX_RELOAD_ONLY,
         });
+
+    const visitIndex = React.useCallback(
+        (overrides?: {
+            q?: string;
+            projectId?: string;
+            dateFrom?: string;
+            dateTo?: string;
+            status?: string;
+            sort?: string;
+            dir?: 'asc' | 'desc';
+            perPage?: number;
+        }) => {
+            const projectId =
+                overrides?.projectId !== undefined
+                    ? overrides.projectId
+                    : indexFilters.projectId;
+            const dateFrom =
+                overrides?.dateFrom !== undefined
+                    ? overrides.dateFrom
+                    : indexFilters.dateFrom;
+            const dateTo =
+                overrides?.dateTo !== undefined
+                    ? overrides.dateTo
+                    : indexFilters.dateTo;
+            const status =
+                overrides?.status !== undefined
+                    ? overrides.status
+                    : statusFilter;
+
+            router.get(
+                SCHEDULE_ROUTES.index,
+                {
+                    q: (overrides?.q ?? q) || undefined,
+                    sort: overrides?.sort ?? sort,
+                    dir: overrides?.dir ?? dir,
+                    per_page: overrides?.perPage ?? perPage,
+                    project_id: projectId ? Number(projectId) : undefined,
+                    date_from: dateFrom || undefined,
+                    date_to: dateTo || undefined,
+                    status: status || undefined,
+                },
+                {
+                    preserveScroll: true,
+                    replace: true,
+                    only: ['schedules', 'filters'],
+                },
+            );
+        },
+        [q, sort, dir, perPage, indexFilters, statusFilter],
+    );
 
     const currentPage =
         schedules?.meta?.current_page ?? schedules?.current_page ?? 1;
@@ -568,8 +620,7 @@ export default function SchedulesIndex({
                         isTodayFilterActive={isTodayFilterActive}
                         isTotalFilterActive={isTotalFilterActive}
                         isPendingFilterActive={isPendingFilterActive}
-                        setIndexFilters={setIndexFilters}
-                        setStatusFilter={setStatusFilter}
+                        visitIndex={visitIndex}
                     />
                 </Deferred>
 
@@ -592,7 +643,7 @@ export default function SchedulesIndex({
                 >
                     <ScheduleFiltersSection
                         indexFilters={indexFilters}
-                        setIndexFilters={setIndexFilters}
+                        visitIndex={visitIndex}
                     />
                 </Deferred>
 
@@ -702,21 +753,18 @@ function ScheduleStatCards({
     isTodayFilterActive,
     isTotalFilterActive,
     isPendingFilterActive,
-    setIndexFilters,
-    setStatusFilter,
+    visitIndex,
 }: {
     todayDate: string;
     isTodayFilterActive: boolean;
     isTotalFilterActive: boolean;
     isPendingFilterActive: boolean;
-    setIndexFilters: React.Dispatch<
-        React.SetStateAction<{
-            projectId: string;
-            dateFrom: string;
-            dateTo: string;
-        }>
-    >;
-    setStatusFilter: React.Dispatch<React.SetStateAction<string>>;
+    visitIndex: (overrides?: {
+        projectId?: string;
+        dateFrom?: string;
+        dateTo?: string;
+        status?: string;
+    }) => void;
 }) {
     const { totalCount, todayCount, pendingCount } =
         usePage<SchedulePageProps>().props;
@@ -727,14 +775,14 @@ function ScheduleStatCards({
                 as="button"
                 type="button"
                 level="inner"
-                onClick={() => {
-                    setStatusFilter('');
-                    setIndexFilters((current) => ({
-                        ...current,
+                onClick={() =>
+                    visitIndex({
                         dateFrom: '',
                         dateTo: '',
-                    }));
-                }}
+                        status: '',
+                        projectId: '',
+                    })
+                }
                 className={cn(
                     'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
                     isTotalFilterActive && 'ring-2 ring-primary/40',
@@ -751,14 +799,13 @@ function ScheduleStatCards({
                 as="button"
                 type="button"
                 level="inner"
-                onClick={() => {
-                    setStatusFilter('');
-                    setIndexFilters((current) => ({
-                        ...current,
+                onClick={() =>
+                    visitIndex({
                         dateFrom: todayDate,
                         dateTo: todayDate,
-                    }));
-                }}
+                        status: '',
+                    })
+                }
                 className={cn(
                     'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
                     isTodayFilterActive && 'ring-2 ring-emerald-500/50',
@@ -775,14 +822,13 @@ function ScheduleStatCards({
                 as="button"
                 type="button"
                 level="inner"
-                onClick={() => {
-                    setStatusFilter('pending');
-                    setIndexFilters((current) => ({
-                        ...current,
+                onClick={() =>
+                    visitIndex({
                         dateFrom: '',
                         dateTo: '',
-                    }));
-                }}
+                        status: 'pending',
+                    })
+                }
                 className={cn(
                     'w-full px-4 py-3.5 text-left transition-all hover:bg-background/60',
                     isPendingFilterActive && 'ring-2 ring-amber-500/50',
@@ -801,16 +847,14 @@ function ScheduleStatCards({
 
 function ScheduleFiltersSection({
     indexFilters,
-    setIndexFilters,
+    visitIndex,
 }: {
     indexFilters: { projectId: string; dateFrom: string; dateTo: string };
-    setIndexFilters: React.Dispatch<
-        React.SetStateAction<{
-            projectId: string;
-            dateFrom: string;
-            dateTo: string;
-        }>
-    >;
+    visitIndex: (overrides?: {
+        projectId?: string;
+        dateFrom?: string;
+        dateTo?: string;
+    }) => void;
 }) {
     const { projects } = usePage<SchedulePageProps>().props;
 
@@ -818,9 +862,15 @@ function ScheduleFiltersSection({
         <ScheduleIndexFilters
             projects={projects}
             value={indexFilters}
-            onChange={setIndexFilters}
+            onChange={(next) =>
+                visitIndex({
+                    projectId: next.projectId,
+                    dateFrom: next.dateFrom,
+                    dateTo: next.dateTo,
+                })
+            }
             onClear={() =>
-                setIndexFilters({ projectId: '', dateFrom: '', dateTo: '' })
+                visitIndex({ projectId: '', dateFrom: '', dateTo: '' })
             }
         />
     );
